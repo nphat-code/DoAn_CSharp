@@ -63,4 +63,32 @@ Thiết lập file `DependencyInjection.cs` gom nhóm toàn bộ cấu hình:
 - Cấu hình file `.gitignore` tiêu chuẩn cho dự án .NET nhằm tự động loại bỏ các thư mục rác như `bin/`, `obj/`, file cấu hình cá nhân ra khỏi phiên bản quản lý mã nguồn, giữ cho repository luôn sạch sẽ.
 
 ---
-**Trạng thái hiện tại:** Đã đưa dự án vào quy trình quản lý Git. Hệ thống Code sạch, tổ chức chuẩn xác, hoàn toàn không có lỗi (Compile thành công 100%). Sẵn sàng để viết các Use Cases (Features) đầu tiên và kết nối API.
+
+## 6. Chức năng Xác thực & Đăng nhập (JWT Login)
+- **Application Layer:** 
+  - Triển khai CQRS pattern: `LoginCommand` (đầu vào) và `LoginResponseDto` (đầu ra).
+  - Viết `LoginCommandValidator` bằng FluentValidation để kiểm tra `Username` không được rỗng, `Password` tối thiểu 6 ký tự.
+  - Viết `LoginCommandHandler` thực hiện logic đăng nhập thông qua các Interface trừu tượng (`IUserRepository`, `IPasswordHasher`, `IJwtTokenGenerator`).
+- **Infrastructure Layer:**
+  - Thực thi (implement) logic băm mật khẩu với thuật toán an toàn `BCrypt`.
+  - Sinh chuỗi JWT Token qua `JwtTokenGenerator` dựa trên cấu hình ở `appsettings.json`.
+  - Thiết lập Repository đơn giản cho `UserProfile`.
+- **API Layer:**
+  - Tạo `AuthController` với Endpoint `[POST] /api/auth/login`. Controller hoàn toàn sạch, chỉ làm nhiệm vụ nhận Request và chuyển cho MediatR xử lý `_mediator.Send(command)`.
+
+---
+
+## 7. Chức năng Quản lý Media (Upload Media)
+- **Application Layer:**
+  - `UploadMediaCommand`: Nhận đầu vào bao gồm `Title`, `Description` và nội dung file vật lý dưới dạng `Stream` (giữ cho tầng Application không bị phụ thuộc vào `IFormFile` của ASP.NET Core, đảm bảo Clean Architecture).
+  - `UploadMediaCommandValidator`: Sử dụng FluentValidation để kiểm tra tiêu đề và định dạng file whitelist (`.mp3`, `.mp4`, `.wav`).
+  - `UploadMediaCommandHandler`: Nhận command, ghi file xuống đĩa (thông qua `IFileStorageService`), phân loại Audio/Video tự động và lưu thông tin vào SQL thông qua `IMediaRepository`.
+- **Infrastructure Layer:**
+  - `FileStorageService`: Hiện thực hóa việc ghi đè stream vào thư mục `wwwroot/media` (tránh trùng tên bằng `Guid`).
+  - `MediaRepository`: Lưu đối tượng `MediaItem` vào cơ sở dữ liệu.
+- **API Layer:**
+  - `MediaController`: Xây dựng endpoint `[POST] /api/media/upload`, nhận file multi-part form data, trích xuất `UploaderId` từ JWT Token an toàn và chuyển xuống cho MediatR.
+  - Kích hoạt `app.UseStaticFiles()` trong `Program.cs` để hỗ trợ việc truyền phát (streaming) file sau khi lưu.
+
+---
+**Trạng thái hiện tại:** Dự án đã có luồng đăng nhập (Authentication) JWT tiêu chuẩn, đầy đủ Validation, mã hóa mật khẩu, và luồng Upload File chuẩn Clean Architecture. Toàn bộ Code đã được nâng cấp (Refactor) áp dụng cú pháp hiện đại của **C# 14** (như Primary Constructors) và tối ưu cấu hình của **ASP.NET Core 10**. Code Compile thành công 100%.

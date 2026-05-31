@@ -5,14 +5,19 @@ public class MediaItem
     public Guid Id { get; set; } = Guid.NewGuid();
     public required string Title { get; set; }
     public required string FileUrl { get; set; }
+    public string? Description { get; set; }
+    public required string MediaType { get; set; }
     public TimeSpan Duration { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public Guid UploaderId { get; set; }
+    public UserProfile Uploader { get; set; } = null!;
 
     public Guid? AlbumId { get; set; }
     public Album? Album { get; set; }
 
-    public Guid ArtistId { get; set; }
-    public Artist Artist { get; set; } = null!;
+    public Guid? ArtistId { get; set; }
+    public Artist? Artist { get; set; }
 
     // Navigation properties
     public ICollection<PlaylistTrack> PlaylistTracks { get; set; } = new List<PlaylistTrack>();
