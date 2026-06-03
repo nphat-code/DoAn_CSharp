@@ -41,4 +41,15 @@ public class MediaController(IMediator mediator) : ControllerBase
         var response = await mediator.Send(command);
         return Ok(response);
     }
+
+    [HttpGet("{id}/stream")]
+    [AllowAnonymous] // Phát nhạc thì có thể không cần đăng nhập tùy business, nhưng mình cứ để anonymous cho player test dễ
+    public async Task<IActionResult> StreamMedia(Guid id)
+    {
+        var query = new TuneVault.Application.Features.Media.Queries.GetMediaStream.GetMediaStreamQuery(id);
+        var result = await mediator.Send(query);
+
+        // enableRangeProcessing: true là chìa khóa để hỗ trợ Range Requests (seek/tua video)
+        return PhysicalFile(result.PhysicalPath, result.ContentType, enableRangeProcessing: true);
+    }
 }

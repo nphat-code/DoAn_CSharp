@@ -27,4 +27,12 @@ public class FileStorageService(IWebHostEnvironment env) : IFileStorageService
         // Trả về URL tương đối để client có thể truy cập
         return $"/media/{uniqueFileName}";
     }
+
+    public string GetPhysicalPath(string fileUrl)
+    {
+        // Chuyển /media/filename.mp3 thành đường dẫn vật lý trên ổ cứng
+        var fileName = Path.GetFileName(fileUrl);
+        var uploadsFolder = Path.Combine(env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "media");
+        return Path.Combine(uploadsFolder, fileName);
+    }
 }
