@@ -41,7 +41,7 @@ export const PlayerBar = () => {
       {/* Cấu hình HTTP Range Request cho phép stream và seek mượt mà */}
       <audio
         ref={audioRef}
-        src={`http://localhost:5000/api/media/${currentMedia.id}/stream`} 
+        src={`http://localhost:5183/api/media/${currentMedia.id}/stream`} 
         onTimeUpdate={handleTimeUpdate}
         onEnded={() => togglePlayPause()}
       />

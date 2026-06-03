@@ -44,7 +44,15 @@ export const TopBar = () => {
         <button className="text-zinc-400 hover:text-white transition">
           <Bell size={20} />
         </button>
-        <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center cursor-pointer hover:scale-105 transition">
+        <div 
+          onClick={() => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+          }}
+          className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center cursor-pointer hover:bg-red-500 hover:text-white transition group"
+          title="Đăng xuất"
+        >
            <User size={18} />
         </div>
       </div>

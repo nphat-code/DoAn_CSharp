@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using TuneVault.Application.Interfaces;
-using Microsoft.Data.SqlClient;
-using TuneVault.Infrastructure.Storage;
+using Npgsql;
 using System.Data;
+using TuneVault.Application.Interfaces;
+using TuneVault.Infrastructure.Storage;
 using TuneVault.Infrastructure.Authentication;
 using TuneVault.Infrastructure.Repositories;
 
@@ -22,14 +22,18 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("DefaultConnection") 
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-        // Cấu hình IDbConnection cho Dapper
-        services.AddScoped<IDbConnection>(sp => new SqlConnection(connectionString));
+        // Cấu hình IDbConnection cho Dapper dùng Npgsql (PostgreSQL)
+        services.AddScoped<IDbConnection>(sp => new NpgsqlConnection(connectionString));
 
         services.AddAuth(configuration);
         
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IMediaItemRepository, MediaItemRepository>();
+        services.AddScoped<IShareRepository, ShareRepository>();
         services.AddScoped<IFileStorageService, FileStorageService>();
+        services.AddScoped<INotificationService, TuneVault.Infrastructure.Services.NotificationService>();
+
+        services.AddSignalR();
 
         return services;
     }
@@ -47,16 +51,34 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
         services.AddAuthentication(defaultScheme: JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
+            .AddJwtBearer(options => 
             {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = jwtSettings.Issuer,
-                ValidAudience = jwtSettings.Audience,
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(jwtSettings.Secret))
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtSettings.Secret))
+                };
+            
+                // Xử lý token cho SignalR (WebSockets không gửi qua Header được)
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
         return services;

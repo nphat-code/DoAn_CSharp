@@ -114,32 +114,30 @@ CREATE TABLE Follows (
     PRIMARY KEY (FollowerId, FolloweeId),
     CONSTRAINT FK_Follows_Follower FOREIGN KEY (FollowerId) REFERENCES UserProfiles(Id) ON DELETE NO ACTION,
     CONSTRAINT FK_Follows_Followee FOREIGN KEY (FolloweeId) REFERENCES UserProfiles(Id) ON DELETE NO ACTION
+    Id UUID PRIMARY KEY,
+    UserId UUID NOT NULL REFERENCES UserProfiles(Id) ON DELETE CASCADE,
+    Message TEXT NOT NULL,
+    Type VARCHAR(50) NOT NULL,
+    IsRead BOOLEAN NOT NULL DEFAULT FALSE,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-GO
+CREATE TABLE ListeningHistory (
+    Id UUID PRIMARY KEY,
+    UserId UUID NOT NULL REFERENCES UserProfiles(Id) ON DELETE CASCADE,
+    MediaItemId UUID NOT NULL REFERENCES MediaItems(Id) ON DELETE CASCADE,
+    ListenedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
--- ==========================================
--- SEED DATA 
--- ==========================================
-
--- Tạo 2 Users
-DECLARE @User1Id UNIQUEIDENTIFIER = NEWID();
-DECLARE @User2Id UNIQUEIDENTIFIER = NEWID();
+-- DỮ LIỆU MẪU DÀNH CHO POSTGRESQL
 
 INSERT INTO UserProfiles (Id, Username, Email, PasswordHash)
 VALUES 
-(@User1Id, 'john_doe', 'john@example.com', '$2a$11$w1I9A...'), -- Thay bằng hash thật từ BCrypt nếu cần test login
-(@User2Id, 'jane_smith', 'jane@example.com', '$2a$11$w1I9A...');
+-- User 1: john_doe | Mật khẩu là: 123456
+('3fa85f64-5717-4562-b3fc-2c963f66afa6', 'john_doe', 'john@example.com', '$2y$10$tZ2.9P/g450J/j7U8XqQ8eX/p3m5Hk30o9.G27T.L0QZ0H5jP2HqG'),
+-- User 2: jane_smith | Mật khẩu là: 123456
+('7f81a7b4-1025-47eb-ba69-6d5df8f57291', 'jane_smith', 'jane@example.com', '$2y$10$tZ2.9P/g450J/j7U8XqQ8eX/p3m5Hk30o9.G27T.L0QZ0H5jP2HqG');
 
--- Tạo Artist
-DECLARE @Artist1Id UNIQUEIDENTIFIER = NEWID();
-INSERT INTO Artists (Id, Name) VALUES (@Artist1Id, 'The Weeknd');
-
--- Tạo Album
-DECLARE @Album1Id UNIQUEIDENTIFIER = NEWID();
-INSERT INTO Albums (Id, Title, ArtistId) VALUES (@Album1Id, 'After Hours', @Artist1Id);
-
--- Tạo 10 Media Items
 DECLARE @Media1Id UNIQUEIDENTIFIER = NEWID();
 DECLARE @Media2Id UNIQUEIDENTIFIER = NEWID();
 

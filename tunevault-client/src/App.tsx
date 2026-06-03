@@ -1,17 +1,23 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from './components/MainLayout';
 import { Home } from './pages/Home';
+import { Login } from './pages/Login';
 
-const Placeholder = ({ title }: { title: string }) => <h1 className="text-3xl font-bold text-white">{title}</h1>;
+const Placeholder = ({ title }: { title: string }) => (
+  <div className="p-6">
+    <h1 className="text-3xl font-bold text-white mb-4">{title}</h1>
+    <p className="text-zinc-400">Trang này đang trong quá trình phát triển.</p>
+  </div>
+);
 
 function App() {
-  // Demo protected route logic (mocked)
-  const isAuthenticated = true; // Sẽ tích hợp check JWT thật ở bài sau
+  // Kiểm tra xem đã có token trong localStorage chưa
+  const isAuthenticated = !!localStorage.getItem('token');
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Placeholder title="Login Page" />} />
+        <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
         
         {/* Protected Routes */}
         <Route path="/" element={isAuthenticated ? <MainLayout /> : <Navigate to="/login" />}>

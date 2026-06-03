@@ -1,7 +1,20 @@
 using TuneVault.Application;
 using TuneVault.Infrastructure;
+using TuneVault.Infrastructure.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add CORS policy for React Frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", builder =>
+    {
+        builder.WithOrigins("http://localhost:5173") // React Dev Server
+               .AllowAnyMethod()
+               .AllowAnyHeader()
+               .AllowCredentials(); // Quan trọng cho SignalR JWT
+    });
+});
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -24,10 +37,16 @@ app.UseHttpsRedirection();
 // Cấu hình Middleware phục vụ các file tĩnh (trong wwwroot)
 app.UseStaticFiles();
 
+// Bật CORS
+app.UseCors("CorsPolicy");
+
 // Cấu hình Middleware Xác thực và Phân quyền
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Đăng ký SignalR Hub endpoint
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.Run();
