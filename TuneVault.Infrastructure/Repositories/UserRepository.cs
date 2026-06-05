@@ -15,6 +15,14 @@ public class UserRepository(IDbConnection dbConnection) : IUserRepository
         return await dbConnection.QuerySingleOrDefaultAsync<UserProfile>(command);
     }
 
+    public async Task<UserProfile?> GetByEmailAsync(string email, CancellationToken cancellationToken)
+    {
+        var sql = "SELECT * FROM UserProfiles WHERE Email = @Email";
+        var command = new CommandDefinition(sql, new { Email = email }, cancellationToken: cancellationToken);
+        
+        return await dbConnection.QuerySingleOrDefaultAsync<UserProfile>(command);
+    }
+
     public async Task AddAsync(UserProfile user, CancellationToken cancellationToken)
     {
         var sql = @"

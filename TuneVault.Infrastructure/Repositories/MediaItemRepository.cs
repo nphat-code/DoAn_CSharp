@@ -15,6 +15,14 @@ public class MediaItemRepository(IDbConnection dbConnection) : IMediaItemReposit
         return await dbConnection.QuerySingleOrDefaultAsync<MediaItem>(command);
     }
 
+    public async Task<IEnumerable<MediaItem>> GetAllAsync(CancellationToken cancellationToken)
+    {
+        var sql = "SELECT * FROM MediaItems ORDER BY CreatedAt DESC";
+        var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
+        
+        return await dbConnection.QueryAsync<MediaItem>(command);
+    }
+
     public async Task AddAsync(MediaItem mediaItem, CancellationToken cancellationToken)
     {
         var sql = @"

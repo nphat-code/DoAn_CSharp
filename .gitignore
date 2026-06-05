@@ -480,3 +480,22 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# =========================
+# Custom TuneVault Ignores
+# =========================
+
+# Frontend Build & Logs
+tunevault-client/dist/
+tunevault-client/dist-ssr/
+tunevault-client/coverage/
+tunevault-client/.eslintcache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Backend Media Uploads
+**/wwwroot/uploads/
+**/wwwroot/covers/
+**/wwwroot/avatars/

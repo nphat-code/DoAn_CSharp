@@ -3,27 +3,45 @@ import { useEffect, useState } from 'react';
 import { usePlayer } from '../context/PlayerContext';
 import { useNotification } from '../context/NotificationContext';
 import { mediaService } from '../services/mediaService';
+import { playlistService } from '../services/playlistService';
+import type { PlaylistDto } from '../services/playlistService';
 import type { MediaItemDto } from '../types';
 
 export const Sidebar = () => {
   const { playMedia } = usePlayer();
   const { unreadCount } = useNotification();
   const [library, setLibrary] = useState<MediaItemDto[]>([]);
+  const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchLibrary = async () => {
+    const fetchData = async () => {
       try {
-        const data = await mediaService.getLibraryPlaylists();
-        setLibrary(data);
+        const [libData, playData] = await Promise.all([
+          mediaService.getLibraryPlaylists(),
+          playlistService.getUserPlaylists().catch(() => []) // Catch nếu chưa đăng nhập
+        ]);
+        setLibrary(libData);
+        setPlaylists(playData);
       } catch (error) {
         console.error(error);
       } finally {
         setLoading(false);
       }
     };
-    fetchLibrary();
+    fetchData();
   }, []);
+
+  const handleCreatePlaylist = async () => {
+    const name = prompt("Nhập tên danh sách phát mới:");
+    if (!name) return;
+    try {
+      const newPlaylist = await playlistService.createPlaylist(name);
+      setPlaylists([newPlaylist, ...playlists]);
+    } catch (error) {
+      alert("Lỗi khi tạo playlist. Vui lòng đăng nhập.");
+    }
+  };
 
   return (
     <div className="w-[350px] lg:w-[420px] bg-zinc-900 rounded-lg flex flex-col overflow-hidden h-full">
@@ -49,7 +67,7 @@ export const Sidebar = () => {
           </div>
           
           <div className="flex items-center gap-2 text-zinc-400">
-            <button className="p-2 hover:bg-zinc-800 hover:text-white rounded-full transition">
+            <button onClick={handleCreatePlaylist} className="p-2 hover:bg-zinc-800 hover:text-white rounded-full transition" title="Tạo playlist mới">
               <Plus size={20} />
             </button>
             <button className="p-2 hover:bg-zinc-800 hover:text-white rounded-full transition">
@@ -87,6 +105,27 @@ export const Sidebar = () => {
               <span className="text-sm text-zinc-400 font-medium">Danh sách phát • Tự động</span>
             </div>
           </div>
+          
+          {/* User Playlists */}
+          {playlists.map(playlist => (
+            <div 
+              key={playlist.id}
+              onClick={() => window.location.href = `/playlist/${playlist.id}`}
+              className="flex items-center gap-3 p-2 hover:bg-zinc-800/80 rounded-md cursor-pointer transition"
+            >
+              <div className="w-12 h-12 rounded-md bg-zinc-800 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden">
+                {playlist.coverUrl ? (
+                  <img src={playlist.coverUrl} alt={playlist.name} className="w-full h-full object-cover" />
+                ) : (
+                  <Library size={20} className="text-zinc-500" />
+                )}
+              </div>
+              <div className="flex flex-col overflow-hidden">
+                <span className="text-base text-white font-semibold truncate">{playlist.name}</span>
+                <span className="text-sm text-zinc-400 font-medium truncate">Danh sách phát • Bạn</span>
+              </div>
+            </div>
+          ))}
           
           {loading ? (
              <div className="p-4 text-center text-zinc-500 text-sm">Đang tải thư viện...</div>

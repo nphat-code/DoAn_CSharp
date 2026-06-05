@@ -2,20 +2,9 @@ import apiClient from './apiClient';
 import type { MediaItemDto } from '../types';
 
 export const mediaService = {
-  // Lấy danh sách bài hát/playlist từ API
   getLibraryPlaylists: async (): Promise<MediaItemDto[]> => {
-    // Tạm thời mock data vì Backend chưa có API GET /api/media
-    return [
-      {
-        id: "e0b23267-d86b-4e14-ad26-dfecaf915cda",
-        title: "Blinding Lights",
-        fileUrl: "/media/test.mp3",
-        mediaType: "Audio",
-        duration: "00:03:20",
-        uploaderId: "",
-        createdAt: new Date().toISOString()
-      }
-    ];
+    const response = await apiClient.get<{success: boolean, data: MediaItemDto[]}>('/media');
+    return response.data.data;
   },
 
   // Upload file nhạc kèm form data (multipart/form-data)

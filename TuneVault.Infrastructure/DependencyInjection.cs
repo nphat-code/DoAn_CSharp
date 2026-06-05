@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
 using System.Data;
+using Dapper;
 using TuneVault.Application.Interfaces;
 using TuneVault.Infrastructure.Storage;
 using TuneVault.Infrastructure.Authentication;
@@ -25,10 +26,14 @@ public static class DependencyInjection
         // Cấu hình IDbConnection cho Dapper dùng Npgsql (PostgreSQL)
         services.AddScoped<IDbConnection>(sp => new NpgsqlConnection(connectionString));
 
+        // Đăng ký TypeHandler cho TimeSpan của Dapper
+        SqlMapper.AddTypeHandler(new TimeSpanHandler());
+
         services.AddAuth(configuration);
         
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IMediaItemRepository, MediaItemRepository>();
+        services.AddScoped<IPlaylistRepository, PlaylistRepository>();
         services.AddScoped<IShareRepository, ShareRepository>();
         services.AddScoped<IFileStorageService, FileStorageService>();
         services.AddScoped<INotificationService, TuneVault.Infrastructure.Services.NotificationService>();
@@ -82,5 +87,26 @@ public static class DependencyInjection
             });
 
         return services;
+    }
+}
+
+public class TimeSpanHandler : SqlMapper.TypeHandler<TimeSpan>
+{
+    public override void SetValue(IDbDataParameter parameter, TimeSpan value)
+    {
+        parameter.Value = value.ToString();
+    }
+
+    public override TimeSpan Parse(object value)
+    {
+        if (value is string s && TimeSpan.TryParse(s, out var ts))
+        {
+            return ts;
+        }
+        else if (value is TimeSpan timeSpan)
+        {
+            return timeSpan;
+        }
+        return TimeSpan.Zero;
     }
 }

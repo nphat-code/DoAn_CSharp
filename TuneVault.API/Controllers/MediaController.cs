@@ -42,6 +42,15 @@ public class MediaController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
+    [HttpGet]
+    [AllowAnonymous] // Cho phép truy cập danh sách nhạc không cần đăng nhập (hoặc bạn có thể bỏ AllowAnonymous nếu muốn bảo vệ)
+    public async Task<IActionResult> GetMediaList()
+    {
+        var query = new TuneVault.Application.Features.Media.Queries.GetMediaList.GetMediaListQuery();
+        var result = await mediator.Send(query);
+        return Ok(new { success = true, data = result });
+    }
+
     [HttpGet("{id}/stream")]
     [AllowAnonymous] // Phát nhạc thì có thể không cần đăng nhập tùy business, nhưng mình cứ để anonymous cho player test dễ
     public async Task<IActionResult> StreamMedia(Guid id)

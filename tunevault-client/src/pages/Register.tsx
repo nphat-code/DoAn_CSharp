@@ -2,24 +2,25 @@ import { useState } from 'react';
 
 import { authService } from '../services/authService';
 
-export const Login = () => {
+export const Register = () => {
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      await authService.login({ username, password });
-      // Đăng nhập thành công -> chuyển về Home
+      await authService.register({ username, email, password });
+      // Đăng ký thành công và đã tự động lưu JWT -> chuyển về Home
       window.location.href = '/'; 
     } catch (err: any) {
       console.error(err);
-      setError('Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản/mật khẩu!');
+      setError(err.response?.data?.message || 'Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.');
     } finally {
       setLoading(false);
     }
@@ -36,9 +37,21 @@ export const Login = () => {
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
+        <form onSubmit={handleRegister} className="w-full flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-semibold text-white">Tài khoản</label>
+            <label className="text-sm font-semibold text-white">Email</label>
+            <input 
+              type="email" 
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="bg-zinc-800 border border-zinc-700 text-white p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-white transition"
+              placeholder="Nhập email"
+              required
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-semibold text-white">Tên đăng nhập (Username)</label>
             <input 
               type="text" 
               value={username}
@@ -56,8 +69,9 @@ export const Login = () => {
               value={password}
               onChange={e => setPassword(e.target.value)}
               className="bg-zinc-800 border border-zinc-700 text-white p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-white transition"
-              placeholder="Nhập password"
+              placeholder="Nhập password (ít nhất 6 ký tự)"
               required
+              minLength={6}
             />
           </div>
 
@@ -66,14 +80,14 @@ export const Login = () => {
             disabled={loading}
             className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-full mt-4 transition disabled:opacity-50"
           >
-            {loading ? 'Đang đăng nhập...' : 'ĐĂNG NHẬP'}
+            {loading ? 'Đang đăng ký...' : 'ĐĂNG KÝ'}
           </button>
         </form>
-        
+
         <p className="text-zinc-400 mt-6 text-sm">
-          Bạn chưa có tài khoản?{' '}
-          <a href="/register" className="text-white font-bold hover:underline">
-            Đăng ký cho TuneVault
+          Bạn đã có tài khoản?{' '}
+          <a href="/login" className="text-white font-bold hover:underline">
+            Đăng nhập ngay
           </a>
         </p>
       </div>
