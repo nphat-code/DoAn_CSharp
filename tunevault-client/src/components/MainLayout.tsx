@@ -11,16 +11,16 @@ export const MainLayout = () => {
     <NotificationProvider>
       <PlayerProvider>
         {/* Nền đen toàn cục, áp dụng gap-2 cho toàn bộ giao diện */}
-        <div className="h-screen w-full flex flex-col bg-black overflow-hidden p-2 gap-2 text-white font-sans select-none">
+        <div className="h-screen w-full flex flex-col bg-spotify-base p-2 gap-2 text-white font-sans select-none">
           <TopBar />
           
           {/* Vùng thân gồm Sidebar - MainContent - RightPanel */}
           <div className="flex-1 flex overflow-hidden gap-2">
             <Sidebar />
             
-            <main className="flex-1 bg-zinc-900 rounded-lg overflow-y-auto relative shadow-2xl">
+            <main className="flex-1 bg-spotify-card rounded-lg overflow-y-auto relative shadow-2xl">
               {/* Gradient header background overlay */}
-              <div className="absolute top-0 left-0 w-full h-80 bg-gradient-to-b from-indigo-800/40 via-zinc-900/80 to-zinc-900 pointer-events-none z-0"></div>
+              <div className="absolute top-0 left-0 w-full h-80 bg-gradient-to-b from-indigo-800/40 via-spotify-card/80 to-spotify-card pointer-events-none z-0"></div>
 
               {/* Header Tabs cho Home */}
               <div className="sticky top-0 z-20 bg-black/20 backdrop-blur-xl px-6 py-4 flex gap-2 border-b border-transparent">

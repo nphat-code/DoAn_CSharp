@@ -36,6 +36,8 @@ public static class DependencyInjection
         services.AddScoped<IPlaylistRepository, PlaylistRepository>();
         services.AddScoped<IShareRepository, ShareRepository>();
         services.AddScoped<IFileStorageService, FileStorageService>();
+        services.AddScoped<IPlayHistoryRepository, PlayHistoryRepository>();
+        services.AddScoped<IFavoriteRepository, FavoriteRepository>();
         services.AddScoped<INotificationService, TuneVault.Infrastructure.Services.NotificationService>();
 
         services.AddSignalR();

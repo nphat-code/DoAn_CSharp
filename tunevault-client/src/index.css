@@ -10,15 +10,58 @@
 
 /* Custom scrollbar for webkit to match Spotify */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 12px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #3f3f46;
-  border-radius: 5px;
+  background: transparent; /* Ẩn bình thường */
+  border-radius: 6px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+*:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3); /* Hiện khi hover vùng */
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #52525b;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Custom Spotify Seekbar */
+input[type=range].spotify-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  width: 100%;
+}
+input[type=range].spotify-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 4px;
+  background: #4d4d4d;
+  border-radius: 2px;
+}
+/* Dùng biến CSS --progress để fill màu */
+input[type=range].spotify-slider {
+  background: linear-gradient(to right, #ffffff var(--progress), #4d4d4d var(--progress));
+  height: 4px;
+  border-radius: 2px;
+}
+input[type=range].spotify-slider:hover {
+  background: linear-gradient(to right, #1ed760 var(--progress), #4d4d4d var(--progress));
+}
+
+input[type=range].spotify-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  margin-top: -4px;
+  opacity: 0; /* Ẩn bình thường */
+  transition: opacity 0.1s;
+}
+input[type=range].spotify-slider:hover::-webkit-slider-thumb {
+  opacity: 1; /* Hiện khi hover */
 }

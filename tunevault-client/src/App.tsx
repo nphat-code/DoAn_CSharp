@@ -4,6 +4,8 @@ import { Home } from './pages/Home';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { PlaylistDetail } from './pages/PlaylistDetail';
+import { Profile } from './pages/Profile';
+import { Search } from './pages/Search';
 
 const Placeholder = ({ title }: { title: string }) => (
   <div className="p-6">
@@ -25,12 +27,12 @@ function App() {
         {/* Protected Routes */}
         <Route path="/" element={isAuthenticated ? <MainLayout /> : <Navigate to="/login" />}>
           <Route index element={<Home />} />
-          <Route path="search" element={<Placeholder title="Search" />} />
+          <Route path="search" element={<Search />} />
           <Route path="library" element={<Placeholder title="Library" />} />
           <Route path="playlist/:id" element={<PlaylistDetail />} />
           <Route path="share-inbox" element={<Placeholder title="Share Inbox" />} />
           <Route path="notifications" element={<Placeholder title="Notifications" />} />
-          <Route path="profile" element={<Placeholder title="Profile" />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
     </BrowserRouter>

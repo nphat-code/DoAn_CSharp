@@ -55,38 +55,74 @@ export const Home = () => {
   };
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6 text-white">Thư viện của bạn</h1>
-      
-      {loading ? (
-        <div className="text-zinc-500">Đang tải...</div>
-      ) : tracks.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {tracks.map(track => (
-            <div 
-              key={track.id}
-              onClick={() => playMedia(track)}
-              className="bg-zinc-800/40 p-4 rounded-md hover:bg-zinc-800 transition cursor-pointer group relative"
-            >
-              <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center group-hover:shadow-xl transition">
-                <span className="text-zinc-500 font-bold">Album Art</span>
-              </div>
-              <h3 className="font-semibold text-white truncate pr-8">{track.title}</h3>
-              <p className="text-sm text-zinc-400 mt-1 truncate">{track.mediaType} • {track.description || 'Chưa có mô tả'}</p>
-              
-              <button 
-                onClick={(e) => handleAddToPlaylist(e, track.id)}
-                className="absolute bottom-4 right-4 p-2 bg-zinc-700 hover:bg-zinc-600 rounded-full text-white opacity-0 group-hover:opacity-100 transition shadow-md"
-                title="Thêm vào Playlist"
-              >
-                <Plus size={16} />
-              </button>
-            </div>
-          ))}
+    <div className="pb-8">
+      {/* Section 1 */}
+      <section className="mb-8">
+        <div className="flex items-end justify-between mb-4">
+          <h2 className="text-2xl font-bold text-white hover:underline cursor-pointer">Lưu trước bản phát hành sắp ra mắt</h2>
+          <span className="text-sm font-bold text-zinc-400 hover:text-white cursor-pointer transition">Hiện tất cả</span>
         </div>
-      ) : (
-        <div className="text-zinc-500">Chưa có bài hát nào được tải lên.</div>
-      )}
+        
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {/* Mock card for the screenshot */}
+          <div className="p-4 rounded-md hover:bg-zinc-800/40 transition cursor-pointer group relative">
+            <div className="w-full aspect-square bg-zinc-800 rounded-md mb-4 shadow-lg overflow-hidden relative">
+               <img src="https://i.scdn.co/image/ab67616d0000b27371d62ea7ea8a5be92d3c1f62" alt="petal" className="w-full h-full object-cover grayscale" />
+               <button className="absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black opacity-0 group-hover:opacity-100 transition shadow-xl translate-y-2 group-hover:translate-y-0">
+                 <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+               </button>
+            </div>
+            <h3 className="font-bold text-white truncate text-base">petal</h3>
+            <p className="text-sm text-zinc-400 mt-1 truncate">Ariana Grande</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 2 */}
+      <section>
+        <div className="flex items-end justify-between mb-4 mt-8">
+          <div>
+            <p className="text-sm text-zinc-400 font-medium">Dành Cho</p>
+            <h2 className="text-2xl font-bold text-white hover:underline cursor-pointer">Bạn</h2>
+          </div>
+          <span className="text-sm font-bold text-zinc-400 hover:text-white cursor-pointer transition">Hiện tất cả</span>
+        </div>
+        
+        {loading ? (
+          <div className="text-zinc-500 font-medium">Đang tải...</div>
+        ) : tracks.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            {tracks.map(track => (
+              <div 
+                key={track.id}
+                onClick={() => playMedia(track)}
+                className="p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative"
+              >
+                <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center group-hover:shadow-xl transition relative overflow-hidden">
+                  <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                     <span className="text-3xl font-black text-white/50">{track.title.charAt(0)}</span>
+                  </div>
+                  <button className="absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black opacity-0 group-hover:opacity-100 transition shadow-xl translate-y-2 group-hover:translate-y-0">
+                    <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                  </button>
+                </div>
+                <h3 className="font-bold text-white truncate text-base">{track.title}</h3>
+                <p className="text-sm text-zinc-400 mt-1 truncate">{track.description || 'Nghệ sĩ'}</p>
+                
+                <button 
+                  onClick={(e) => handleAddToPlaylist(e, track.id)}
+                  className="absolute top-6 right-6 p-1.5 bg-black/60 hover:bg-black/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition shadow-md"
+                  title="Thêm vào Playlist"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-zinc-500 font-medium">Chưa có bài hát nào được tải lên.</div>
+        )}
+      </section>
     </div>
   );
 };

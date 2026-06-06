@@ -1,5 +1,5 @@
-import { createContext, useContext, useState } from 'react';
-import type { ReactNode } from 'react';
+import { createContext, useContext, useState, useRef } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import type { MediaItemDto } from '../types';
 
 interface PlayerContextType {
@@ -9,11 +9,13 @@ interface PlayerContextType {
   togglePlayPause: () => void;
   volume: number;
   setVolume: (v: number) => void;
+  mediaRef: RefObject<HTMLMediaElement | null>;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
 
 export const PlayerProvider = ({ children }: { children: ReactNode }) => {
+  const mediaRef = useRef<HTMLMediaElement>(null);
   const [currentMedia, setCurrentMedia] = useState<MediaItemDto | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(1);
@@ -21,6 +23,8 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const playMedia = (media: MediaItemDto) => {
     setCurrentMedia(media);
     setIsPlaying(true);
+    // Ghi lại lịch sử nghe nhạc (không await để tránh block UI)
+    import('../services/mediaService').then(m => m.mediaService.recordPlayHistory(media.id).catch(console.error));
   };
 
   const togglePlayPause = () => {
@@ -30,7 +34,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <PlayerContext.Provider value={{ currentMedia, isPlaying, playMedia, togglePlayPause, volume, setVolume }}>
+    <PlayerContext.Provider value={{ currentMedia, isPlaying, playMedia, togglePlayPause, volume, setVolume, mediaRef }}>
       {children}
     </PlayerContext.Provider>
   );

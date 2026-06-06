@@ -4,4 +4,5 @@ public interface IFileStorageService
 {
     Task<string> SaveFileAsync(Stream fileStream, string originalFileName, CancellationToken cancellationToken);
     string GetPhysicalPath(string fileUrl);
+    Task DeleteFileAsync(string fileUrl, CancellationToken cancellationToken);
 }

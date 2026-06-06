@@ -35,4 +35,14 @@ public class FileStorageService(IWebHostEnvironment env) : IFileStorageService
         var uploadsFolder = Path.Combine(env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "media");
         return Path.Combine(uploadsFolder, fileName);
     }
+
+    public Task DeleteFileAsync(string fileUrl, CancellationToken cancellationToken)
+    {
+        var filePath = GetPhysicalPath(fileUrl);
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+        }
+        return Task.CompletedTask;
+    }
 }

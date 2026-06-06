@@ -32,4 +32,19 @@ public class UserRepository(IDbConnection dbConnection) : IUserRepository
         var command = new CommandDefinition(sql, user, cancellationToken: cancellationToken);
         await dbConnection.ExecuteAsync(command);
     }
+
+    public async Task<UserProfile?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var sql = "SELECT * FROM UserProfiles WHERE Id = @Id";
+        var command = new CommandDefinition(sql, new { Id = id }, cancellationToken: cancellationToken);
+        
+        return await dbConnection.QuerySingleOrDefaultAsync<UserProfile>(command);
+    }
+
+    public async Task UpdateAvatarAsync(Guid userId, string avatarUrl, CancellationToken cancellationToken)
+    {
+        var sql = "UPDATE UserProfiles SET AvatarUrl = @AvatarUrl, UpdatedAt = @UpdatedAt WHERE Id = @Id";
+        var command = new CommandDefinition(sql, new { AvatarUrl = avatarUrl, UpdatedAt = DateTime.UtcNow, Id = userId }, cancellationToken: cancellationToken);
+        await dbConnection.ExecuteAsync(command);
+    }
 }

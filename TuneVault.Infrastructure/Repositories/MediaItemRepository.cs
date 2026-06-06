@@ -23,13 +23,31 @@ public class MediaItemRepository(IDbConnection dbConnection) : IMediaItemReposit
         return await dbConnection.QueryAsync<MediaItem>(command);
     }
 
+    public async Task<IEnumerable<MediaItem>> SearchAsync(string query, CancellationToken cancellationToken)
+    {
+        var sql = @"
+            SELECT * FROM MediaItems 
+            WHERE Title ILIKE @SearchTerm OR Description ILIKE @SearchTerm
+            ORDER BY CreatedAt DESC";
+        var command = new CommandDefinition(sql, new { SearchTerm = $"%{query}%" }, cancellationToken: cancellationToken);
+        
+        return await dbConnection.QueryAsync<MediaItem>(command);
+    }
+
     public async Task AddAsync(MediaItem mediaItem, CancellationToken cancellationToken)
     {
         var sql = @"
-            INSERT INTO MediaItems (Id, Title, Description, FileUrl, MediaType, Duration, CreatedAt, UploaderId, AlbumId, ArtistId)
-            VALUES (@Id, @Title, @Description, @FileUrl, @MediaType, @Duration, @CreatedAt, @UploaderId, @AlbumId, @ArtistId)";
+            INSERT INTO MediaItems (Id, Title, Description, FileUrl, MediaType, Duration, CreatedAt, UploaderId, AlbumId)
+            VALUES (@Id, @Title, @Description, @FileUrl, @MediaType, @Duration, @CreatedAt, @UploaderId, @AlbumId)";
             
         var command = new CommandDefinition(sql, mediaItem, cancellationToken: cancellationToken);
+        await dbConnection.ExecuteAsync(command);
+    }
+
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var sql = "DELETE FROM MediaItems WHERE Id = @Id";
+        var command = new CommandDefinition(sql, new { Id = id }, cancellationToken: cancellationToken);
         await dbConnection.ExecuteAsync(command);
     }
 }
