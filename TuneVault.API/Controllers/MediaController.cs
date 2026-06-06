@@ -61,4 +61,35 @@ public class MediaController(IMediator mediator) : ControllerBase
         // enableRangeProcessing: true là chìa khóa để hỗ trợ Range Requests (seek/tua video)
         return PhysicalFile(result.PhysicalPath, result.ContentType, enableRangeProcessing: true);
     }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> Search([FromQuery] string q)
+    {
+        if (string.IsNullOrWhiteSpace(q))
+            return BadRequest("Search query cannot be empty");
+
+        var query = new TuneVault.Application.Features.Media.Queries.SearchMedia.SearchMediaQuery(q);
+        var result = await mediator.Send(query);
+        return Ok(new { success = true, data = result });
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteMedia(Guid id)
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdString, out var uploaderId))
+        {
+            return Unauthorized("Không thể xác thực danh tính người dùng.");
+        }
+
+        var command = new TuneVault.Application.Features.Media.Commands.DeleteMedia.DeleteMediaCommand(id, uploaderId);
+        var result = await mediator.Send(command);
+        
+        if (!result)
+        {
+            return NotFound("Không tìm thấy media hoặc bạn không có quyền xóa.");
+        }
+
+        return Ok(new { success = true, message = "Đã xóa thành công" });
+    }
 }
