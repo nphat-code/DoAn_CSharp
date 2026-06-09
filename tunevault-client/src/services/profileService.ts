@@ -22,5 +22,10 @@ export const profileService = {
       }
     });
     return response.data.success;
+  },
+
+  updateProfile: async (data: { username: string, avatarUrl?: string }): Promise<boolean> => {
+    const response = await apiClient.put<{success: boolean}>('/profile', data);
+    return response.data.success;
   }
 };

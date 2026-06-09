@@ -32,6 +32,7 @@ public static class DependencyInjection
         services.AddAuth(configuration);
         
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IArtistRepository, ArtistRepository>();
         services.AddScoped<IMediaItemRepository, MediaItemRepository>();
         services.AddScoped<IPlaylistRepository, PlaylistRepository>();
         services.AddScoped<IShareRepository, ShareRepository>();

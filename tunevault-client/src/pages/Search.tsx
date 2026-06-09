@@ -65,7 +65,7 @@ export const Search = () => {
                 </button>
               </div>
               <h3 className="font-bold text-white truncate text-base">{track.title}</h3>
-              <p className="text-sm text-zinc-400 mt-1 truncate">{track.description || 'Nghệ sĩ'}</p>
+              <p className="text-sm text-zinc-400 mt-1 truncate">{track.artistName || track.description || 'Nghệ sĩ'}</p>
             </div>
           ))}
         </div>

@@ -1,73 +1,98 @@
-# KẾ HOẠCH PHÁT TRIỂN TIẾP THEO - TUNEVAULT
+# KẾ HOẠCH TRIỂN KHAI & TIẾN ĐỘ DỰ ÁN TUNEVAULT
 
-Dựa trên yêu cầu đồ án môn học "C# and .NET Development" (`TuneVault_BaiTapLon.pdf`) và hiện trạng codebase mới nhất, dưới đây là báo cáo tiến độ và lộ trình triển khai chi tiết cho các bước tiếp theo để đạt điểm tối đa (10/10).
+Dựa trên yêu cầu từ file `pdf_content_utf8.txt` (Bài tập lớn: Media Streaming Web Application), dưới đây là bản kế hoạch chi tiết các hạng mục cần thực hiện và đánh dấu tiến độ hiện tại.
 
----
-
-## 1. TÌNH TRẠNG HIỆN TẠI (NHỮNG GÌ ĐÃ HOÀN THÀNH)
-
-Chúng ta đã xây dựng thành công nền móng vững chắc đạt chuẩn Rubric đồ án:
-
-- **[B1] Kiến trúc Clean Architecture:** Chia chuẩn 4 projects (Domain, Application, Infrastructure, API). Dependency injection, không có logic trong controller.
-- **[B2] Cơ sở dữ liệu:** Sử dụng Dapper (PostgreSQL) tối ưu truy vấn.
-- **[B4] Xác thực:** Hệ thống JWT Authentication đã hoạt động (đã có Login).
-- **[B5] Media Upload & Streaming:** Đã viết xong `UploadMediaCommand` lưu file vật lý và `GetMediaStreamQuery` stream file nhạc.
-- **[B6 & B7] Share & Notifications:** Backend đã có SignalR, API Share hoạt động, UI đã nhận được push notification realtime.
-- **[B8] CQRS Pipeline:** Áp dụng mô hình MediatR + FluentValidation cho các tính năng hiện tại.
+## 1. YÊU CẦU CÔNG NGHỆ VÀ KIẾN TRÚC
+- [x] **Frontend (2.0đ):** React 18+ với TypeScript, Vite.
+- [x] **UI/UX:** Giao diện tối (Dark theme), layout kiểu Spotify (Tailwind CSS).
+- [x] **Backend (8.0đ):** ASP.NET Core 8+ Web API.
+- [x] **Kiến trúc:** Clean Architecture (Domain, Application, Infrastructure, API).
+- [x] **Database & ORM:** PostgreSQL + Dapper (Thay vì EF Core).
+- [x] **CQRS & Pipeline:** Sử dụng MediatR với Application Pipeline (Validation, Authorization, v.v.).
+- [x] **Bảo mật:** JWT Authentication & Authorization.
+- [x] **Real-time:** SignalR cho thông báo.
 
 ---
 
-## 2. NHỮNG YÊU CẦU CÒN THIẾU CẦN BỔ SUNG
+## 2. DANH SÁCH 10 CHỨC NĂNG BẮT BUỘC
 
-Trong danh sách **10 chức năng bắt buộc**, các phần hổng lớn nhất hiện tại gồm:
+### 1. Xác thực (Auth)
+- [x] Backend: API Đăng ký (`RegisterCommand`).
+- [x] Backend: API Đăng nhập cấp JWT (`LoginCommand`).
+- [x] Frontend: Trang Đăng ký (`Register.tsx`).
+- [x] Frontend: Trang Đăng nhập (`Login.tsx`).
+- [x] Frontend: Xử lý lưu JWT & Protected routes.
 
-1. **[B4] Xác thực (Auth):** Mới có Login, **chưa có Register**.
-2. **[B5 & F1] Media (Library & Player):** Mặc dù đã upload được, nhưng **chưa có API GET danh sách nhạc**. Player trên UI vẫn đang mock dữ liệu, chưa kết nối động với Audio ID thực tế từ Backend.
-3. **[F1] Video Player:** Chưa có giao diện phát Video.
-4. **[CRUD cơ bản] Playlist, Lịch sử, Yêu thích (Favorite), Search, Profile:** Các tính năng này hoàn toàn thiếu API Backend và UI.
-5. **[Bonus] Tích hợp AI (Claude API):** Chưa thực hiện (Chiếm 1.0 điểm Bonus).
+### 2. Hồ sơ người dùng (Profile)
+- [x] Backend: Xem hồ sơ (`GetProfileQuery`).
+- [x] Backend: Sửa hồ sơ, cập nhật avatar & bio (`UpdateAvatarCommand` / `UpdateProfile`).
+- [x] Frontend: Trang cá nhân người dùng (`Profile.tsx`).
+
+### 3. Thư viện Media (Upload)
+- [x] Backend: API Upload file media (Audio/Video) kèm metadata (`UploadMediaCommand`).
+- [x] Backend: Validation giới hạn kích thước và định dạng file.
+- [x] Backend: API lấy danh sách bài hát/album (`GetMediaListQuery`).
+- [x] Frontend: Giao diện danh sách bài hát.
+
+### 4. Audio Player
+- [x] Backend: API Stream nhạc audio (`GetMediaStreamQuery`).
+- [x] Backend: Ghi nhận lịch sử nghe khi bắt đầu phát.
+- [x] Frontend: Thanh Player bar cố định phía dưới (`PlayerBar.tsx`), play, pause, seek, queue.
+
+### 5. Video Player
+- [x] Backend: API Stream video hỗ trợ `Range` header.
+- [x] Frontend: Component phát video toàn màn hình hoặc trong khung panel (`RightPanel.tsx`).
+
+### 6. Quản lý Playlist (CRUD)
+- [x] Backend: Tạo, xoá playlist (`CreatePlaylistCommand`, `DeletePlaylistCommand`).
+- [x] Backend: Thêm, xoá track khỏi playlist (`AddTrackToPlaylistCommand`, `RemoveTrackFromPlaylistCommand`).
+- [x] Backend: API Lấy chi tiết playlist & danh sách playlist của user.
+- [x] Frontend: Giao diện hiển thị và thao tác với Playlist (`PlaylistDetail.tsx`).
+
+### 7. Tìm kiếm & Khám phá (Search)
+- [x] Backend: API tìm kiếm theo tên bài, nghệ sĩ (`SearchMediaQuery`).
+- [x] Frontend: Trang tìm kiếm (`Search.tsx`).
+
+### 8. Chia sẻ Media (Share) - *Quan trọng*
+- [x] Backend: API chia sẻ bài hát/playlist/video cho user khác (`ShareMediaCommand`).
+- [x] Backend: Validation và lưu danh sách "Đã chia sẻ".
+- [x] Frontend: Giao diện thực hiện share media.
+
+### 9. Thông báo (Notifications) - *Quan trọng*
+- [x] Backend: Lưu Notification xuống CSDL khi có sự kiện (Share/Follow).
+- [x] Backend: Đẩy thông báo real-time qua SignalR (`NotificationService`, `SignalR Hub`).
+- [x] Backend: API danh sách thông báo & Mark as read.
+- [x] Frontend: Hiển thị badge thông báo & kết nối SignalR.
+
+### 10. Tương tác & Lịch sử
+- [x] Backend: API Like/Favorite track (`ToggleFavoriteCommand`).
+- [x] Backend: API Lịch sử nghe gần đây (`AddPlayHistoryCommand`).
+- [x] Frontend: Giao diện thả tim, danh sách lịch sử.
 
 ---
 
-## 3. LỘ TRÌNH TRIỂN KHAI CHI TIẾT (HƯỚNG ĐI TIẾP)
+## 3. BONUS (ĐIỂM CỘNG)
 
-Chúng ta sẽ tiếp tục chia theo 3 Giai đoạn để xử lý dứt điểm:
+### 3.1. Tích hợp AI (Tối đa +1.0 điểm)
+- [ ] Gợi ý bài hát thông minh (AI Recommendation).
+- [ ] Tóm tắt & mô tả bài hát tự động (AI Description).
+- [ ] Chatbot hỗ trợ người dùng (TuneBot).
+- [ ] Phân loại tự động (Auto-tagging).
+*(Yêu cầu: Sử dụng Anthropic Claude API, không hardcode API key, cấu hình qua Dependency Injection).*
 
-### 🎯 Giai đoạn 1: Hoàn thiện Library, Player & Auth (Ưu tiên Cao nhất)
-*Mục tiêu: Xong chức năng số 1, 3 & 4.*
-
-1. **Backend - Danh sách bài hát (`GET /api/media`):**
-   - Viết `GetMediaListQuery` dùng Dapper để lấy danh sách bài hát từ `MediaItem` trả về Frontend.
-2. **Backend - Đăng ký (`POST /api/auth/register`):**
-   - Viết `RegisterCommand` để tạo user mới.
-3. **Frontend - Kết nối Dữ liệu Thực:**
-   - Xóa mock data trong `mediaService.ts`, đấu nối danh sách nhạc thật vào Sidebar/Home.
-   - Khi bấm vào bài hát, truyền ID thực tế xuống thẻ `<audio>` để phát qua API `/api/media/{id}/stream`.
-   - Cập nhật trang Login/Register.
-
-### 🎯 Giai đoạn 2: Quản lý Cá nhân - Playlist & Tương tác
-*Mục tiêu: Hoàn thiện chức năng số 2, 6, 10.*
-
-1. **Backend & Frontend - Playlist (Đã xong ✅):**
-   - CRUD Playlist (Name, IsPublic). Thêm/xóa bài hát (`PlaylistTrack`).
-2. **Backend & Frontend - Tương tác & Lịch sử:**
-   - Nút Like (Favorite) thả tim bài hát.
-   - Ghi lại lịch sử nghe nhạc (`PlayHistory`) tự động mỗi khi stream nhạc.
-   - Trang Profile (Xem/sửa Avatar, Bio).
-
-### 🎯 Giai đoạn 3: Tích điểm tuyệt đối - Video, Search & AI Bonus
-*Mục tiêu: Đạt 10/10 với chức năng 5, 7 và AI.*
-
-1. **Tìm kiếm & Video:**
-   - Thanh tìm kiếm (Filter `ILIKE` bằng Dapper).
-   - Trang riêng để xem Video.
-2. **Tích hợp AI (Anthropic Claude API):**
-   - Auto-tagging hoặc Sinh mô tả tự động khi upload bài hát.
-   - Gợi ý bài hát dựa trên `PlayHistory`.
+### 3.2. CI/CD & Cloud (Tối đa +1.0 điểm)
+- [ ] Pipeline CI (build + test) bằng GitHub Actions.
+- [ ] Deploy backend (Azure/AWS/VPS) + Database.
+- [ ] Deploy frontend (Vercel/Netlify/Static Web Apps).
+- [ ] Tài liệu hướng dẫn triển khai đầy đủ.
 
 ---
 
-## 4. BƯỚC HÀNH ĐỘNG NGAY BÂY GIỜ
+## 4. CÔNG VIỆC TIẾP THEO CẦN LÀM
+Dựa vào danh sách trên, 10 chức năng cơ bản đã được xây dựng khung. Chúng ta cần chuyển sang các bước hoàn thiện và làm Bonus:
 
-Hoàn thành **Giai đoạn 1**. 
-Công việc cụ thể cần làm tiếp theo là mở file `TuneVault.Application/Features/Media/Queries/` để triển khai luồng **`GetMediaListQuery`** giúp Frontend có danh sách bài hát thực tế để hiển thị lên màn hình chính.
+1. **Review lại UI/UX toàn hệ thống:** Đảm bảo luồng chạy trơn tru, xử lý lỗi (loading/error state).
+2. **Triển khai AI (Anthropic API):** Thêm tính năng "Auto-tagging" khi upload bài hát hoặc "TuneBot" để nhận điểm bonus.
+3. **Thiết lập CI/CD Pipeline:** Viết GitHub Actions flow cho backend và frontend.
+4. **Deploy dự án:** Triển khai Backend lên render/heroku/azure và Frontend lên Vercel.
+5. **Viết Báo Cáo:** Hoàn thiện README, ERD, Sơ đồ Pipeline và báo cáo PDF (5-10 trang).

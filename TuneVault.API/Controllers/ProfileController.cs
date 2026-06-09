@@ -36,4 +36,16 @@ public class ProfileController(IMediator mediator) : ControllerBase
         var success = await mediator.Send(new UpdateProfileAvatarCommand(userId, avatarUrl));
         return Ok(new { success });
     }
+
+    // PUT /api/profile
+    [HttpPut]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdString, out var userId))
+            return Unauthorized("Không thể xác thực danh tính người dùng.");
+
+        var success = await mediator.Send(new TuneVault.Application.Features.Profile.Commands.UpdateProfile.UpdateProfileCommand(userId, dto.Username, dto.AvatarUrl));
+        return Ok(new { success });
+    }
 }

@@ -17,10 +17,22 @@ public class MediaItemRepository(IDbConnection dbConnection) : IMediaItemReposit
 
     public async Task<IEnumerable<MediaItem>> GetAllAsync(CancellationToken cancellationToken)
     {
-        var sql = "SELECT * FROM MediaItems ORDER BY CreatedAt DESC";
+        var sql = @"
+            SELECT m.*, a.* 
+            FROM MediaItems m
+            LEFT JOIN Artists a ON m.ArtistId = a.Id
+            ORDER BY m.CreatedAt DESC";
         var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
         
-        return await dbConnection.QueryAsync<MediaItem>(command);
+        return await dbConnection.QueryAsync<MediaItem, Artist, MediaItem>(
+            command,
+            (mediaItem, artist) => 
+            {
+                mediaItem.Artist = artist;
+                return mediaItem;
+            },
+            splitOn: "Id"
+        );
     }
 
     public async Task<IEnumerable<MediaItem>> SearchAsync(string query, CancellationToken cancellationToken)
@@ -37,8 +49,8 @@ public class MediaItemRepository(IDbConnection dbConnection) : IMediaItemReposit
     public async Task AddAsync(MediaItem mediaItem, CancellationToken cancellationToken)
     {
         var sql = @"
-            INSERT INTO MediaItems (Id, Title, Description, FileUrl, MediaType, Duration, CreatedAt, UploaderId, AlbumId)
-            VALUES (@Id, @Title, @Description, @FileUrl, @MediaType, @Duration, @CreatedAt, @UploaderId, @AlbumId)";
+            INSERT INTO MediaItems (Id, Title, Description, FileUrl, MediaType, Duration, CreatedAt, UploaderId, AlbumId, ArtistId)
+            VALUES (@Id, @Title, @Description, @FileUrl, @MediaType, @Duration, @CreatedAt, @UploaderId, @AlbumId, @ArtistId)";
             
         var command = new CommandDefinition(sql, mediaItem, cancellationToken: cancellationToken);
         await dbConnection.ExecuteAsync(command);

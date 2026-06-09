@@ -14,10 +14,14 @@ export interface MediaItemDto {
   duration: string;
   uploaderId: string;
   createdAt: string;
+  artistName?: string;
+  artistBio?: string;
+  artistAvatarUrl?: string;
 }
 
 export interface LoginResponseDto {
   userId: string;
   username: string;
+  avatarUrl?: string;
   token: string;
 }

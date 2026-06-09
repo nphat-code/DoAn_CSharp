@@ -27,10 +27,16 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Rút token và đẩy người dùng về trang đăng nhập
+      const hadToken = !!localStorage.getItem('token');
+      
+      // Rút token
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      
+      // Chỉ tự động chuyển hướng nếu trước đó người dùng ĐÃ có token (tức là token vừa hết hạn)
+      if (hadToken && window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

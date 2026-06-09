@@ -1,10 +1,43 @@
-import { Home, Search, Bell, Download, User } from 'lucide-react';
+import { Home, Search, Bell, Download, User, UploadCloud, UserPlus } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { UploadModal } from './UploadModal';
+import { AddArtistModal } from './AddArtistModal';
 
 export const TopBar = () => {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
+  const [user, setUser] = useState<any>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showAddArtistModal, setShowAddArtistModal] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const isAuthenticated = !!localStorage.getItem('token');
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const loadUser = () => {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        setUser(JSON.parse(userStr));
+      }
+    };
+
+    loadUser();
+
+    // Lắng nghe sự kiện cập nhật hồ sơ từ Profile.tsx
+    window.addEventListener('userUpdated', loadUser);
+    return () => window.removeEventListener('userUpdated', loadUser);
+  }, []);
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim() !== '') {
@@ -20,7 +53,7 @@ export const TopBar = () => {
       </div>
 
       {/* Center Controls (Home + Search) */}
-      <div className="flex-1 flex items-center justify-center gap-2 max-w-2xl">
+      <div className="flex-1 flex items-center justify-center gap-2 max-w-lg">
         <NavLink 
           to="/" 
           className={({ isActive }) => 
@@ -56,6 +89,24 @@ export const TopBar = () => {
         <button className="bg-white text-black text-sm font-bold px-4 py-1.5 rounded-full hover:scale-105 transition whitespace-nowrap hidden lg:block">
           Khám phá Premium
         </button>
+        {isAuthenticated && (
+          <>
+            <button 
+              onClick={() => setShowAddArtistModal(true)}
+              className="flex items-center gap-1 text-sm font-bold text-zinc-300 hover:text-white transition whitespace-nowrap hidden lg:flex"
+            >
+              <UserPlus size={16} />
+              Thêm nghệ sĩ
+            </button>
+            <button 
+              onClick={() => setShowUploadModal(true)}
+              className="flex items-center gap-1 text-sm font-bold text-zinc-300 hover:text-white transition whitespace-nowrap hidden lg:flex"
+            >
+              <UploadCloud size={16} />
+              Tải nhạc lên
+            </button>
+          </>
+        )}
         <button className="flex items-center gap-1 text-sm font-bold text-zinc-300 hover:text-white transition whitespace-nowrap hidden lg:flex">
           <Download size={16} />
           Cài đặt ứng dụng
@@ -64,31 +115,85 @@ export const TopBar = () => {
           <Bell size={20} />
         </button>
         
-        {/* User Profile Dropdown */}
-        <div className="relative group">
-          <button className="w-8 h-8 rounded-full bg-zinc-800 border-2 border-transparent hover:border-zinc-500 flex items-center justify-center cursor-pointer transition focus:outline-none">
-             <User size={18} className="text-white" />
-          </button>
-          
-          <div className="absolute right-0 mt-2 w-48 bg-zinc-800 rounded-md shadow-lg py-1 hidden group-focus-within:block group-hover:block z-50">
-            <NavLink to="/profile" className="block px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white">Hồ sơ</NavLink>
-            <a href="#" className="block px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white flex justify-between">Tài khoản <span className="text-xs">↗</span></a>
-            <a href="#" className="block px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white flex justify-between">Nâng cấp lên Premium <span className="text-xs">↗</span></a>
-            <a href="#" className="block px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white">Cài đặt</a>
-            <div className="border-t border-zinc-700 my-1"></div>
+        {/* User Profile or Auth Buttons */}
+        {isAuthenticated ? (
+          <div className="relative group" ref={menuRef}>
             <button 
-              onClick={() => {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                window.location.href = '/login';
-              }}
-              className="block w-full text-left px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="w-8 h-8 rounded-full bg-zinc-800 border-2 border-transparent hover:border-zinc-500 flex items-center justify-center cursor-pointer transition focus:outline-none overflow-hidden"
             >
-              Đăng xuất
+               {user?.avatarUrl ? (
+                 <img src={user.avatarUrl.startsWith('http') || user.avatarUrl.startsWith('data:') ? user.avatarUrl : `http://localhost:5183${user.avatarUrl}`} alt="Avatar" className="w-full h-full object-cover" />
+               ) : (
+                 <User size={18} className="text-white" />
+               )}
+            </button>
+            
+            {/* Tooltip */}
+            {!isMenuOpen && (
+              <div className="absolute -bottom-10 right-0 bg-[#282828] text-white text-sm font-bold px-3 py-1.5 rounded shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                {user?.username || 'Hồ sơ'}
+              </div>
+            )}
+            
+            {/* Dropdown Menu */}
+            {isMenuOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-zinc-800 rounded-md shadow-lg py-1 z-50">
+                <NavLink to="/profile" className="block px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white" onClick={() => setIsMenuOpen(false)}>Hồ sơ</NavLink>
+                <a href="#" className="block px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white flex justify-between" onClick={() => setIsMenuOpen(false)}>Tài khoản <span className="text-xs">↗</span></a>
+                <a href="#" className="block px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white flex justify-between" onClick={() => setIsMenuOpen(false)}>Nâng cấp lên Premium <span className="text-xs">↗</span></a>
+                <a href="#" className="block px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white" onClick={() => setIsMenuOpen(false)}>Cài đặt</a>
+                <div className="border-t border-zinc-700 my-1"></div>
+                <button 
+                  onClick={() => {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/login';
+                  }}
+                  className="block w-full text-left px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white"
+                >
+                  Đăng xuất
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center gap-4 ml-4">
+            <button 
+              onClick={() => navigate('/register')}
+              className="text-zinc-400 font-bold hover:text-white hover:scale-105 transition"
+            >
+              Đăng ký
+            </button>
+            <button 
+              onClick={() => navigate('/login')}
+              className="bg-white text-black font-bold px-8 py-3 rounded-full hover:scale-105 transition"
+            >
+              Đăng nhập
             </button>
           </div>
-        </div>
+        )}
       </div>
+
+      {showUploadModal && (
+        <UploadModal 
+          onClose={() => setShowUploadModal(false)}
+          onSuccess={() => {
+            setShowUploadModal(false);
+            window.location.reload(); // Refresh to see newly uploaded media
+          }}
+        />
+      )}
+
+      {showAddArtistModal && (
+        <AddArtistModal 
+          onClose={() => setShowAddArtistModal(false)}
+          onSuccess={() => {
+            setShowAddArtistModal(false);
+            window.location.reload(); // Refresh to see newly created artist
+          }}
+        />
+      )}
     </header>
   );
 };

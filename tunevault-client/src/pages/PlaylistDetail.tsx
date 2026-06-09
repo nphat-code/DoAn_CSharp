@@ -209,7 +209,7 @@ export const PlaylistDetail = () => {
                    </div>
                    <div className="flex flex-col">
                      <span className="text-white font-semibold">{track.title}</span>
-                     <span className="text-zinc-400 text-sm">{track.description || "Nghệ sĩ"}</span>
+                     <span className="text-zinc-400 text-sm">{track.artistName || track.description || "Nghệ sĩ"}</span>
                    </div>
                  </div>
                  <button 

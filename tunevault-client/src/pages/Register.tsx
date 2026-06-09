@@ -28,8 +28,11 @@ export const Register = () => {
 
   return (
     <div className="h-screen w-full bg-black flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-zinc-900 p-8 rounded-xl shadow-2xl flex flex-col items-center">
-        <h1 className="text-3xl font-bold text-white mb-8 tracking-tighter">TuneVault</h1>
+      <div className="w-full max-w-[734px] bg-black p-8 sm:p-24 rounded-xl flex flex-col items-center">
+        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-6">
+          <div className="w-8 h-8 bg-black rounded-full" />
+        </div>
+        <h1 className="text-3xl sm:text-5xl font-bold text-white mb-12 tracking-tighter text-center">Đăng ký để bắt đầu nghe</h1>
         
         {error && (
           <div className="w-full bg-red-500/20 border border-red-500 text-red-500 text-sm p-3 rounded-md mb-6">
@@ -38,38 +41,38 @@ export const Register = () => {
         )}
 
         <form onSubmit={handleRegister} className="w-full flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-semibold text-white">Email</label>
+          <div className="flex flex-col gap-2 w-full max-w-[324px] self-center">
+            <label className="text-sm font-bold text-white">Địa chỉ email của bạn là gì?</label>
             <input 
               type="email" 
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="bg-zinc-800 border border-zinc-700 text-white p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-white transition"
-              placeholder="Nhập email"
+              className="bg-[#121212] border border-zinc-500 text-white p-3.5 rounded-[4px] hover:border-white focus:outline-none focus:ring-2 focus:ring-white transition w-full"
+              placeholder="Nhập email của bạn."
               required
             />
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-semibold text-white">Tên đăng nhập (Username)</label>
+          <div className="flex flex-col gap-2 w-full max-w-[324px] self-center">
+            <label className="text-sm font-bold text-white">Bạn muốn gọi mình là gì?</label>
             <input 
               type="text" 
               value={username}
               onChange={e => setUsername(e.target.value)}
-              className="bg-zinc-800 border border-zinc-700 text-white p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-white transition"
-              placeholder="Nhập username"
+              className="bg-[#121212] border border-zinc-500 text-white p-3.5 rounded-[4px] hover:border-white focus:outline-none focus:ring-2 focus:ring-white transition w-full"
+              placeholder="Nhập tên hồ sơ."
               required
             />
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-semibold text-white">Mật khẩu</label>
+          <div className="flex flex-col gap-2 w-full max-w-[324px] self-center">
+            <label className="text-sm font-bold text-white">Tạo mật khẩu</label>
             <input 
               type="password" 
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="bg-zinc-800 border border-zinc-700 text-white p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-white transition"
-              placeholder="Nhập password (ít nhất 6 ký tự)"
+              className="bg-[#121212] border border-zinc-500 text-white p-3.5 rounded-[4px] hover:border-white focus:outline-none focus:ring-2 focus:ring-white transition w-full"
+              placeholder="Tạo mật khẩu."
               required
               minLength={6}
             />
@@ -78,16 +81,18 @@ export const Register = () => {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-full mt-4 transition disabled:opacity-50"
+            className="w-full max-w-[324px] self-center bg-[#1ed760] hover:bg-[#1fdf64] hover:scale-105 text-black font-bold py-3.5 rounded-full mt-8 transition disabled:opacity-50"
           >
-            {loading ? 'Đang đăng ký...' : 'ĐĂNG KÝ'}
+            {loading ? 'Đang đăng ký...' : 'Đăng ký'}
           </button>
         </form>
 
-        <p className="text-zinc-400 mt-6 text-sm">
+        <div className="w-full max-w-[450px] border-t border-zinc-800 my-8"></div>
+
+        <p className="text-zinc-400 mt-2 text-base font-medium">
           Bạn đã có tài khoản?{' '}
-          <a href="/login" className="text-white font-bold hover:underline">
-            Đăng nhập ngay
+          <a href="/login" className="text-white font-bold hover:text-[#1ed760] underline">
+            Đăng nhập tại đây
           </a>
         </p>
       </div>

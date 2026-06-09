@@ -10,6 +10,8 @@ interface PlayerContextType {
   volume: number;
   setVolume: (v: number) => void;
   mediaRef: RefObject<HTMLMediaElement | null>;
+  showLoginModal: boolean;
+  setShowLoginModal: (show: boolean) => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -20,7 +22,14 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(1);
 
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
   const playMedia = (media: MediaItemDto) => {
+    const isAuthenticated = !!localStorage.getItem('token');
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
     setCurrentMedia(media);
     setIsPlaying(true);
     // Ghi lại lịch sử nghe nhạc (không await để tránh block UI)
@@ -34,7 +43,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <PlayerContext.Provider value={{ currentMedia, isPlaying, playMedia, togglePlayPause, volume, setVolume, mediaRef }}>
+    <PlayerContext.Provider value={{ currentMedia, isPlaying, playMedia, togglePlayPause, volume, setVolume, mediaRef, showLoginModal, setShowLoginModal }}>
       {children}
     </PlayerContext.Provider>
   );

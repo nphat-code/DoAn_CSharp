@@ -24,15 +24,15 @@ function App() {
         <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
         <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <Register />} />
         
-        {/* Protected Routes */}
-        <Route path="/" element={isAuthenticated ? <MainLayout /> : <Navigate to="/login" />}>
+        {/* Main Routes */}
+        <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
           <Route path="search" element={<Search />} />
-          <Route path="library" element={<Placeholder title="Library" />} />
+          <Route path="library" element={isAuthenticated ? <Placeholder title="Library" /> : <Navigate to="/login" />} />
           <Route path="playlist/:id" element={<PlaylistDetail />} />
-          <Route path="share-inbox" element={<Placeholder title="Share Inbox" />} />
-          <Route path="notifications" element={<Placeholder title="Notifications" />} />
-          <Route path="profile" element={<Profile />} />
+          <Route path="share-inbox" element={isAuthenticated ? <Placeholder title="Share Inbox" /> : <Navigate to="/login" />} />
+          <Route path="notifications" element={isAuthenticated ? <Placeholder title="Notifications" /> : <Navigate to="/login" />} />
+          <Route path="profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
         </Route>
       </Routes>
     </BrowserRouter>

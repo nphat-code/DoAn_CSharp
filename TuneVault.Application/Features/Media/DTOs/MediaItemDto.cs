@@ -8,5 +8,8 @@ public record MediaItemDto(
     string MediaType,
     TimeSpan Duration,
     Guid UploaderId,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    string? ArtistName = null,
+    string? ArtistBio = null,
+    string? ArtistAvatarUrl = null
 );

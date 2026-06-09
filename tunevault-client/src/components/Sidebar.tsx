@@ -7,21 +7,29 @@ import { playlistService } from '../services/playlistService';
 import type { PlaylistDto } from '../services/playlistService';
 import type { MediaItemDto } from '../types';
 
-export const Sidebar = () => {
+interface SidebarProps {
+  isExpanded?: boolean;
+  onToggleExpand?: () => void;
+}
+
+export const Sidebar = ({ isExpanded = false, onToggleExpand }: SidebarProps) => {
   const { playMedia } = usePlayer();
   const [library, setLibrary] = useState<MediaItemDto[]>([]);
   const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const isAuthenticated = !!localStorage.getItem('token');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [libData, playData] = await Promise.all([
-          mediaService.getLibraryPlaylists(),
-          playlistService.getUserPlaylists().catch(() => []) // Catch nếu chưa đăng nhập
-        ]);
-        setLibrary(libData);
-        setPlaylists(playData);
+        const pList = [];
+        pList.push(mediaService.getLibraryPlaylists());
+        if (isAuthenticated) {
+          pList.push(playlistService.getUserPlaylists().catch(() => []));
+        }
+        const [libData, playData] = await Promise.all(pList);
+        setLibrary(libData as MediaItemDto[]);
+        if (playData) setPlaylists(playData as PlaylistDto[]);
       } catch (error) {
         console.error(error);
       } finally {
@@ -29,7 +37,7 @@ export const Sidebar = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [isAuthenticated]);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState("");
@@ -47,7 +55,7 @@ export const Sidebar = () => {
   };
 
   return (
-    <div className="w-[350px] lg:w-[420px] bg-spotify-card rounded-lg flex flex-col overflow-hidden h-full">
+    <div className={`${isExpanded ? 'flex-1' : 'w-[335px] lg:w-[400px]'} bg-spotify-card rounded-lg flex flex-col overflow-hidden h-full transition-all duration-300`}>
       {/* Header */}
       <div className="p-4 flex flex-col gap-4 shadow-sm">
         <div className="flex items-center justify-between">
@@ -59,11 +67,13 @@ export const Sidebar = () => {
           </div>
           
           <div className="flex items-center gap-2 text-spotify-lighttext">
-            <button onClick={() => setShowCreateModal(true)} className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition flex items-center gap-1 text-sm font-semibold" title="Tạo playlist mới">
-              <Plus size={20} /> Tạo
-            </button>
-            <button className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition">
-              <ArrowRight size={20} />
+            {isAuthenticated && (
+              <button onClick={() => setShowCreateModal(true)} className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition flex items-center gap-1 text-sm font-semibold" title="Tạo playlist mới">
+                <Plus size={20} /> Tạo
+              </button>
+            )}
+            <button onClick={onToggleExpand} className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition" title={isExpanded ? "Thu gọn Thư viện" : "Mở rộng Thư viện"}>
+              <ArrowRight size={20} className={isExpanded ? "rotate-180 transition-transform" : "transition-transform"} />
             </button>
           </div>
         </div>
@@ -85,32 +95,47 @@ export const Sidebar = () => {
         </div>
 
         {/* List */}
-        <div className="flex flex-col gap-1 pb-4">
-          <div className="flex items-center gap-3 p-2 hover:bg-spotify-hover rounded-md cursor-pointer transition">
-            <div className="w-12 h-12 rounded-md bg-gradient-to-br from-indigo-600 to-purple-400 flex-shrink-0 flex items-center justify-center shadow-md">
-              <Heart size={20} className="fill-white text-white" />
+        <div className={isExpanded ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 pb-4 px-2 mt-4" : "flex flex-col gap-1 pb-4"}>
+          {!isAuthenticated ? (
+            <div className="bg-[#242424] rounded-lg p-4 mx-2 my-2 flex flex-col items-start gap-4">
+              <div className="flex flex-col gap-1">
+                <span className="text-white font-bold text-base">Tạo danh sách phát đầu tiên của bạn</span>
+                <span className="text-white font-medium text-sm">Rất dễ, chúng tôi sẽ giúp bạn</span>
+              </div>
+              <button 
+                onClick={() => window.location.href = '/login'}
+                className="bg-white text-black font-bold px-4 py-1.5 rounded-full text-sm hover:scale-105 transition"
+              >
+                Tạo danh sách phát
+              </button>
             </div>
-            <div className="flex flex-col">
-              <span className="text-base text-white font-semibold">Bài hát đã thích</span>
-              <span className="text-sm text-spotify-lighttext font-medium">Danh sách phát • Tự động</span>
+          ) : (
+            <div onClick={() => alert("Tính năng xem danh sách Bài hát đã thích đang được phát triển!")} className={`p-2 hover:bg-spotify-hover rounded-md cursor-pointer transition ${isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'flex items-center gap-3'}`}>
+              <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-gradient-to-br from-indigo-600 to-purple-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
+                <Heart size={isExpanded ? 48 : 20} className="fill-white text-white" />
+              </div>
+              <div className="flex flex-col w-full">
+                <span className="text-base text-white font-semibold truncate">Bài hát đã thích</span>
+                <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • Tự động</span>
+              </div>
             </div>
-          </div>
+          )}
           
           {/* User Playlists */}
-          {playlists.map(playlist => (
+          {isAuthenticated && playlists.map(playlist => (
             <div 
               key={playlist.id}
               onClick={() => window.location.href = `/playlist/${playlist.id}`}
-              className="flex items-center gap-3 p-2 hover:bg-spotify-hover rounded-md cursor-pointer transition"
+              className={`p-2 hover:bg-spotify-hover rounded-md cursor-pointer transition ${isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'flex items-center gap-3'}`}
             >
-              <div className="w-12 h-12 rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden">
+              <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
                 {playlist.coverUrl ? (
                   <img src={playlist.coverUrl} alt={playlist.name} className="w-full h-full object-cover" />
                 ) : (
-                  <Library size={20} className="text-zinc-500" />
+                  <Library size={isExpanded ? 48 : 20} className="text-zinc-500" />
                 )}
               </div>
-              <div className="flex flex-col overflow-hidden">
+              <div className="flex flex-col overflow-hidden w-full">
                 <span className="text-base text-white font-semibold truncate">{playlist.name}</span>
                 <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • Bạn</span>
               </div>
@@ -118,25 +143,25 @@ export const Sidebar = () => {
           ))}
           
           {loading ? (
-             <div className="p-4 text-center text-zinc-500 text-sm">Đang tải thư viện...</div>
+             <div className="p-4 text-center text-zinc-500 text-sm col-span-full">Đang tải thư viện...</div>
           ) : library.length > 0 ? (
              library.map(item => (
                 <div 
                   key={item.id}
                   onClick={() => playMedia(item)}
-                  className="flex items-center gap-3 p-2 hover:bg-spotify-hover rounded-md cursor-pointer transition"
+                  className={`p-2 hover:bg-spotify-hover rounded-md cursor-pointer transition ${isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'flex items-center gap-3'}`}
                 >
-                  <div className="w-12 h-12 rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center">
-                    <Music size={20} className="text-zinc-500" />
+                  <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
+                    <Music size={isExpanded ? 48 : 20} className="text-zinc-500" />
                   </div>
-                  <div className="flex flex-col overflow-hidden">
+                  <div className="flex flex-col overflow-hidden w-full">
                     <span className="text-base text-white font-semibold truncate">{item.title}</span>
                     <span className="text-sm text-spotify-lighttext font-medium truncate">{item.mediaType} • Tải lên gần đây</span>
                   </div>
                 </div>
              ))
           ) : (
-             <div className="p-4 text-center text-zinc-500 text-sm">Thư viện trống.</div>
+             isAuthenticated && <div className="p-4 text-center text-zinc-500 text-sm col-span-full">Thư viện trống.</div>
           )}
         </div>
       </div>

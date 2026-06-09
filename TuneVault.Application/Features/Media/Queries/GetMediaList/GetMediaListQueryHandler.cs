@@ -18,7 +18,10 @@ public class GetMediaListQueryHandler(IMediaItemRepository repository) : IReques
             m.MediaType,
             m.Duration,
             m.UploaderId,
-            m.CreatedAt
+            m.CreatedAt,
+            m.Artist?.Name,
+            m.Artist?.Bio,
+            m.Artist?.AvatarUrl
         ));
     }
 }

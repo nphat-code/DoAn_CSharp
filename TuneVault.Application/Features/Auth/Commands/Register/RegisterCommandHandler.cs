@@ -49,6 +49,7 @@ public class RegisterCommandHandler(
         {
             UserId = user.Id,
             Username = user.Username,
+            AvatarUrl = user.AvatarUrl ?? string.Empty,
             Token = token
         };
     }

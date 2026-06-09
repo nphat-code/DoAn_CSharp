@@ -14,16 +14,16 @@ public class LoginCommandHandler(
     public async Task<LoginResponseDto> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
         // 1. Kiểm tra User tồn tại
-        var user = await userRepository.GetByUsernameAsync(request.Username, cancellationToken);
+        var user = await userRepository.GetByEmailAsync(request.Email, cancellationToken);
         if (user == null)
         {
-            throw new UnauthorizedException("Invalid username or password.");
+            throw new UnauthorizedException("Invalid email or password.");
         }
 
         // 2. Kiểm tra Password
         if (!passwordHasher.Verify(request.Password, user.PasswordHash))
         {
-            throw new UnauthorizedException("Invalid username or password.");
+            throw new UnauthorizedException("Invalid email or password.");
         }
 
         // 3. Sinh Token
@@ -34,6 +34,7 @@ public class LoginCommandHandler(
         {
             UserId = user.Id,
             Username = user.Username,
+            AvatarUrl = user.AvatarUrl ?? string.Empty,
             Token = token
         };
     }

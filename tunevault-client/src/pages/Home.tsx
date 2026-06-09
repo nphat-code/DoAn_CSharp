@@ -4,13 +4,16 @@ import { mediaService } from '../services/mediaService';
 import { playlistService } from '../services/playlistService';
 import type { PlaylistDto } from '../services/playlistService';
 import type { MediaItemDto } from '../types';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 
 export const Home = () => {
   const { playMedia } = usePlayer();
   const [tracks, setTracks] = useState<MediaItemDto[]>([]);
   const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const currentUserStr = localStorage.getItem('user');
+  const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -107,7 +110,28 @@ export const Home = () => {
                   </button>
                 </div>
                 <h3 className="font-bold text-white truncate text-base">{track.title}</h3>
-                <p className="text-sm text-zinc-400 mt-1 truncate">{track.description || 'Nghệ sĩ'}</p>
+                <p className="text-sm text-zinc-400 mt-1 truncate">{track.artistName || track.description || 'Nghệ sĩ'}</p>
+                
+                {currentUser && track.uploaderId === currentUser.userId && (
+                  <button 
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      if (confirm("Bạn có chắc chắn muốn xóa bài này vĩnh viễn khỏi hệ thống không? Hành động này không thể hoàn tác.")) {
+                        try {
+                          await mediaService.deleteMedia(track.id);
+                          setTracks(prev => prev.filter(t => t.id !== track.id));
+                          alert("Đã xóa bài hát thành công!");
+                        } catch (error) {
+                          alert("Lỗi khi xóa. Bạn chỉ có thể xóa bài hát do chính mình tải lên.");
+                        }
+                      }
+                    }}
+                    className="absolute top-6 left-6 p-1.5 bg-black/60 hover:bg-red-500/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition shadow-md"
+                    title="Xóa bài hát này"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                )}
                 
                 <button 
                   onClick={(e) => handleAddToPlaylist(e, track.id)}
