@@ -12,8 +12,10 @@ export const UploadModal = ({ onClose, onSuccess }: UploadModalProps) => {
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
   const [file, setFile] = useState<File | null>(null);
+  const [coverImage, setCoverImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const coverImageInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +27,9 @@ export const UploadModal = ({ onClose, onSuccess }: UploadModalProps) => {
       formData.append('title', title);
       formData.append('description', artist); // Map Artist to Description
       formData.append('file', file);
+      if (coverImage) {
+        formData.append('coverImage', coverImage);
+      }
 
       await mediaService.uploadMedia(formData);
       alert("Tải nhạc lên thành công!");
@@ -83,6 +88,37 @@ export const UploadModal = ({ onClose, onSuccess }: UploadModalProps) => {
                   }
                 }} 
               />
+            </div>
+
+            {/* Cover Image Input */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-bold text-white">Ảnh bìa (Không bắt buộc)</label>
+              <div 
+                className="w-32 h-32 bg-[#3E3E3E] rounded-md flex items-center justify-center cursor-pointer hover:bg-[#4E4E4E] transition overflow-hidden group relative"
+                onClick={() => coverImageInputRef.current?.click()}
+              >
+                {coverImage ? (
+                  <img src={URL.createObjectURL(coverImage)} alt="Cover" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-zinc-400 text-xs text-center p-2">Nhấn để chọn ảnh bìa</span>
+                )}
+                {coverImage && (
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                    <span className="text-white text-xs font-bold">Thay đổi</span>
+                  </div>
+                )}
+                <input 
+                  type="file" 
+                  ref={coverImageInputRef} 
+                  className="hidden" 
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setCoverImage(e.target.files[0]);
+                    }
+                  }} 
+                />
+              </div>
             </div>
 
             <div className="flex flex-col gap-2">

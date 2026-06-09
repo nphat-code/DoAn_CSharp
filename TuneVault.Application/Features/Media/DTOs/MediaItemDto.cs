@@ -9,6 +9,7 @@ public record MediaItemDto(
     TimeSpan Duration,
     Guid UploaderId,
     DateTime CreatedAt,
+    string? CoverUrl = null,
     string? ArtistName = null,
     string? ArtistBio = null,
     string? ArtistAvatarUrl = null

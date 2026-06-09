@@ -38,16 +38,11 @@ input[type=range].spotify-slider {
 input[type=range].spotify-slider::-webkit-slider-runnable-track {
   width: 100%;
   height: 4px;
-  background: #4d4d4d;
-  border-radius: 2px;
-}
-/* Dùng biến CSS --progress để fill màu */
-input[type=range].spotify-slider {
   background: linear-gradient(to right, #ffffff var(--progress), #4d4d4d var(--progress));
-  height: 4px;
   border-radius: 2px;
 }
-input[type=range].spotify-slider:hover {
+.group:hover input[type=range].spotify-slider::-webkit-slider-runnable-track,
+input[type=range].spotify-slider:hover::-webkit-slider-runnable-track {
   background: linear-gradient(to right, #1ed760 var(--progress), #4d4d4d var(--progress));
 }
 
@@ -61,7 +56,9 @@ input[type=range].spotify-slider::-webkit-slider-thumb {
   margin-top: -4px;
   opacity: 0; /* Ẩn bình thường */
   transition: opacity 0.1s;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.5); /* Thêm shadow để dễ nhìn */
 }
+.group:hover input[type=range].spotify-slider::-webkit-slider-thumb,
 input[type=range].spotify-slider:hover::-webkit-slider-thumb {
-  opacity: 1; /* Hiện khi hover */
+  opacity: 1; /* Hiện khi hover vùng group chứa nó hoặc hover trực tiếp */
 }

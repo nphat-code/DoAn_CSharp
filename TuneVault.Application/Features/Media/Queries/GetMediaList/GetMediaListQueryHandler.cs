@@ -19,6 +19,7 @@ public class GetMediaListQueryHandler(IMediaItemRepository repository) : IReques
             m.Duration,
             m.UploaderId,
             m.CreatedAt,
+            m.CoverUrl,
             m.Artist?.Name,
             m.Artist?.Bio,
             m.Artist?.AvatarUrl

@@ -10,5 +10,7 @@ public record UploadMediaCommand(
     string? Description,
     Stream FileStream,
     string FileName,
-    string ContentType
+    string ContentType,
+    Stream? CoverImageStream = null,
+    string? CoverImageFileName = null
 ) : IRequest<MediaItemDto>;

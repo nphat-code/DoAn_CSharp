@@ -6,6 +6,7 @@ public class MediaItem
     public required string Title { get; set; }
     public required string FileUrl { get; set; }
     public string? Description { get; set; }
+    public string? CoverUrl { get; set; }
     public required string MediaType { get; set; }
     public TimeSpan Duration { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -14,6 +14,7 @@ export interface MediaItemDto {
   duration: string;
   uploaderId: string;
   createdAt: string;
+  coverUrl?: string;
   artistName?: string;
   artistBio?: string;
   artistAvatarUrl?: string;

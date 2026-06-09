@@ -49,8 +49,8 @@ public class MediaItemRepository(IDbConnection dbConnection) : IMediaItemReposit
     public async Task AddAsync(MediaItem mediaItem, CancellationToken cancellationToken)
     {
         var sql = @"
-            INSERT INTO MediaItems (Id, Title, Description, FileUrl, MediaType, Duration, CreatedAt, UploaderId, AlbumId, ArtistId)
-            VALUES (@Id, @Title, @Description, @FileUrl, @MediaType, @Duration, @CreatedAt, @UploaderId, @AlbumId, @ArtistId)";
+            INSERT INTO MediaItems (Id, Title, Description, CoverUrl, FileUrl, MediaType, Duration, CreatedAt, UploaderId, AlbumId, ArtistId)
+            VALUES (@Id, @Title, @Description, @CoverUrl, @FileUrl, @MediaType, @Duration, @CreatedAt, @UploaderId, @AlbumId, @ArtistId)";
             
         var command = new CommandDefinition(sql, mediaItem, cancellationToken: cancellationToken);
         await dbConnection.ExecuteAsync(command);

@@ -13,7 +13,7 @@ public class MediaController(IMediator mediator) : ControllerBase
 {
     [HttpPost("upload")]
     // Tắt Validate AntiForgeryToken cho API và config upload file size qua server nếu cần
-    public async Task<IActionResult> UploadMedia([FromForm] string title, [FromForm] string? description, IFormFile file)
+    public async Task<IActionResult> UploadMedia([FromForm] string title, [FromForm] string? description, IFormFile file, IFormFile? coverImage)
     {
         if (file == null || file.Length == 0)
         {
@@ -28,6 +28,7 @@ public class MediaController(IMediator mediator) : ControllerBase
         }
 
         using var stream = file.OpenReadStream();
+        Stream? coverStream = coverImage?.OpenReadStream();
 
         var command = new UploadMediaCommand(
             UploaderId: uploaderId,
@@ -35,10 +36,13 @@ public class MediaController(IMediator mediator) : ControllerBase
             Description: description,
             FileStream: stream,
             FileName: file.FileName,
-            ContentType: file.ContentType
+            ContentType: file.ContentType,
+            CoverImageStream: coverStream,
+            CoverImageFileName: coverImage?.FileName
         );
 
         var response = await mediator.Send(command);
+        coverStream?.Dispose();
         return Ok(response);
     }
 

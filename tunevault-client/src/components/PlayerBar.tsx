@@ -1,5 +1,5 @@
 import { usePlayer } from '../context/PlayerContext';
-import { Play, Pause, SkipBack, SkipForward, Volume2, Heart, PlusCircle, CheckCircle, Plus, Check, Library } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, Heart, PlusCircle, CheckCircle, Plus, Check, Library, Music } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { mediaService } from '../services/mediaService';
 import { playlistService } from '../services/playlistService';
@@ -8,6 +8,15 @@ import type { PlaylistDto } from '../services/playlistService';
 export const PlayerBar = () => {
   const { currentMedia, isPlaying, togglePlayPause, volume, setVolume, mediaRef } = usePlayer();
   const [progress, setProgress] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  const formatTime = (time: number) => {
+    if (isNaN(time)) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   useEffect(() => {
     if (mediaRef.current) {
@@ -25,7 +34,13 @@ export const PlayerBar = () => {
     if (!media) return;
 
     const handleTimeUpdate = () => {
-      setProgress((media.currentTime / media.duration) * 100);
+      setProgress((media.currentTime / media.duration) * 100 || 0);
+      setCurrentTime(media.currentTime);
+      setDuration(media.duration);
+    };
+
+    const handleLoadedMetadata = () => {
+      setDuration(media.duration);
     };
 
     const handleEnded = () => {
@@ -33,10 +48,17 @@ export const PlayerBar = () => {
     };
 
     media.addEventListener('timeupdate', handleTimeUpdate);
+    media.addEventListener('loadedmetadata', handleLoadedMetadata);
     media.addEventListener('ended', handleEnded);
+    
+    // Khởi tạo giá trị ban đầu nếu media đã load xong
+    if (media.readyState >= 1) {
+      setDuration(media.duration);
+    }
     
     return () => {
       media.removeEventListener('timeupdate', handleTimeUpdate);
+      media.removeEventListener('loadedmetadata', handleLoadedMetadata);
       media.removeEventListener('ended', handleEnded);
     };
   }, [currentMedia, mediaRef, togglePlayPause]);
@@ -46,6 +68,7 @@ export const PlayerBar = () => {
       const seekTime = (Number(e.target.value) / 100) * mediaRef.current.duration;
       mediaRef.current.currentTime = seekTime;
       setProgress(Number(e.target.value));
+      setCurrentTime(seekTime);
     }
   };
 
@@ -126,7 +149,13 @@ export const PlayerBar = () => {
       
       {/* Song Info */}
       <div className="flex items-center w-1/3">
-        <div className="w-14 h-14 bg-spotify-hover2 rounded-md flex-shrink-0"></div>
+        {currentMedia.coverUrl ? (
+          <img src={`http://localhost:5183${currentMedia.coverUrl}`} alt={currentMedia.title} className="w-14 h-14 rounded-md object-cover flex-shrink-0 shadow-lg" />
+        ) : (
+          <div className="w-14 h-14 bg-spotify-hover2 rounded-md flex-shrink-0 flex items-center justify-center shadow-lg">
+             <Music size={24} className="text-zinc-500" />
+          </div>
+        )}
         <div className="ml-4 flex items-center gap-4">
           <div>
             <div className="text-sm font-semibold text-white hover:underline cursor-pointer">{currentMedia.title}</div>
@@ -212,7 +241,7 @@ export const PlayerBar = () => {
           <button className="text-spotify-lighttext hover:text-white transition"><SkipForward size={20} className="fill-current" /></button>
         </div>
         <div className="w-full flex items-center gap-2">
-          <span className="text-[11px] text-spotify-lighttext">0:00</span>
+          <span className="text-[11px] text-spotify-lighttext min-w-[32px] text-right">{formatTime(currentTime)}</span>
           <div className="w-full group flex items-center">
             <input 
               type="range" min="0" max="100" value={progress || 0} onChange={handleSeek}
@@ -220,7 +249,7 @@ export const PlayerBar = () => {
               style={{ '--progress': `${progress || 0}%` } as React.CSSProperties}
             />
           </div>
-          <span className="text-[11px] text-spotify-lighttext">{currentMedia.duration.substring(3)}</span>
+          <span className="text-[11px] text-spotify-lighttext min-w-[32px]">{formatTime(duration)}</span>
         </div>
       </div>
 

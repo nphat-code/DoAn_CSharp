@@ -18,7 +18,11 @@ public class SearchMediaQueryHandler(IMediaItemRepository repository) : IRequest
             m.MediaType.ToString(),
             m.Duration,
             m.UploaderId,
-            m.CreatedAt
+            m.CreatedAt,
+            m.CoverUrl,
+            m.Artist?.Name,
+            m.Artist?.Bio,
+            m.Artist?.AvatarUrl
         ));
     }
 }

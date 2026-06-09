@@ -60,6 +60,8 @@ export const RightPanel = () => {
                 className="w-full h-full object-contain bg-black"
                 playsInline
              />
+           ) : currentMedia.coverUrl ? (
+             <img src={`http://localhost:5183${currentMedia.coverUrl}`} alt="Cover" className="w-full h-full object-cover" />
            ) : (
              <img src="https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62" alt="Cover" className="w-full h-full object-cover" />
            )}

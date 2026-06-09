@@ -49,7 +49,7 @@ export const Search = () => {
       ) : query === '' ? (
         <div className="text-zinc-500 font-medium">Hãy nhập từ khóa để tìm bài hát, nghệ sĩ hoặc podcast.</div>
       ) : results.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-6">
           {results.map(track => (
             <div 
               key={track.id}
@@ -57,9 +57,13 @@ export const Search = () => {
               className="p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative"
             >
               <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center group-hover:shadow-xl transition relative overflow-hidden">
-                <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                   <span className="text-3xl font-black text-white/50">{track.title.charAt(0)}</span>
-                </div>
+                {track.coverUrl ? (
+                  <img src={`http://localhost:5183${track.coverUrl}`} alt={track.title} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                     <span className="text-3xl font-black text-white/50">{track.title.charAt(0)}</span>
+                  </div>
+                )}
                 <button className="absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black opacity-0 group-hover:opacity-100 transition shadow-xl translate-y-2 group-hover:translate-y-0">
                   <Play fill="black" size={24} className="ml-1" />
                 </button>

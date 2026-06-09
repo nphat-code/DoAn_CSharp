@@ -1,16 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
 import { profileService, type ProfileDto } from '../services/profileService';
 import { playlistService, type PlaylistDto } from '../services/playlistService';
-import { mediaService } from '../services/mediaService';
-import type { MediaItemDto } from '../types';
-import { Settings, MoreHorizontal, Play, Edit2, X, Pencil, Link as LinkIcon, Trash2 } from 'lucide-react';
-import { usePlayer } from '../context/PlayerContext';
+import { Settings, MoreHorizontal, Play, Edit2, X, Pencil, Link as LinkIcon } from 'lucide-react';
 
 export const Profile = () => {
-  const { playMedia } = usePlayer();
   const [profile, setProfile] = useState<ProfileDto | null>(null);
   const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
-  const [topTracks, setTopTracks] = useState<MediaItemDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const currentUserStr = localStorage.getItem('user');
@@ -35,10 +30,6 @@ export const Profile = () => {
 
       const userPlaylists = await playlistService.getUserPlaylists();
       setPlaylists(userPlaylists);
-
-      // Mock Top Tracks by fetching all media and picking first 4
-      const media = await mediaService.getLibraryPlaylists();
-      setTopTracks(media.slice(0, 4));
     } catch (error) {
       console.error(error);
     } finally {
@@ -164,73 +155,6 @@ export const Profile = () => {
             )}
           </div>
         </div>
-
-        {/* Top Tracks */}
-        {topTracks.length > 0 && (
-          <div className="mb-12 max-w-4xl">
-            <div className="flex items-baseline justify-between mb-4">
-              <div>
-                <h2 className="text-2xl font-bold text-white">Bản nhạc hàng đầu tháng này</h2>
-                <p className="text-sm text-zinc-400 mt-1">Chỉ hiển thị với bạn</p>
-              </div>
-              <button className="text-sm font-bold text-zinc-400 hover:text-white transition-colors">
-                Hiện tất cả
-              </button>
-            </div>
-            
-            <div className="flex flex-col">
-              {topTracks.map((track, index) => (
-                <div 
-                  key={track.id} 
-                  className="flex items-center gap-4 px-4 py-2 rounded-md hover:bg-white/10 group transition-colors cursor-pointer"
-                  onClick={() => playMedia(track)}
-                >
-                  <div className="w-6 text-center">
-                    <span className="text-zinc-400 group-hover:hidden">{index + 1}</span>
-                    <Play size={16} fill="currentColor" className="text-white hidden group-hover:block mx-auto" />
-                  </div>
-                  <div className="w-10 h-10 flex-shrink-0 bg-zinc-800 rounded">
-                    <div className="w-full h-full flex items-center justify-center text-zinc-500">
-                      <span className="text-xs">🎵</span>
-                    </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white font-medium truncate">{track.title}</p>
-                    <p className="text-sm text-zinc-400 truncate">{track.artistName || profile?.username || 'Unknown Artist'}</p>
-                  </div>
-                  <div className="flex-1 hidden md:block min-w-0">
-                    <p className="text-sm text-zinc-400 truncate">{track.mediaType || 'Music'}</p>
-                  </div>
-                  {currentUser && track.uploaderId === currentUser.userId && (
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          if (confirm("Bạn có chắc chắn muốn xóa bài này vĩnh viễn khỏi hệ thống không? Hành động này không thể hoàn tác.")) {
-                            try {
-                              await mediaService.deleteMedia(track.id);
-                              setTopTracks(prev => prev.filter(t => t.id !== track.id));
-                              alert("Đã xóa bài hát thành công!");
-                            } catch (error) {
-                              alert("Lỗi khi xóa. Bạn chỉ có thể xóa bài hát do chính mình tải lên.");
-                            }
-                          }
-                        }}
-                        className="text-zinc-400 hover:text-red-500 p-2"
-                        title="Xóa bài hát này"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  )}
-                  <div className="text-sm text-zinc-400 w-12 text-right">
-                    {track.duration}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Playlists Section */}
         {playlists.length > 0 && (

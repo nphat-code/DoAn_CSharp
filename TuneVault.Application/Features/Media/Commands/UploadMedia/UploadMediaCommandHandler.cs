@@ -15,9 +15,27 @@ public class UploadMediaCommandHandler(
         // 1. Lưu file vật lý
         var fileUrl = await fileStorageService.SaveFileAsync(request.FileStream, request.FileName, cancellationToken);
 
-        // 2. Tính toán Duration (Giả lập cho audio/video)
-        var duration = TimeSpan.FromMinutes(3); // Mock duration
+        string? coverUrl = null;
+        if (request.CoverImageStream != null && !string.IsNullOrWhiteSpace(request.CoverImageFileName))
+        {
+            coverUrl = await fileStorageService.SaveFileAsync(request.CoverImageStream, request.CoverImageFileName, cancellationToken);
+        }
 
+        // 2. Tính toán Duration từ file thực tế bằng TagLib#
+        var physicalPath = fileStorageService.GetPhysicalPath(fileUrl);
+        TimeSpan duration = TimeSpan.FromMinutes(3); // Giá trị mặc định
+        try
+        {
+            using var tagFile = TagLib.File.Create(physicalPath);
+            if (tagFile.Properties.Duration.TotalSeconds > 0)
+            {
+                duration = tagFile.Properties.Duration;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Không thể đọc duration từ file: {ex.Message}");
+        }
         // 3. Phân loại MediaType dựa trên ContentType hoặc Extension
         string mediaType = request.ContentType.StartsWith("video") ? "Video" : "Audio";
 
@@ -55,6 +73,7 @@ public class UploadMediaCommandHandler(
             Title = request.Title,
             Description = request.Description,
             FileUrl = fileUrl,
+            CoverUrl = coverUrl,
             MediaType = mediaType,
             Duration = duration,
             UploaderId = request.UploaderId,
@@ -74,6 +93,7 @@ public class UploadMediaCommandHandler(
             mediaItem.Duration,
             mediaItem.UploaderId,
             mediaItem.CreatedAt,
+            mediaItem.CoverUrl,
             request.Description, // artistName corresponds to Description here
             artistBio,
             artistAvatarUrl
