@@ -1,6 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { profileService, type ProfileDto } from '../services/profileService';
 import { playlistService, type PlaylistDto } from '../services/playlistService';
+import { mediaService } from '../services/mediaService';
+import type { MediaItemDto } from '../types';
+import { usePlayer } from '../context/PlayerContext';
 import { Settings, MoreHorizontal, Play, Edit2, X, Pencil, Link as LinkIcon } from 'lucide-react';
 
 export const Profile = () => {
@@ -8,13 +11,14 @@ export const Profile = () => {
   const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const currentUserStr = localStorage.getItem('user');
-  const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [avatarUrlInput, setAvatarUrlInput] = useState('');
   const [usernameInput, setUsernameInput] = useState('');
+  const [topTracks, setTopTracks] = useState<MediaItemDto[]>([]);
+  const [topArtists, setTopArtists] = useState<{name: string, avatarUrl: string}[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { playMedia } = usePlayer();
 
   useEffect(() => {
     loadProfileData();
@@ -30,6 +34,17 @@ export const Profile = () => {
 
       const userPlaylists = await playlistService.getUserPlaylists();
       setPlaylists(userPlaylists);
+
+      const allMedia = await mediaService.getAllMedia();
+      setTopTracks(allMedia.slice(0, 4));
+      
+      const artistsMap = new Map();
+      allMedia.forEach(m => {
+        if (m.artistName && !artistsMap.has(m.artistName)) {
+          artistsMap.set(m.artistName, m.artistAvatarUrl || "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62");
+        }
+      });
+      setTopArtists(Array.from(artistsMap.entries()).map(([name, avatarUrl]) => ({ name, avatarUrl })).slice(0, 4));
     } catch (error) {
       console.error(error);
     } finally {
@@ -68,16 +83,35 @@ export const Profile = () => {
     }
   };
 
+  const formatDuration = (timeString: string | undefined) => {
+    if (!timeString) return "0:00";
+    if (timeString.includes(":")) {
+      const parts = timeString.split(":");
+      if (parts.length >= 2) {
+        const min = parseInt(parts[1], 10);
+        const sec = parseFloat(parts[2] || "0");
+        return `${min}:${Math.floor(sec).toString().padStart(2, '0')}`;
+      }
+    }
+    return timeString;
+  };
+
   if (loading) return <div className="text-zinc-400 p-8 h-full bg-[#121212]">Đang tải thông tin...</div>;
   if (!profile) return <div className="text-zinc-400 p-8 h-full bg-[#121212]">Không thể tải thông tin cá nhân.</div>;
 
   return (
     <div className="flex flex-col h-full bg-[#121212] overflow-y-auto">
       {/* Header */}
-      <div className="flex flex-col md:flex-row items-center gap-6 px-6 pt-6 md:pt-8 pb-4 bg-gradient-to-b from-[#535353] to-[#181818] text-white">
+      <div 
+        className="flex flex-col md:flex-row items-end gap-6 px-6 pb-6 bg-gradient-to-b from-[#535353] to-[#181818] text-white shrink-0"
+        style={{ height: '225.9px', minHeight: '225.9px' }}
+      >
         
         {/* Avatar */}
-        <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full overflow-hidden shadow-[0_4px_60px_rgba(0,0,0,0.5)] relative group flex-shrink-0 bg-[#282828]">
+        <div 
+          className="rounded-full overflow-hidden shadow-[0_4px_60px_rgba(0,0,0,0.5)] relative group flex-shrink-0 bg-[#282828]"
+          style={{ width: '174.11px', height: '174.11px' }}
+        >
           {profile.avatarUrl ? (
             <img src={profile.avatarUrl.startsWith('http') || profile.avatarUrl.startsWith('data:') ? profile.avatarUrl : `http://localhost:5183${profile.avatarUrl}`} alt="Avatar" className="w-full h-full object-cover" />
           ) : (
@@ -102,7 +136,11 @@ export const Profile = () => {
         {/* Info */}
         <div className="flex flex-col justify-center min-w-0 flex-1 w-full md:w-auto text-center md:text-left">
           <span className="text-sm font-bold tracking-wider mb-2 hidden md:block">Hồ sơ</span>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-2 tracking-tighter break-words w-full leading-tight">
+          <h1 
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-2 tracking-tighter break-words w-full leading-tight cursor-pointer"
+            onClick={() => setIsEditing(true)}
+            title="Chỉnh sửa hồ sơ"
+          >
             {profile.username}
           </h1>
           <div className="flex items-center justify-center md:justify-start text-sm text-zinc-300 font-semibold mt-1">
@@ -155,6 +193,78 @@ export const Profile = () => {
             )}
           </div>
         </div>
+
+        {/* Nghệ sĩ hàng đầu tháng này */}
+        {topArtists.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold text-white mb-1 hover:underline cursor-pointer inline-block">Nghệ sĩ hàng đầu tháng này</h2>
+            <p className="text-sm text-zinc-400 mb-6">Chỉ hiển thị với bạn</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+              {topArtists.map((artist, idx) => (
+                <div 
+                  key={idx} 
+                  className="p-4 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
+                  style={{ width: '193.23px' }}
+                >
+                  <div className="relative w-full aspect-square mb-4 shadow-lg rounded-full bg-zinc-800 overflow-hidden shrink-0">
+                    <img src={artist.avatarUrl.startsWith('http') || artist.avatarUrl.startsWith('data:') ? artist.avatarUrl : `http://localhost:5183${artist.avatarUrl}`} alt={artist.name} className="w-full h-full object-cover rounded-full" />
+                    {/* Play button overlay */}
+                    <div className="absolute right-2 bottom-2 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                      <button className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black hover:bg-green-400 hover:scale-105 shadow-xl">
+                        <Play size={24} fill="currentColor" className="ml-1" />
+                      </button>
+                    </div>
+                  </div>
+                  <h3 className="text-white font-bold truncate w-full text-left">{artist.name}</h3>
+                  <p className="text-sm text-zinc-400 truncate w-full text-left mt-1">Nghệ sĩ</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Bản nhạc hàng đầu tháng này */}
+        {topTracks.length > 0 && (
+          <div className="mb-12">
+            <div className="flex justify-between items-end mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-1 hover:underline cursor-pointer inline-block">Bản nhạc hàng đầu tháng này</h2>
+                <p className="text-sm text-zinc-400">Chỉ hiển thị với bạn</p>
+              </div>
+              <button className="text-zinc-400 text-sm font-bold hover:underline">Hiện tất cả</button>
+            </div>
+            <div className="flex flex-col">
+              {topTracks.map((track, index) => (
+                <div 
+                  key={track.id} 
+                  className="flex items-center gap-4 px-4 py-2 hover:bg-white/10 rounded-md group cursor-pointer"
+                  onClick={() => playMedia(track)}
+                >
+                  <div className="w-6 text-center text-zinc-400 group-hover:hidden">{index + 1}</div>
+                  <div className="w-6 text-center text-white hidden group-hover:flex items-center justify-center">
+                    <Play size={16} fill="currentColor" />
+                  </div>
+                  <img 
+                    src={track.coverUrl ? (track.coverUrl.startsWith('http') || track.coverUrl.startsWith('data:') ? track.coverUrl : `http://localhost:5183${track.coverUrl}`) : "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62"} 
+                    alt={track.title} 
+                    className="w-10 h-10 rounded shadow" 
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-white font-medium truncate group-hover:underline">{track.title}</h4>
+                    <p className="text-sm text-zinc-400 truncate hover:underline inline-block">{track.artistName || 'Unknown Artist'}</p>
+                  </div>
+                  <div className="hidden md:block flex-1 text-sm text-zinc-400 truncate hover:underline">
+                    {/* Fake album name if we don't have one */}
+                    {track.description || track.title}
+                  </div>
+                  <div className="text-sm text-zinc-400 w-12 text-right">
+                    {formatDuration(track.duration)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Playlists Section */}
         {playlists.length > 0 && (

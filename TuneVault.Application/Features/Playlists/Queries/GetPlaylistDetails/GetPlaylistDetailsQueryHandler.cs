@@ -31,7 +31,12 @@ public class GetPlaylistDetailsQueryHandler(IPlaylistRepository playlistReposito
                 t.MediaType.ToString(),
                 t.Duration,
                 t.UploaderId,
-                t.CreatedAt
+                t.CreatedAt,
+                t.CoverUrl ?? t.Album?.CoverUrl,
+                t.Artist?.Name ?? t.Album?.Artist?.Name,
+                t.Artist?.Bio ?? t.Album?.Artist?.Bio,
+                t.Artist?.AvatarUrl ?? t.Album?.Artist?.AvatarUrl,
+                t.Album?.Title
             )).ToList()
         };
 

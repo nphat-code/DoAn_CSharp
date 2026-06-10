@@ -150,7 +150,7 @@ export const PlayerBar = () => {
       {/* Song Info */}
       <div className="flex items-center w-1/3">
         {currentMedia.coverUrl ? (
-          <img src={`http://localhost:5183${currentMedia.coverUrl}`} alt={currentMedia.title} className="w-14 h-14 rounded-md object-cover flex-shrink-0 shadow-lg" />
+          <img src={currentMedia.coverUrl.startsWith('http') ? currentMedia.coverUrl : `http://localhost:5183${currentMedia.coverUrl}`} alt={currentMedia.title} className="w-14 h-14 rounded-md object-cover flex-shrink-0 shadow-lg" />
         ) : (
           <div className="w-14 h-14 bg-spotify-hover2 rounded-md flex-shrink-0 flex items-center justify-center shadow-lg">
              <Music size={24} className="text-zinc-500" />
@@ -236,7 +236,7 @@ export const PlayerBar = () => {
         <div className="flex items-center gap-6 mb-2">
           <button className="text-spotify-lighttext hover:text-white transition"><SkipBack size={20} className="fill-current" /></button>
           <button onClick={togglePlayPause} className="w-8 h-8 flex items-center justify-center bg-white text-black rounded-full hover:scale-105 transition">
-            {isPlaying ? <Pause size={16} className="fill-black" /> : <Play size={16} className="fill-black ml-1" />}
+            {isPlaying ? <Pause size={16} className="fill-black" /> : <Play size={16} className="fill-black" />}
           </button>
           <button className="text-spotify-lighttext hover:text-white transition"><SkipForward size={20} className="fill-current" /></button>
         </div>

@@ -39,20 +39,26 @@ public class FavoriteRepository(IDbConnection dbConnection) : IFavoriteRepositor
         var sql = @"
             SELECT 
                 l.UserId as UserProfileId, l.MediaItemId, l.LikedAt as FavoritedAt,
-                m.Id, m.Title, m.FileUrl, m.MediaType, m.Duration, m.Description, m.CreatedAt
+                m.*,
+                ar.*,
+                al.*
             FROM UserLikes l
             INNER JOIN MediaItems m ON l.MediaItemId = m.Id
+            LEFT JOIN Artists ar ON m.ArtistId = ar.Id
+            LEFT JOIN Albums al ON m.AlbumId = al.Id
             WHERE l.UserId = @UserId
             ORDER BY l.LikedAt DESC";
             
-        return await dbConnection.QueryAsync<Favorite, MediaItem, Favorite>(
+        return await dbConnection.QueryAsync<Favorite, MediaItem, Artist, Album, Favorite>(
             new CommandDefinition(sql, new { UserId = userId }, cancellationToken: cancellationToken),
-            (favorite, mediaItem) => 
+            (favorite, mediaItem, artist, album) => 
             {
+                if (artist != null) mediaItem.Artist = artist;
+                if (album != null) mediaItem.Album = album;
                 favorite.MediaItem = mediaItem;
                 return favorite;
             },
-            splitOn: "Id"
+            splitOn: "Id,Id,Id"
         );
     }
 }

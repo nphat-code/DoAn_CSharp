@@ -7,7 +7,7 @@ namespace TuneVault.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
+[Authorize(Roles = "Admin")]
 public class ArtistsController(IMediator mediator) : ControllerBase
 {
     [HttpPost]

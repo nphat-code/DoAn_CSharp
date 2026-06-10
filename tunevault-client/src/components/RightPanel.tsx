@@ -7,7 +7,7 @@ export const RightPanel = () => {
 
   if (!currentMedia) {
     return (
-      <div className="w-[360px] lg:w-[420px] bg-zinc-900 rounded-lg hidden xl:flex flex-col p-4 items-center justify-center text-zinc-500 font-medium">
+      <div className="w-[280px] lg:w-[360px] bg-spotify-card rounded-lg flex flex-col p-4 items-center justify-center text-zinc-500 font-medium shrink-0">
         Phát một bài hát để xem chi tiết
       </div>
     );
@@ -20,14 +20,14 @@ export const RightPanel = () => {
         alert("Đã xóa bài hát thành công!");
         window.location.reload(); // Tải lại trang để cập nhật danh sách
       } catch (error) {
-        alert("Lỗi khi xóa. Bạn chỉ có thể xóa bài hát do chính mình tải lên.");
+        alert("Lỗi khi xóa.");
       }
     }
   };
 
   const currentUserStr = localStorage.getItem('user');
   const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
-  const isUploader = currentUser && currentMedia.uploaderId === currentUser.userId;
+  const isAdmin = currentUser && currentUser.role === 'Admin';
 
   const getImageUrl = (url: string | undefined | null) => {
     if (!url) return "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62"; // Fallback Ed Sheeran image
@@ -36,11 +36,11 @@ export const RightPanel = () => {
   };
 
   return (
-    <div className="w-[360px] lg:w-[420px] bg-zinc-900 rounded-lg hidden xl:flex flex-col overflow-hidden relative">
+    <div className="w-[280px] lg:w-[360px] bg-spotify-card rounded-lg flex flex-col overflow-hidden relative shrink-0">
       <div className="flex items-center justify-between p-4 pb-2 z-10">
         <h3 className="font-bold text-base text-white hover:underline cursor-pointer truncate mr-2">{currentMedia.title}</h3>
         <div className="flex gap-3">
-          {isUploader && (
+          {isAdmin && (
             <button onClick={handleDeleteMedia} className="text-zinc-400 hover:text-red-500 transition" title="Xóa bài hát này">
                <Trash2 size={20} />
             </button>

@@ -12,5 +12,6 @@ public record MediaItemDto(
     string? CoverUrl = null,
     string? ArtistName = null,
     string? ArtistBio = null,
-    string? ArtistAvatarUrl = null
+    string? ArtistAvatarUrl = null,
+    string? AlbumTitle = null
 );

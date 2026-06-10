@@ -41,7 +41,16 @@ public class FileStorageService(IWebHostEnvironment env) : IFileStorageService
         var filePath = GetPhysicalPath(fileUrl);
         if (File.Exists(filePath))
         {
-            File.Delete(filePath);
+            try 
+            {
+                File.Delete(filePath);
+            }
+            catch (IOException ex)
+            {
+                // File có thể đang được khóa bởi trình duyệt (đang phát nhạc) trên Windows.
+                // Log lỗi và bỏ qua để cho phép xóa record trong Database.
+                Console.WriteLine($"Không thể xóa file vật lý (có thể đang bị khóa): {ex.Message}");
+            }
         }
         return Task.CompletedTask;
     }

@@ -6,6 +6,8 @@ import { Register } from './pages/Register';
 import { PlaylistDetail } from './pages/PlaylistDetail';
 import { Profile } from './pages/Profile';
 import { Search } from './pages/Search';
+import { Favorites } from './pages/Favorites';
+import { AlbumDetail } from './pages/AlbumDetail';
 
 const Placeholder = ({ title }: { title: string }) => (
   <div className="p-6">
@@ -29,7 +31,9 @@ function App() {
           <Route index element={<Home />} />
           <Route path="search" element={<Search />} />
           <Route path="library" element={isAuthenticated ? <Placeholder title="Library" /> : <Navigate to="/login" />} />
-          <Route path="playlist/:id" element={<PlaylistDetail />} />
+          <Route path="favorites" element={isAuthenticated ? <Favorites /> : <Navigate to="/login" />} />
+          <Route path="playlist/:id" element={isAuthenticated ? <PlaylistDetail /> : <Navigate to="/login" />} />
+          <Route path="album/:id" element={isAuthenticated ? <AlbumDetail /> : <Navigate to="/login" />} />
           <Route path="share-inbox" element={isAuthenticated ? <Placeholder title="Share Inbox" /> : <Navigate to="/login" />} />
           <Route path="notifications" element={isAuthenticated ? <Placeholder title="Notifications" /> : <Navigate to="/login" />} />
           <Route path="profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />

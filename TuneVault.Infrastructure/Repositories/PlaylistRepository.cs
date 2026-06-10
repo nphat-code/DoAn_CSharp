@@ -68,12 +68,23 @@ public class PlaylistRepository(IDbConnection dbConnection) : IPlaylistRepositor
     public async Task<IEnumerable<MediaItem>> GetTracksByPlaylistIdAsync(Guid playlistId, CancellationToken cancellationToken)
     {
         var sql = @"
-            SELECT m.* 
+            SELECT m.*, ar.*, al.* 
             FROM MediaItems m
             INNER JOIN PlaylistItems pt ON m.Id = pt.MediaItemId
+            LEFT JOIN Artists ar ON m.ArtistId = ar.Id
+            LEFT JOIN Albums al ON m.AlbumId = al.Id
             WHERE pt.PlaylistId = @PlaylistId
             ORDER BY pt.AddedAt ASC";
-        return await dbConnection.QueryAsync<MediaItem>(
-            new CommandDefinition(sql, new { PlaylistId = playlistId }, cancellationToken: cancellationToken));
+            
+        return await dbConnection.QueryAsync<MediaItem, Artist, Album, MediaItem>(
+            new CommandDefinition(sql, new { PlaylistId = playlistId }, cancellationToken: cancellationToken),
+            (mediaItem, artist, album) => 
+            {
+                if (artist != null) mediaItem.Artist = artist;
+                if (album != null) mediaItem.Album = album;
+                return mediaItem;
+            },
+            splitOn: "Id,Id"
+        );
     }
 }

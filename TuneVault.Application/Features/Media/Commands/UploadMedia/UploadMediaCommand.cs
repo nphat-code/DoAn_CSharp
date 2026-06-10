@@ -12,5 +12,7 @@ public record UploadMediaCommand(
     string FileName,
     string ContentType,
     Stream? CoverImageStream = null,
-    string? CoverImageFileName = null
+    string? CoverImageFileName = null,
+    Guid? AlbumId = null,
+    Guid? ArtistId = null
 ) : IRequest<MediaItemDto>;

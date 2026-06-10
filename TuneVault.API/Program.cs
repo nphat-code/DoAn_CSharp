@@ -48,11 +48,18 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Cấu hình Middleware phục vụ các file tĩnh (trong wwwroot)
-app.UseStaticFiles();
-
-// Bật CORS
+// Bật CORS (Phải để trước UseStaticFiles để ảnh có header CORS)
 app.UseCors("CorsPolicy");
+
+// Cấu hình Middleware phục vụ các file tĩnh (trong wwwroot) và cho phép CORS để lấy màu
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "http://localhost:5173");
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Methods", "GET, OPTIONS");
+    }
+});
 
 // Cấu hình Middleware Xác thực và Phân quyền
 app.UseAuthentication();

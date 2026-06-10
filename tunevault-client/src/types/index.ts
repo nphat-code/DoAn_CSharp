@@ -18,6 +18,7 @@ export interface MediaItemDto {
   artistName?: string;
   artistBio?: string;
   artistAvatarUrl?: string;
+  albumTitle?: string;
 }
 
 export interface LoginResponseDto {

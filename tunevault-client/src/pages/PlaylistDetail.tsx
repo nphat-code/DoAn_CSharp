@@ -99,107 +99,124 @@ export const PlaylistDetail = () => {
   if (!playlist) return <div className="p-6 text-white">Playlist không tồn tại.</div>;
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-indigo-900/40 to-black p-6 overflow-y-auto">
+    <div className="flex flex-col h-full bg-gradient-to-b from-indigo-900/40 to-black overflow-y-auto">
       {/* Header */}
-      <div className="flex items-end gap-6 mb-8 mt-10">
-        <div className="w-48 h-48 bg-zinc-800 shadow-2xl rounded-md flex-shrink-0 flex items-center justify-center">
+      <div 
+        className="flex items-end gap-6 px-6 pb-6 shrink-0"
+        style={{ height: '225.9px', minHeight: '225.9px' }}
+      >
+        <div 
+          className="bg-zinc-800 shadow-2xl rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden"
+          style={{ width: '174.11px', height: '174.11px' }}
+        >
           {playlist.coverUrl ? (
-            <img src={playlist.coverUrl} alt={playlist.name} className="w-full h-full object-cover" />
+            <img src={playlist.coverUrl.startsWith('http') || playlist.coverUrl.startsWith('data:') ? playlist.coverUrl : `http://localhost:5183${playlist.coverUrl}`} alt={playlist.name} className="w-full h-full object-cover" />
           ) : (
             <span className="text-zinc-500 font-bold">Playlist Cover</span>
           )}
         </div>
-        <div className="flex flex-col gap-2">
-          <span className="text-sm font-bold text-white uppercase tracking-widest">{playlist.isPublic ? "Công khai" : "Cá nhân"}</span>
-          <h1 className="text-5xl lg:text-7xl font-bold text-white tracking-tighter">{playlist.name}</h1>
-          <p className="text-zinc-300 mt-2">{playlist.description || "Danh sách phát tuyệt vời của bạn."}</p>
+        <div className="flex flex-col justify-end min-w-0 flex-1 w-full pb-1">
+          <span className="text-sm font-bold text-white uppercase tracking-widest mb-1">{playlist.isPublic ? "Công khai" : "Cá nhân"}</span>
+          <h1 className="text-5xl lg:text-7xl font-black text-white tracking-tighter leading-tight mb-2 truncate">{playlist.name}</h1>
+          <p className="text-zinc-300 mb-2 truncate">{playlist.description || "Danh sách phát tuyệt vời của bạn."}</p>
           <div className="flex items-center gap-2 text-sm text-zinc-300 font-medium">
-            <span>{playlist.tracks.length} bài hát</span>
+            <span className="font-bold text-white hover:underline cursor-pointer">Người dùng</span>
+            <span className="text-white font-bold">•</span>
+            <span>{playlist.tracks?.length || 0} bài hát</span>
           </div>
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center gap-6 mb-8">
-        <button 
-          onClick={() => playlist.tracks.length > 0 && playMedia(playlist.tracks[0])}
-          className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center hover:scale-105 transition hover:bg-green-400 shadow-xl"
-        >
-          <Play size={24} className="text-black fill-black ml-1" />
-        </button>
-        <button onClick={handleDeletePlaylist} className="text-zinc-400 hover:text-white transition">
-          Xóa Playlist
-        </button>
-      </div>
-
-      {/* Track List */}
-      <div className="w-full">
-        {/* Table Header */}
-        <div className="grid grid-cols-[32px_1fr_minmax(120px,200px)_minmax(120px,200px)_minmax(50px,100px)_100px] gap-4 px-4 py-2 border-b border-zinc-800 text-sm font-medium text-spotify-lighttext mb-4 sticky top-0 bg-spotify-card/90 backdrop-blur-md z-10">
-          <div className="text-center">#</div>
-          <div>Tiêu đề</div>
-          <div>Album</div>
-          <div>Ngày thêm</div>
-          <div className="flex justify-center"><Clock size={16} /></div>
-          <div></div>
+      {/* Content wrapper */}
+      <div className="flex-1 flex flex-col bg-gradient-to-b from-black/20 to-black/60 border-t border-white/10 pt-6 px-6">
+        {/* Controls */}
+        <div className="flex items-center gap-6 mb-6">
+          <button 
+            onClick={() => playlist.tracks.length > 0 && playMedia(playlist.tracks[0])}
+            className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center hover:scale-105 transition hover:bg-green-400 shadow-xl"
+          >
+            <Play size={24} className="text-black fill-black ml-1" />
+          </button>
+          <button onClick={handleDeletePlaylist} className="text-zinc-400 hover:text-white transition">
+            Xóa Playlist
+          </button>
         </div>
 
-        {/* Tracks */}
-        <div className="flex flex-col gap-1 pb-10">
-          {playlist.tracks.map((track, index) => (
-            <div 
-              key={track.id} 
-              className="grid grid-cols-[32px_1fr_minmax(120px,200px)_minmax(120px,200px)_minmax(50px,100px)_100px] gap-4 px-4 py-2 hover:bg-spotify-hover2 rounded-md transition items-center group cursor-pointer"
-              onDoubleClick={() => playMedia(track)}
-            >
-              <div className="text-spotify-lighttext text-base font-medium flex items-center justify-center relative w-full">
-                <span className="group-hover:hidden">{index + 1}</span>
-                <button className="hidden group-hover:block" onClick={(e) => { e.stopPropagation(); playMedia(track); }}>
-                  <Play size={16} className="fill-white text-white" />
-                </button>
-              </div>
-              <div className="flex items-center gap-3 overflow-hidden">
-                <div className="w-10 h-10 bg-zinc-700 rounded flex-shrink-0"></div>
-                <div className="flex flex-col overflow-hidden">
-                  <span className="text-white font-semibold text-base truncate">{track.title}</span>
-                  <span className="text-spotify-lighttext text-sm truncate">{track.mediaType}</span>
+        {/* Track List Section */}
+        <div className="w-full flex-1">
+          {/* Table Header */}
+          <div className="grid grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(100px,2fr)_minmax(100px,1fr)] gap-4 px-4 py-2 border-b border-white/10 text-sm font-medium text-[#b3b3b3] mb-4 sticky top-0 bg-transparent z-10 items-center">
+            <div className="text-right pr-2">#</div>
+            <div>Tiêu đề</div>
+            <div className="hidden md:block">Album</div>
+            <div className="hidden lg:block">Ngày thêm</div>
+            <div className="flex justify-end pr-6"><Clock size={16} /></div>
+          </div>
+
+          {/* Tracks */}
+          <div className="flex flex-col gap-0 pb-10">
+            {playlist.tracks && playlist.tracks.map((track, index) => (
+              <div 
+                key={track.id} 
+                className="grid grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(100px,2fr)_minmax(100px,1fr)] gap-4 px-4 py-2 hover:bg-white/10 rounded-md transition items-center group cursor-pointer"
+                onDoubleClick={() => playMedia(track)}
+              >
+                <div className="text-[#b3b3b3] text-base font-medium flex items-center justify-end pr-2 relative w-full">
+                  <span className="group-hover:hidden">{index + 1}</span>
+                  <button className="hidden group-hover:block text-white" onClick={(e) => { e.stopPropagation(); playMedia(track); }}>
+                    <Play size={14} className="fill-white text-white" />
+                  </button>
+                </div>
+                <div className="flex items-center gap-3 overflow-hidden">
+                  <div className="w-10 h-10 bg-zinc-800 rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
+                      {track.coverUrl ? (
+                        <img src={track.coverUrl.startsWith('http') || track.coverUrl.startsWith('data:') ? track.coverUrl : `http://localhost:5183${track.coverUrl}`} alt={track.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-white/50 text-xs">{track.title.charAt(0)}</span>
+                      )}
+                  </div>
+                  <div className="flex flex-col overflow-hidden">
+                    <span className="text-white font-semibold text-base truncate group-hover:text-white">{track.title}</span>
+                    <span className="text-[#b3b3b3] text-sm truncate hover:underline">{track.artistName || track.description || "Nghệ sĩ"}</span>
+                  </div>
+                </div>
+                <div className="text-sm text-[#b3b3b3] truncate hover:text-white transition hidden md:block">{track.albumTitle || "Đĩa đơn"}</div>
+                <div className="text-sm text-[#b3b3b3] truncate hidden lg:block">Gần đây</div>
+                <div className="flex items-center justify-end gap-6 pr-4">
+                  <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition">
+                    <button className="text-[#b3b3b3] hover:text-white"><Heart size={16} /></button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleRemoveTrack(track.id); }}
+                      className="text-[#b3b3b3] hover:text-red-500 transition"
+                      title="Xóa bài hát"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                  <div className="text-sm text-[#b3b3b3] font-medium w-10 text-right">{track.duration}</div>
                 </div>
               </div>
-              <div className="text-sm text-spotify-lighttext truncate">Album</div>
-              <div className="text-sm text-spotify-lighttext truncate">Gần đây</div>
-              <div className="text-sm text-spotify-lighttext font-medium text-center">{track.duration}</div>
-              <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition justify-end">
-                <button className="text-spotify-lighttext hover:text-white"><Heart size={16} /></button>
-                <button 
-                  onClick={(e) => { e.stopPropagation(); handleRemoveTrack(track.id); }}
-                  className="text-spotify-lighttext hover:text-red-500 transition"
-                  title="Xóa bài hát"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Tìm kiếm để thêm bài hát */}
-      <div className="mt-12 w-full pt-8 border-t border-zinc-800">
-         <h2 className="text-xl font-bold text-white mb-4">Hãy cùng tìm nội dung cho danh sách phát của bạn</h2>
-         <div className="relative w-full md:w-96 mb-6">
-           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={20} />
-           <input 
-             type="text" 
-             value={addQuery}
-             onChange={(e) => setAddQuery(e.target.value)}
-             placeholder="Tìm kiếm bài hát hoặc tập tin..."
-             className="w-full bg-zinc-800 text-white pl-10 pr-4 py-3 rounded-md text-sm font-medium outline-none focus:ring-1 focus:ring-white transition"
-           />
-         </div>
+        {/* Tìm kiếm để thêm bài hát */}
+        <div className="mt-12 w-full pt-8 border-t border-zinc-800">
+           <h2 className="text-xl font-bold text-white mb-4">Hãy cùng tìm nội dung cho danh sách phát của bạn</h2>
+           <div className="relative w-full md:w-96 mb-6">
+             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={20} />
+             <input 
+               type="text" 
+               value={addQuery}
+               onChange={(e) => setAddQuery(e.target.value)}
+               placeholder="Tìm kiếm bài hát hoặc tập tin..."
+               className="w-full bg-zinc-800 text-white pl-10 pr-4 py-3 rounded-md text-sm font-medium outline-none focus:ring-1 focus:ring-white transition"
+             />
+           </div>
 
-         {isSearching && <div className="text-zinc-500 font-medium">Đang tìm kiếm...</div>}
-         
-         {!isSearching && addResults.length > 0 && (
+          {isSearching && <div className="text-zinc-500 font-medium">Đang tìm kiếm...</div>}
+          
+          {!isSearching && addResults.length > 0 && (
            <div className="flex flex-col gap-2">
              {addResults.map(track => (
                <div key={track.id} className="flex items-center justify-between p-3 hover:bg-zinc-800/80 rounded-md transition group">
@@ -222,6 +239,7 @@ export const PlaylistDetail = () => {
              ))}
            </div>
          )}
+        </div>
       </div>
     </div>
   );

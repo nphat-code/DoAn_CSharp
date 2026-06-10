@@ -36,7 +36,8 @@ public class RegisterCommandHandler(
             Username = request.Username,
             Email = request.Email,
             PasswordHash = passwordHash,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            Role = request.Username.ToLower() == "admin" ? "Admin" : "User"
         };
 
         // 5. Lưu user
@@ -50,6 +51,7 @@ public class RegisterCommandHandler(
             UserId = user.Id,
             Username = user.Username,
             AvatarUrl = user.AvatarUrl ?? string.Empty,
+            Role = user.Role,
             Token = token
         };
     }

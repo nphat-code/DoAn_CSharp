@@ -62,4 +62,17 @@ public class MediaItemRepository(IDbConnection dbConnection) : IMediaItemReposit
         var command = new CommandDefinition(sql, new { Id = id }, cancellationToken: cancellationToken);
         await dbConnection.ExecuteAsync(command);
     }
+
+    public async Task UpdateAsync(MediaItem mediaItem, CancellationToken cancellationToken)
+    {
+        var sql = @"
+            UPDATE MediaItems 
+            SET Title = @Title, Description = @Description, CoverUrl = @CoverUrl, 
+                FileUrl = @FileUrl, MediaType = @MediaType, Duration = @Duration, 
+                UploaderId = @UploaderId, AlbumId = @AlbumId, ArtistId = @ArtistId
+            WHERE Id = @Id";
+            
+        var command = new CommandDefinition(sql, mediaItem, cancellationToken: cancellationToken);
+        await dbConnection.ExecuteAsync(command);
+    }
 }

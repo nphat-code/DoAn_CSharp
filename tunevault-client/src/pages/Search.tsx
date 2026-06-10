@@ -41,7 +41,7 @@ export const Search = () => {
   }, [query]);
 
   return (
-    <div className="pb-8">
+    <div className="p-6 pb-8">
       <h1 className="text-2xl font-bold text-white mb-6">Kết quả cho "{query}"</h1>
       
       {loading ? (

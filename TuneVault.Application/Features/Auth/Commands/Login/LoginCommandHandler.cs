@@ -35,6 +35,7 @@ public class LoginCommandHandler(
             UserId = user.Id,
             Username = user.Username,
             AvatarUrl = user.AvatarUrl ?? string.Empty,
+            Role = user.Role,
             Token = token
         };
     }

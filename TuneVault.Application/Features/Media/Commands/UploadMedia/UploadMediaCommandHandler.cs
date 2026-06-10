@@ -40,10 +40,10 @@ public class UploadMediaCommandHandler(
         string mediaType = request.ContentType.StartsWith("video") ? "Video" : "Audio";
 
         // Xử lý Nghệ sĩ (Artist)
-        Guid? artistId = null;
+        Guid? artistId = request.ArtistId;
         string? artistBio = null;
         string? artistAvatarUrl = null;
-        if (!string.IsNullOrWhiteSpace(request.Description))
+        if (!artistId.HasValue && !string.IsNullOrWhiteSpace(request.Description))
         {
             var artistName = request.Description.Trim();
             var existingArtist = await artistRepository.GetByNameAsync(artistName, cancellationToken);
@@ -78,6 +78,7 @@ public class UploadMediaCommandHandler(
             Duration = duration,
             UploaderId = request.UploaderId,
             ArtistId = artistId,
+            AlbumId = request.AlbumId,
             CreatedAt = DateTime.UtcNow
         };
 

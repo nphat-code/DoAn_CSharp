@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react';
 import { usePlayer } from '../context/PlayerContext';
 import { mediaService } from '../services/mediaService';
-import { playlistService } from '../services/playlistService';
-import type { PlaylistDto } from '../services/playlistService';
+import { albumService } from '../services/albumService';
+import type { AlbumDto } from '../services/albumService';
 import type { MediaItemDto } from '../types';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Disc } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export const Home = () => {
   const { playMedia } = usePlayer();
+  const navigate = useNavigate();
   const [tracks, setTracks] = useState<MediaItemDto[]>([]);
-  const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
+  const [albums, setAlbums] = useState<AlbumDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'all' | 'songs' | 'albums'>('all');
 
   const currentUserStr = localStorage.getItem('user');
   const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
@@ -18,12 +21,12 @@ export const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [libData, playData] = await Promise.all([
-          mediaService.getLibraryPlaylists(),
-          playlistService.getUserPlaylists().catch(() => [])
+        const [libData, albumData] = await Promise.all([
+          mediaService.getAllMedia(),
+          albumService.getAllAlbums().catch(() => [])
         ]);
         setTracks(libData);
-        setPlaylists(playData);
+        setAlbums(albumData);
       } catch (error) {
         console.error(error);
       } finally {
@@ -33,43 +36,104 @@ export const Home = () => {
     fetchData();
   }, []);
 
-  const handleAddToPlaylist = async (e: React.MouseEvent, trackId: string) => {
+  const handleAddToLikedSongs = async (e: React.MouseEvent, trackId: string) => {
     e.stopPropagation();
-    if (playlists.length === 0) {
-      alert("Bạn chưa có playlist nào. Hãy tạo playlist bên Sidebar trước.");
+    if (!currentUser) {
+      alert("Vui lòng đăng nhập để thêm vào Bài hát đã thích.");
       return;
     }
     
-    // Đơn giản hóa: Dùng prompt cho user chọn (thay vì UI phức tạp)
-    const playlistOptions = playlists.map((p, i) => `${i + 1}. ${p.name}`).join('\n');
-    const choice = prompt(`Chọn playlist (nhập số):\n${playlistOptions}`);
-    
-    if (choice) {
-      const index = parseInt(choice) - 1;
-      if (index >= 0 && index < playlists.length) {
-        try {
-          await playlistService.addTrackToPlaylist(playlists[index].id, trackId);
-          alert("Thêm vào playlist thành công!");
-        } catch (error) {
-          alert("Thêm thất bại. Có thể bài hát đã có trong playlist.");
-        }
+    try {
+      const res = await mediaService.toggleFavorite(trackId);
+      if (res.isFavorited) {
+        alert("Đã thêm vào Bài hát đã thích!");
+      } else {
+        alert("Đã xóa khỏi Bài hát đã thích!");
       }
+    } catch (error) {
+      alert("Lỗi khi thay đổi bài hát yêu thích.");
     }
   };
 
   return (
-    <div className="pb-8">
-      {/* Section 2 */}
-      <section>
-        <div className="flex items-end justify-between mb-4 mt-8">
-          <div>
-            <p className="text-sm text-zinc-400 font-medium">Dành Cho</p>
-            <h2 className="text-2xl font-bold text-white hover:underline cursor-pointer">Bạn</h2>
+    <div className="p-6 pb-8">
+      {/* Filters */}
+      <div className="flex gap-3 px-1 mt-4 mb-6">
+        <button 
+          onClick={() => setActiveTab('all')}
+          className={`px-4 py-1.5 rounded-full text-sm font-semibold transition ${activeTab === 'all' ? 'bg-white text-black' : 'bg-zinc-800 text-white hover:bg-zinc-700'}`}
+        >
+          Tất cả
+        </button>
+        <button 
+          onClick={() => setActiveTab('songs')}
+          className={`px-4 py-1.5 rounded-full text-sm font-semibold transition ${activeTab === 'songs' ? 'bg-white text-black' : 'bg-zinc-800 text-white hover:bg-zinc-700'}`}
+        >
+          Bài hát
+        </button>
+        <button 
+          onClick={() => setActiveTab('albums')}
+          className={`px-4 py-1.5 rounded-full text-sm font-semibold transition ${activeTab === 'albums' ? 'bg-white text-black' : 'bg-zinc-800 text-white hover:bg-zinc-700'}`}
+        >
+          Album
+        </button>
+      </div>
+
+      {/* Album Section */}
+      {(activeTab === 'all' || activeTab === 'albums') && (
+        <section className="mb-10">
+          <div className="flex items-end justify-between mb-4 mt-2">
+            <div>
+              <h2 className="text-2xl font-bold text-white hover:underline cursor-pointer">Album</h2>
+            </div>
+            {activeTab === 'all' && (
+              <span onClick={() => setActiveTab('albums')} className="text-sm font-bold text-zinc-400 hover:text-white cursor-pointer transition">Hiện tất cả</span>
+            )}
           </div>
-          <span className="text-sm font-bold text-zinc-400 hover:text-white cursor-pointer transition">Hiện tất cả</span>
-        </div>
-        
-        {loading ? (
+          
+          {loading ? (
+            <div className="text-zinc-500 font-medium">Đang tải...</div>
+          ) : albums.length > 0 ? (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-6">
+              {albums.slice(0, activeTab === 'all' ? 5 : undefined).map(album => (
+                <div 
+                  key={album.id}
+                  onClick={() => navigate(`/album/${album.id}`)}
+                  className="p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative flex flex-col"
+                >
+                  <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center relative overflow-hidden">
+                    {album.coverUrl ? (
+                      <img src={`http://localhost:5183${album.coverUrl}`} alt={album.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                         <Disc size={64} className="text-white/30" />
+                      </div>
+                    )}
+                  </div>
+                  <h3 className="font-bold text-white truncate text-base">{album.title}</h3>
+                  <p className="text-sm text-zinc-400 mt-1 truncate">{album.artistName || 'Nghệ sĩ'}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-zinc-500 font-medium">Chưa có album nào.</div>
+          )}
+        </section>
+      )}
+
+      {/* Tracks Section */}
+      {(activeTab === 'all' || activeTab === 'songs') && (
+        <section>
+          <div className="flex items-end justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-bold text-white hover:underline cursor-pointer">Bài hát</h2>
+            </div>
+            {activeTab === 'all' && (
+              <span onClick={() => setActiveTab('songs')} className="text-sm font-bold text-zinc-400 hover:text-white cursor-pointer transition">Hiện tất cả</span>
+            )}
+          </div>
+          
+          {loading ? (
           <div className="text-zinc-500 font-medium">Đang tải...</div>
         ) : tracks.length > 0 ? (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-6">
@@ -94,7 +158,7 @@ export const Home = () => {
                 <h3 className="font-bold text-white truncate text-base">{track.title}</h3>
                 <p className="text-sm text-zinc-400 mt-1 truncate">{track.artistName || track.description || 'Nghệ sĩ'}</p>
                 
-                {currentUser && track.uploaderId === currentUser.userId && (
+                {currentUser && currentUser.role === 'Admin' && (
                   <button 
                     onClick={async (e) => {
                       e.stopPropagation();
@@ -104,7 +168,7 @@ export const Home = () => {
                           setTracks(prev => prev.filter(t => t.id !== track.id));
                           alert("Đã xóa bài hát thành công!");
                         } catch (error) {
-                          alert("Lỗi khi xóa. Bạn chỉ có thể xóa bài hát do chính mình tải lên.");
+                          alert("Lỗi khi xóa.");
                         }
                       }
                     }}
@@ -116,9 +180,9 @@ export const Home = () => {
                 )}
                 
                 <button 
-                  onClick={(e) => handleAddToPlaylist(e, track.id)}
+                  onClick={(e) => handleAddToLikedSongs(e, track.id)}
                   className="absolute top-6 right-6 p-1.5 bg-black/60 hover:bg-black/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition shadow-md"
-                  title="Thêm vào Playlist"
+                  title="Thêm vào Bài hát đã thích"
                 >
                   <Plus size={16} />
                 </button>
@@ -128,7 +192,8 @@ export const Home = () => {
         ) : (
           <div className="text-zinc-500 font-medium">Chưa có bài hát nào được tải lên.</div>
         )}
-      </section>
+        </section>
+      )}
     </div>
   );
 };

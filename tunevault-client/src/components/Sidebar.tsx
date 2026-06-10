@@ -23,7 +23,7 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand }: SidebarProps) =>
     const fetchData = async () => {
       try {
         const pList = [];
-        pList.push(mediaService.getLibraryPlaylists());
+        pList.push(mediaService.getAllMedia());
         if (isAuthenticated) {
           pList.push(playlistService.getUserPlaylists().catch(() => []));
         }
@@ -55,18 +55,18 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand }: SidebarProps) =>
   };
 
   return (
-    <div className={`${isExpanded ? 'flex-1' : 'w-[335px] lg:w-[400px]'} bg-spotify-card rounded-lg flex flex-col overflow-hidden h-full transition-all duration-300`}>
+    <div className={`${isExpanded ? 'flex-1' : 'w-[72px] lg:w-[360px]'} bg-spotify-card rounded-lg flex flex-col overflow-hidden h-full transition-all duration-300`}>
       {/* Header */}
       <div className="p-4 flex flex-col gap-4 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button className="flex items-center gap-3 text-spotify-lighttext hover:text-white font-bold transition group">
-              <Library size={24} className="group-hover:text-white" />
-              <span>Thư viện</span>
+              <Library size={24} className="group-hover:text-white shrink-0" />
+              <span className={isExpanded ? "block" : "hidden lg:block"}>Thư viện</span>
             </button>
           </div>
           
-          <div className="flex items-center gap-2 text-spotify-lighttext">
+          <div className={`items-center gap-2 text-spotify-lighttext ${isExpanded ? 'flex' : 'hidden lg:flex'}`}>
             {isAuthenticated && (
               <button onClick={() => setShowCreateModal(true)} className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition flex items-center gap-1 text-sm font-semibold" title="Tạo playlist mới">
                 <Plus size={20} /> Tạo
@@ -79,14 +79,14 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand }: SidebarProps) =>
         </div>
 
         {/* Filters */}
-        <div className="flex gap-2 text-sm font-medium mt-1">
+        <div className={`gap-2 text-sm font-medium mt-1 ${isExpanded ? 'flex' : 'hidden lg:flex'}`}>
           <button className="px-3 py-1.5 bg-spotify-hover2 text-white rounded-full transition">Playlist</button>
         </div>
       </div>
 
       {/* Playlist Content */}
       <div className="flex-1 overflow-y-auto px-2">
-        <div className="flex items-center justify-between px-2 py-2 mb-2 text-spotify-lighttext">
+        <div className={`items-center justify-between px-2 py-2 mb-2 text-spotify-lighttext ${isExpanded ? 'flex' : 'hidden lg:flex'}`}>
           <button className="p-1.5 hover:bg-spotify-hover2 rounded-full transition"><Search size={18} /></button>
           <button className="flex items-center gap-1.5 text-sm font-medium hover:text-white transition group">
             <span>Gần đây</span>
@@ -97,7 +97,7 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand }: SidebarProps) =>
         {/* List */}
         <div className={isExpanded ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 pb-4 px-2 mt-4" : "flex flex-col gap-1 pb-4"}>
           {!isAuthenticated ? (
-            <div className="bg-[#242424] rounded-lg p-4 mx-2 my-2 flex flex-col items-start gap-4">
+            <div className={`bg-[#242424] rounded-lg p-4 mx-2 my-2 flex-col items-start gap-4 ${isExpanded ? 'flex' : 'hidden lg:flex'}`}>
               <div className="flex flex-col gap-1">
                 <span className="text-white font-bold text-base">Tạo danh sách phát đầu tiên của bạn</span>
                 <span className="text-white font-medium text-sm">Rất dễ, chúng tôi sẽ giúp bạn</span>
@@ -110,11 +110,11 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand }: SidebarProps) =>
               </button>
             </div>
           ) : (
-            <div onClick={() => alert("Tính năng xem danh sách Bài hát đã thích đang được phát triển!")} className={`p-2 hover:bg-spotify-hover rounded-md cursor-pointer transition ${isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'flex items-center gap-3'}`}>
+            <div onClick={() => window.location.href = '/favorites'} className={`p-2 hover:bg-spotify-hover rounded-md cursor-pointer transition ${isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'flex items-center gap-3'}`}>
               <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-gradient-to-br from-indigo-600 to-purple-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
-                <Heart size={isExpanded ? 48 : 20} className="fill-white text-white" />
+                <Heart size={isExpanded ? 48 : 20} className="fill-white text-white shrink-0" />
               </div>
-              <div className="flex flex-col w-full">
+              <div className={`flex-col w-full ${isExpanded ? 'flex' : 'hidden lg:flex'}`}>
                 <span className="text-base text-white font-semibold truncate">Bài hát đã thích</span>
                 <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • Tự động</span>
               </div>
@@ -130,12 +130,12 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand }: SidebarProps) =>
             >
               <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
                 {playlist.coverUrl ? (
-                  <img src={playlist.coverUrl} alt={playlist.name} className="w-full h-full object-cover" />
+                  <img src={playlist.coverUrl} alt={playlist.name} className="w-full h-full object-cover shrink-0" />
                 ) : (
-                  <Library size={isExpanded ? 48 : 20} className="text-zinc-500" />
+                  <Library size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
                 )}
               </div>
-              <div className="flex flex-col overflow-hidden w-full">
+              <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'hidden lg:flex'}`}>
                 <span className="text-base text-white font-semibold truncate">{playlist.name}</span>
                 <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • Bạn</span>
               </div>
@@ -153,12 +153,12 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand }: SidebarProps) =>
                 >
                   <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
                     {item.coverUrl ? (
-                      <img src={`http://localhost:5183${item.coverUrl}`} alt={item.title} className="w-full h-full object-cover" />
+                      <img src={`http://localhost:5183${item.coverUrl}`} alt={item.title} className="w-full h-full object-cover shrink-0" />
                     ) : (
-                      <Music size={isExpanded ? 48 : 20} className="text-zinc-500" />
+                      <Music size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
                     )}
                   </div>
-                  <div className="flex flex-col overflow-hidden w-full">
+                  <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'hidden lg:flex'}`}>
                     <span className="text-base text-white font-semibold truncate">{item.title}</span>
                     <span className="text-sm text-spotify-lighttext font-medium truncate">{item.mediaType} • Tải lên gần đây</span>
                   </div>

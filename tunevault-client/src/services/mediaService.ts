@@ -2,7 +2,7 @@ import apiClient from './apiClient';
 import type { MediaItemDto } from '../types';
 
 export const mediaService = {
-  getLibraryPlaylists: async (): Promise<MediaItemDto[]> => {
+  getAllMedia: async (): Promise<MediaItemDto[]> => {
     const response = await apiClient.get<{success: boolean, data: MediaItemDto[]}>('/media');
     return response.data.data;
   },
@@ -36,6 +36,11 @@ export const mediaService = {
   checkFavorite: async (mediaId: string): Promise<{ isFavorited: boolean }> => {
     const response = await apiClient.get<{ isFavorited: boolean }>(`/favorites/check/${mediaId}`);
     return response.data;
+  },
+
+  getFavorites: async (): Promise<MediaItemDto[]> => {
+    const response = await apiClient.get<{success: boolean, data: MediaItemDto[]}>('/favorites');
+    return response.data.data;
   },
 
   deleteMedia: async (id: string): Promise<void> => {

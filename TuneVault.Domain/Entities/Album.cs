@@ -10,5 +10,7 @@ public class Album
     public Guid ArtistId { get; set; }
     public Artist Artist { get; set; } = null!;
     
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
     public ICollection<MediaItem> MediaItems { get; set; } = new List<MediaItem>();
 }

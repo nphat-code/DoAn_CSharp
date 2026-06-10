@@ -12,8 +12,9 @@ namespace TuneVault.API.Controllers;
 public class MediaController(IMediator mediator) : ControllerBase
 {
     [HttpPost("upload")]
+    [Authorize(Roles = "Admin")]
     // Tắt Validate AntiForgeryToken cho API và config upload file size qua server nếu cần
-    public async Task<IActionResult> UploadMedia([FromForm] string title, [FromForm] string? description, IFormFile file, IFormFile? coverImage)
+    public async Task<IActionResult> UploadMedia([FromForm] string title, [FromForm] string? description, IFormFile file, IFormFile? coverImage, [FromForm] Guid? albumId = null, [FromForm] Guid? artistId = null)
     {
         if (file == null || file.Length == 0)
         {
@@ -38,7 +39,9 @@ public class MediaController(IMediator mediator) : ControllerBase
             FileName: file.FileName,
             ContentType: file.ContentType,
             CoverImageStream: coverStream,
-            CoverImageFileName: coverImage?.FileName
+            CoverImageFileName: coverImage?.FileName,
+            AlbumId: albumId,
+            ArtistId: artistId
         );
 
         var response = await mediator.Send(command);
@@ -78,6 +81,7 @@ public class MediaController(IMediator mediator) : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteMedia(Guid id)
     {
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -86,7 +90,8 @@ public class MediaController(IMediator mediator) : ControllerBase
             return Unauthorized("Không thể xác thực danh tính người dùng.");
         }
 
-        var command = new TuneVault.Application.Features.Media.Commands.DeleteMedia.DeleteMediaCommand(id, uploaderId);
+        var isAdmin = User.IsInRole("Admin");
+        var command = new TuneVault.Application.Features.Media.Commands.DeleteMedia.DeleteMediaCommand(id, uploaderId, isAdmin);
         var result = await mediator.Send(command);
         
         if (!result)

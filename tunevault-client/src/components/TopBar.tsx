@@ -1,8 +1,9 @@
-import { Home, Search, Bell, Download, User, UploadCloud, UserPlus } from 'lucide-react';
+import { Home, Search, Bell, Download, User, UserPlus, Upload, Plus } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { UploadModal } from './UploadModal';
 import { AddArtistModal } from './AddArtistModal';
+import { CreateAlbumModal } from './CreateAlbumModal';
 
 export const TopBar = () => {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ export const TopBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showAddArtistModal, setShowAddArtistModal] = useState(false);
+  const [showCreateAlbumModal, setShowCreateAlbumModal] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const isAuthenticated = !!localStorage.getItem('token');
 
@@ -46,7 +48,7 @@ export const TopBar = () => {
   };
 
   return (
-    <header className="h-16 flex items-center justify-between px-2">
+    <header className="h-16 flex items-center justify-between -m-2 p-2">
       {/* Logo */}
       <div className="w-1/4">
         <div className="text-2xl font-bold tracking-tighter text-white cursor-pointer">TuneVault</div>
@@ -89,7 +91,7 @@ export const TopBar = () => {
         <button className="bg-white text-black text-sm font-bold px-4 py-1.5 rounded-full hover:scale-105 transition whitespace-nowrap hidden lg:block">
           Khám phá Premium
         </button>
-        {isAuthenticated && (
+        {isAuthenticated && user?.role === 'Admin' && (
           <>
             <button 
               onClick={() => setShowAddArtistModal(true)}
@@ -98,13 +100,22 @@ export const TopBar = () => {
               <UserPlus size={16} />
               Thêm nghệ sĩ
             </button>
-            <button 
-              onClick={() => setShowUploadModal(true)}
-              className="flex items-center gap-1 text-sm font-bold text-zinc-300 hover:text-white transition whitespace-nowrap hidden lg:flex"
-            >
-              <UploadCloud size={16} />
-              Tải nhạc lên
-            </button>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setShowCreateAlbumModal(true)}
+                className="hidden md:flex items-center gap-2 bg-zinc-800 text-white px-4 py-2 rounded-full font-bold text-sm hover:scale-105 transition hover:bg-zinc-700"
+              >
+                <Plus size={18} />
+                Tạo Album
+              </button>
+              <button 
+                onClick={() => setShowUploadModal(true)}
+                className="hidden md:flex items-center gap-2 bg-white text-black px-4 py-2 rounded-full font-bold text-sm hover:scale-105 transition"
+              >
+                <Upload size={18} />
+                Tải lên
+              </button>
+            </div>
           </>
         )}
         <button className="flex items-center gap-1 text-sm font-bold text-zinc-300 hover:text-white transition whitespace-nowrap hidden lg:flex">
@@ -192,6 +203,12 @@ export const TopBar = () => {
             setShowAddArtistModal(false);
             window.location.reload(); // Refresh to see newly created artist
           }}
+        />
+      )}
+
+      {showCreateAlbumModal && (
+        <CreateAlbumModal 
+          onClose={() => setShowCreateAlbumModal(false)}
         />
       )}
     </header>

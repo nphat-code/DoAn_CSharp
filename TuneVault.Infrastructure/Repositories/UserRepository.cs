@@ -26,8 +26,8 @@ public class UserRepository(IDbConnection dbConnection) : IUserRepository
     public async Task AddAsync(UserProfile user, CancellationToken cancellationToken)
     {
         var sql = @"
-            INSERT INTO UserProfiles (Id, Username, Email, PasswordHash, AvatarUrl, CreatedAt)
-            VALUES (@Id, @Username, @Email, @PasswordHash, @AvatarUrl, @CreatedAt)";
+            INSERT INTO UserProfiles (Id, Username, Email, PasswordHash, AvatarUrl, Role, CreatedAt)
+            VALUES (@Id, @Username, @Email, @PasswordHash, @AvatarUrl, @Role, @CreatedAt)";
             
         var command = new CommandDefinition(sql, user, cancellationToken: cancellationToken);
         await dbConnection.ExecuteAsync(command);

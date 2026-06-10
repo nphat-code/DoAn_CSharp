@@ -6,9 +6,11 @@ import { mediaService } from '../services/mediaService';
 interface UploadModalProps {
   onClose: () => void;
   onSuccess: () => void;
+  albumId?: string;
+  artistId?: string;
 }
 
-export const UploadModal = ({ onClose, onSuccess }: UploadModalProps) => {
+export const UploadModal = ({ onClose, onSuccess, albumId, artistId }: UploadModalProps) => {
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -29,6 +31,12 @@ export const UploadModal = ({ onClose, onSuccess }: UploadModalProps) => {
       formData.append('file', file);
       if (coverImage) {
         formData.append('coverImage', coverImage);
+      }
+      if (albumId) {
+        formData.append('albumId', albumId);
+      }
+      if (artistId) {
+        formData.append('artistId', artistId);
       }
 
       await mediaService.uploadMedia(formData);

@@ -42,4 +42,20 @@ public class FavoritesController(IMediator mediator) : ControllerBase
 
         return Ok(new { isFavorited });
     }
+
+    // GET /api/favorites
+    [HttpGet]
+    public async Task<IActionResult> GetFavorites()
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdString, out var userId))
+        {
+            return Unauthorized("Không thể xác thực danh tính người dùng.");
+        }
+
+        var query = new TuneVault.Application.Features.Favorites.Queries.GetUserFavorites.GetUserFavoritesQuery(userId);
+        var favorites = await mediator.Send(query);
+
+        return Ok(new { success = true, data = favorites });
+    }
 }
