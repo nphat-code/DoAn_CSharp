@@ -5,7 +5,7 @@ import { playlistService } from '../services/playlistService';
 import type { PlaylistDto } from '../services/playlistService';
 
 export const PlayerBar = () => {
-  const { currentMedia, isPlaying, togglePlayPause, volume, setVolume, mediaRef, isFavorited, toggleFavorite } = usePlayer();
+  const { currentMedia, isPlaying, togglePlayPause, playNext, playPrevious, volume, setVolume, mediaRef, isFavorited, toggleFavorite } = usePlayer();
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -43,7 +43,7 @@ export const PlayerBar = () => {
     };
 
     const handleEnded = () => {
-      togglePlayPause();
+      playNext();
     };
 
     media.addEventListener('timeupdate', handleTimeUpdate);
@@ -60,7 +60,7 @@ export const PlayerBar = () => {
       media.removeEventListener('loadedmetadata', handleLoadedMetadata);
       media.removeEventListener('ended', handleEnded);
     };
-  }, [currentMedia, mediaRef, togglePlayPause]);
+  }, [currentMedia, mediaRef, playNext]);
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (mediaRef.current) {
@@ -123,13 +123,22 @@ export const PlayerBar = () => {
 
   return (
     <div className="h-20 bg-spotify-base flex items-center justify-between px-4 pb-2">
-      {/* Cấu hình HTTP Range Request cho phép stream và seek mượt mà */}
-      {currentMedia.mediaType !== 'Video' && (
-        <audio
-          ref={mediaRef as React.RefObject<HTMLAudioElement>}
-          src={`http://localhost:5183/api/media/${currentMedia.id}/stream`} 
-        />
-      )}
+      {/* Global Media Element - Hidden by default, manually appended to targets */}
+      <div className="hidden">
+        {currentMedia.mediaType === 'Video' ? (
+          <video
+            ref={mediaRef as React.RefObject<HTMLVideoElement>}
+            src={`http://localhost:5183/api/media/${currentMedia.id}/stream`}
+            playsInline
+            className="w-full h-full object-cover scale-[1.3] transform-gpu"
+          />
+        ) : (
+          <audio
+            ref={mediaRef as React.RefObject<HTMLAudioElement>}
+            src={`http://localhost:5183/api/media/${currentMedia.id}/stream`} 
+          />
+        )}
+      </div>
       
       {/* Song Info */}
       <div className="flex items-center w-1/3">
@@ -217,11 +226,11 @@ export const PlayerBar = () => {
       {/* Controls */}
       <div className="flex flex-col items-center w-1/3 max-w-md mt-1">
         <div className="flex items-center gap-6 mb-2">
-          <button className="text-spotify-lighttext hover:text-white transition"><SkipBack size={20} className="fill-current" /></button>
+          <button onClick={playPrevious} className="text-spotify-lighttext hover:text-white transition"><SkipBack size={20} className="fill-current" /></button>
           <button onClick={togglePlayPause} className="w-8 h-8 flex items-center justify-center bg-white text-black rounded-full hover:scale-105 transition">
             {isPlaying ? <Pause size={16} className="fill-black" /> : <Play size={16} className="fill-black" />}
           </button>
-          <button className="text-spotify-lighttext hover:text-white transition"><SkipForward size={20} className="fill-current" /></button>
+          <button onClick={playNext} className="text-spotify-lighttext hover:text-white transition"><SkipForward size={20} className="fill-current" /></button>
         </div>
         <div className="w-full flex items-center gap-2">
           <span className="text-[11px] text-spotify-lighttext min-w-[32px] text-right">{formatTime(currentTime)}</span>

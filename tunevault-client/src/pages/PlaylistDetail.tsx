@@ -11,7 +11,7 @@ export const PlaylistDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [playlist, setPlaylist] = useState<PlaylistDetailDto | null>(null);
   const [loading, setLoading] = useState(true);
-  const { playMedia } = usePlayer();
+  const { playMediaList, currentMedia, isPlaying, togglePlayPause } = usePlayer();
 
   const fetchDetails = async () => {
     try {
@@ -98,6 +98,18 @@ export const PlaylistDetail = () => {
   if (loading) return <div className="p-6 text-white">Đang tải chi tiết playlist...</div>;
   if (!playlist) return <div className="p-6 text-white">Playlist không tồn tại.</div>;
 
+  const isCurrentPlaylist = currentMedia && playlist.tracks?.some(t => t.id === currentMedia.id);
+  const isPlaylistPlaying = isCurrentPlaylist && isPlaying;
+
+  const handleMainPlayClick = () => {
+    if (!playlist || !playlist.tracks || playlist.tracks.length === 0) return;
+    if (isCurrentPlaylist) {
+      togglePlayPause();
+    } else {
+      playMediaList(playlist.tracks, 0);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-indigo-900/40 to-black overflow-y-auto">
       {/* Header */}
@@ -137,10 +149,16 @@ export const PlaylistDetail = () => {
         {/* Controls */}
         <div className="flex items-center gap-6 mb-6">
           <button 
-            onClick={() => playlist.tracks.length > 0 && playMedia(playlist.tracks[0])}
+            onClick={handleMainPlayClick}
             className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center hover:scale-105 transition hover:bg-green-400 shadow-xl"
           >
-            <Play size={24} className="text-black fill-black ml-1" />
+            {isPlaylistPlaying ? (
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" className="text-black ml-0">
+                <path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path>
+              </svg>
+            ) : (
+              <Play size={24} className="text-black fill-black ml-1" />
+            )}
           </button>
           <button onClick={handleDeletePlaylist} className="text-zinc-400 hover:text-white transition">
             Xóa Playlist
@@ -160,16 +178,31 @@ export const PlaylistDetail = () => {
 
           {/* Tracks */}
           <div className="flex flex-col gap-0 pb-10">
-            {playlist.tracks && playlist.tracks.map((track, index) => (
+            {playlist.tracks && playlist.tracks.map((track, index) => {
+              const isPlayingTrack = currentMedia?.id === track.id;
+              return (
               <div 
                 key={track.id} 
                 className="grid grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(100px,2fr)_minmax(100px,1fr)] gap-4 px-4 py-2 hover:bg-white/10 rounded-md transition items-center group cursor-pointer"
-                onDoubleClick={() => playMedia(track)}
+                onDoubleClick={() => {
+                  if (isPlayingTrack) togglePlayPause();
+                  else playMediaList(playlist.tracks, index);
+                }}
               >
-                <div className="text-[#b3b3b3] text-base font-medium flex items-center justify-end pr-2 relative w-full">
+                <div className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-[#b3b3b3]'} text-base font-medium flex items-center justify-end pr-2 relative w-full`}>
                   <span className="group-hover:hidden">{index + 1}</span>
-                  <button className="hidden group-hover:block text-white" onClick={(e) => { e.stopPropagation(); playMedia(track); }}>
-                    <Play size={14} className="fill-white text-white" />
+                  <button className="hidden group-hover:block" onClick={(e) => { 
+                    e.stopPropagation(); 
+                    if (isPlayingTrack) togglePlayPause();
+                    else playMediaList(playlist.tracks, index); 
+                  }}>
+                    {isPlayingTrack && isPlaying ? (
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" className="text-white">
+                        <path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path>
+                      </svg>
+                    ) : (
+                      <Play size={14} className="fill-white text-white" />
+                    )}
                   </button>
                 </div>
                 <div className="flex items-center gap-3 overflow-hidden">
@@ -181,7 +214,7 @@ export const PlaylistDetail = () => {
                       )}
                   </div>
                   <div className="flex flex-col overflow-hidden">
-                    <span className="text-white font-semibold text-base truncate group-hover:text-white">{track.title}</span>
+                    <span className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-white'} font-semibold text-base truncate`}>{track.title}</span>
                     <span className="text-[#b3b3b3] text-sm truncate hover:underline">{track.artistName || track.description || "Nghệ sĩ"}</span>
                   </div>
                 </div>
@@ -201,7 +234,7 @@ export const PlaylistDetail = () => {
                   <div className="text-sm text-[#b3b3b3] font-medium w-10 text-right">{track.duration}</div>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         </div>
 

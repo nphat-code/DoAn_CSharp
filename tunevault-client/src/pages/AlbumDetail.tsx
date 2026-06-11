@@ -6,7 +6,6 @@ import { usePlayer } from '../context/PlayerContext';
 import { Play, Clock, Disc, PlusCircle, ArrowDownCircle, MoreHorizontal, User, Plus, Trash2 } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import { AddTrackToAlbumModal } from '../components/AddTrackToAlbumModal';
-import type { MediaItemDto } from '../types';
 
 export const AlbumDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,7 +14,7 @@ export const AlbumDetail = () => {
   const [bgColor, setBgColor] = useState<string>('rgba(49, 46, 129, 0.4)');
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAddTrackModal, setShowAddTrackModal] = useState(false);
-  const { playMedia, currentMedia, isFavorited, setIsFavorited } = usePlayer();
+  const { playMediaList, currentMedia, isFavorited, setIsFavorited, isPlaying, togglePlayPause } = usePlayer();
   const [likedTracks, setLikedTracks] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
 
@@ -105,13 +104,28 @@ export const AlbumDetail = () => {
     }
   };
 
-  const handlePlayMedia = (track: MediaItemDto) => {
-    playMedia({
-      ...track,
-      coverUrl: track.coverUrl || album?.coverUrl,
-      artistName: track.artistName || album?.artistName,
-      artistAvatarUrl: track.artistAvatarUrl || album?.artistImageUrl
-    });
+  const handlePlayMedia = (index: number) => {
+    if (!album || !album.tracks) return;
+    const tracksWithCover = album.tracks.map(t => ({
+      ...t,
+      coverUrl: t.coverUrl || album.coverUrl,
+      artistName: t.artistName || album.artistName,
+      artistAvatarUrl: t.artistAvatarUrl || album.artistImageUrl
+    }));
+    playMediaList(tracksWithCover, index);
+  };
+
+  const isCurrentAlbum = currentMedia && album?.tracks?.some(t => t.id === currentMedia.id);
+  const isAlbumPlaying = isCurrentAlbum && isPlaying;
+
+  const handleMainPlayClick = () => {
+    if (!album || !album.tracks || album.tracks.length === 0) return;
+    
+    if (isCurrentAlbum) {
+      togglePlayPause();
+    } else {
+      handlePlayMedia(0);
+    }
   };
 
   const handleDeleteAlbum = async () => {
@@ -213,10 +227,16 @@ export const AlbumDetail = () => {
         {/* Controls */}
         <div className="flex items-center gap-6 mb-6 px-2">
           <button
-          onClick={() => album.tracks && album.tracks.length > 0 && handlePlayMedia(album.tracks[0])}
+          onClick={handleMainPlayClick}
           className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center hover:scale-105 transition hover:bg-green-400 shadow-xl"
         >
-          <Play size={24} className="text-black fill-black ml-1" />
+          {isAlbumPlaying ? (
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" className="text-black ml-0">
+              <path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path>
+            </svg>
+          ) : (
+            <Play size={24} className="text-black fill-black ml-1" />
+          )}
         </button>
         <button className="text-zinc-400 hover:text-white transition" title="Lưu vào Thư viện">
           <PlusCircle size={32} />
@@ -260,20 +280,32 @@ export const AlbumDetail = () => {
 
           {/* Tracks */}
           <div className="flex flex-col gap-1 pb-10">
-            {album.tracks && album.tracks.map((track, index) => (
+            {album.tracks && album.tracks.map((track, index) => {
+              const isPlayingTrack = currentMedia?.id === track.id;
+              return (
               <div
                 key={track.id}
                 className="grid grid-cols-[32px_1fr_minmax(50px,100px)_60px] gap-4 px-4 py-2 hover:bg-white/10 rounded-md transition items-center group cursor-pointer"
-                onDoubleClick={() => handlePlayMedia(track)}
+                onDoubleClick={() => handlePlayMedia(index)}
               >
-                <div className="text-spotify-lighttext text-base font-medium flex items-center justify-end pr-2 relative w-full">
+                <div className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-spotify-lighttext'} text-base font-medium flex items-center justify-end pr-2 relative w-full`}>
                   <span className="group-hover:hidden">{index + 1}</span>
-                  <button className="hidden group-hover:block" onClick={(e) => { e.stopPropagation(); handlePlayMedia(track); }}>
-                    <Play size={16} className="fill-white text-white" />
+                  <button className="hidden group-hover:block" onClick={(e) => { 
+                    e.stopPropagation(); 
+                    if (isPlayingTrack) togglePlayPause();
+                    else handlePlayMedia(index); 
+                  }}>
+                    {isPlayingTrack && isPlaying ? (
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="text-white">
+                        <path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path>
+                      </svg>
+                    ) : (
+                      <Play size={16} className="fill-white text-white" />
+                    )}
                   </button>
                 </div>
                 <div className="flex flex-col overflow-hidden justify-center">
-                  <span className="text-white font-medium text-base truncate">{track.title}</span>
+                  <span className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-white'} font-medium text-base truncate`}>{track.title}</span>
                   <span className="text-spotify-lighttext text-sm truncate hover:underline hover:text-white inline-block w-fit">{track.artistName || album.artistName}</span>
                 </div>
 
@@ -298,7 +330,7 @@ export const AlbumDetail = () => {
                   </button>
                 </div>
               </div>
-            ))}
+            )})}
             {(!album.tracks || album.tracks.length === 0) && (
               <div className="text-zinc-500 font-medium py-4 px-2">Chưa có bài hát nào trong album này.</div>
             )}

@@ -1,4 +1,4 @@
-import { Home, Search, Bell, User, UserPlus, Upload, Plus, ShieldAlert } from 'lucide-react';
+import { Search, Bell, User, UserPlus, Upload, Plus, ShieldAlert } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { UploadModal } from './UploadModal';
@@ -62,7 +62,17 @@ export const TopBar = () => {
             `w-12 h-12 flex items-center justify-center rounded-full bg-spotify-hover2 hover:scale-105 transition ${isActive ? 'text-white' : 'text-spotify-lighttext'}`
           }
         >
-          <Home size={24} />
+          {({ isActive }) => 
+            isActive ? (
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M13.5 1.515a3 3 0 0 0-3 0L3 5.845a2 2 0 0 0-1 1.732V21a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-6h4v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V7.577a2 2 0 0 0-1-1.732l-7.5-4.33z" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M12.5 3.247a1 1 0 0 0-1 0L4 7.577V20h4.5v-6a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v6H20V7.577l-7.5-4.33zm-2-1.732a3 3 0 0 1 3 0l7.5 4.33a2 2 0 0 1 1 1.732V21a1 1 0 0 1-1 1h-6.5a1 1 0 0 1-1-1v-6h-3v6a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.577a2 2 0 0 1 1-1.732l7.5-4.33z" />
+              </svg>
+            )
+          }
         </NavLink>
         <div className="flex-1 flex items-center bg-spotify-hover2 rounded-full h-12 px-4 group hover:bg-spotify-hover2/80 transition focus-within:bg-spotify-hover2 focus-within:ring-2 focus-within:ring-white">
           <Search size={22} className="text-zinc-400 group-focus-within:text-white mr-3" />

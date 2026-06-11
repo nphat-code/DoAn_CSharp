@@ -3,6 +3,7 @@ import { MoreHorizontal, X, Trash2, Maximize2 } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import { useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
+import { VideoCanvas } from './VideoCanvas';
 
 interface RightPanelProps {
   width?: number;
@@ -59,11 +60,9 @@ export const RightPanel = ({ width }: RightPanelProps) => {
          style={{ transform: 'translate3d(0,0,0)' }}
        >
          {currentMedia.mediaType === 'Video' ? (
-           <video 
-              ref={mediaRef as React.RefObject<HTMLVideoElement>}
-              src={`http://localhost:5183/api/media/${currentMedia.id}/stream`}
-              className="w-full h-full object-cover scale-[1.3] transform-gpu"
-              playsInline
+           <VideoCanvas 
+             videoRef={mediaRef as React.RefObject<HTMLVideoElement>} 
+             className="w-full h-full object-cover scale-[1.3] transform-gpu" 
            />
          ) : currentMedia.coverUrl ? (
            <img src={`http://localhost:5183${currentMedia.coverUrl}`} alt="Cover" className="w-full h-full object-cover scale-[1.3] transform-gpu" />

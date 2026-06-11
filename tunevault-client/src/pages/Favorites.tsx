@@ -20,7 +20,7 @@ const formatDuration = (timeString: string | undefined) => {
 export const Favorites = () => {
   const [favorites, setFavorites] = useState<MediaItemDto[]>([]);
   const [loading, setLoading] = useState(true);
-  const { playMedia, currentMedia, isFavorited, setIsFavorited } = usePlayer();
+  const { playMediaList, currentMedia, isFavorited, setIsFavorited, isPlaying, togglePlayPause } = usePlayer();
 
   const currentUserStr = localStorage.getItem('user');
   const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
@@ -102,6 +102,18 @@ export const Favorites = () => {
     return `, ${m} phút ${s} giây`;
   };
 
+  const isCurrentPlaylist = currentMedia && favorites.some(t => t.id === currentMedia.id);
+  const isPlaylistPlaying = isCurrentPlaylist && isPlaying;
+
+  const handleMainPlayClick = () => {
+    if (favorites.length === 0) return;
+    if (isCurrentPlaylist) {
+      togglePlayPause();
+    } else {
+      playMediaList(favorites, 0);
+    }
+  };
+
   if (loading) return <div className="p-6 text-white">Đang tải danh sách bài hát đã thích...</div>;
 
   return (
@@ -139,10 +151,16 @@ export const Favorites = () => {
         {/* Controls */}
         <div className="flex items-center gap-6 mb-6">
           <button 
-            onClick={() => favorites.length > 0 && playMedia(favorites[0])}
+            onClick={handleMainPlayClick}
             className="w-14 h-14 rounded-full bg-[#1ED760] flex items-center justify-center hover:scale-105 transition hover:bg-[#1fdf64] shadow-xl"
           >
-            <Play size={24} className="text-black fill-black ml-1" />
+            {isPlaylistPlaying ? (
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" className="text-black ml-0">
+                <path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path>
+              </svg>
+            ) : (
+              <Play size={24} className="text-black fill-black ml-1" />
+            )}
           </button>
         </div>
 
@@ -162,16 +180,31 @@ export const Favorites = () => {
           {favorites.length === 0 ? (
             <div className="text-center text-zinc-400 mt-10">Bạn chưa thêm bài hát nào vào danh sách này.</div>
           ) : (
-            favorites.map((track, index) => (
+            favorites.map((track, index) => {
+              const isPlayingTrack = currentMedia?.id === track.id;
+              return (
               <div 
                 key={track.id} 
                 className="grid grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(100px,2fr)_minmax(100px,1fr)] gap-4 px-4 py-2 hover:bg-white/10 rounded-md transition items-center group cursor-pointer"
-                onClick={() => playMedia(track)}
+                onDoubleClick={() => {
+                  if (isPlayingTrack) togglePlayPause();
+                  else playMediaList(favorites, index);
+                }}
               >
-                <div className="text-[#b3b3b3] text-base font-medium flex items-center justify-end pr-2 relative w-full">
+                <div className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-[#b3b3b3]'} text-base font-medium flex items-center justify-end pr-2 relative w-full`}>
                   <span className="group-hover:hidden">{index + 1}</span>
-                  <button className="hidden group-hover:block text-white">
-                    <Play size={14} className="fill-white" />
+                  <button className="hidden group-hover:block" onClick={(e) => { 
+                    e.stopPropagation(); 
+                    if (isPlayingTrack) togglePlayPause();
+                    else playMediaList(favorites, index); 
+                  }}>
+                    {isPlayingTrack && isPlaying ? (
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" className="text-white">
+                        <path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path>
+                      </svg>
+                    ) : (
+                      <Play size={14} className="fill-white text-white" />
+                    )}
                   </button>
                 </div>
                 <div className="flex items-center gap-3 overflow-hidden">
@@ -183,7 +216,7 @@ export const Favorites = () => {
                     )}
                   </div>
                   <div className="flex flex-col overflow-hidden">
-                    <span className="text-white font-semibold text-base truncate group-hover:text-white">{track.title}</span>
+                    <span className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-white'} font-semibold text-base truncate`}>{track.title}</span>
                     <span className="text-[#b3b3b3] text-sm truncate hover:underline">{track.artistName || track.description || "Nghệ sĩ"}</span>
                   </div>
                 </div>
@@ -202,7 +235,7 @@ export const Favorites = () => {
                   <div className="text-sm text-[#b3b3b3] font-medium w-10 text-right">{formatDuration(track.duration)}</div>
                 </div>
               </div>
-            ))
+            )})
           )}
         </div>
       </div>

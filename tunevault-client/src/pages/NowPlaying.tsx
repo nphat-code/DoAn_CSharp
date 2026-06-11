@@ -1,6 +1,7 @@
 import { usePlayer } from '../context/PlayerContext';
 import { useNavigate } from 'react-router-dom';
 import { Minimize2, MoreHorizontal, User, Music } from 'lucide-react';
+import { VideoCanvas } from '../components/VideoCanvas';
 
 export const NowPlaying = () => {
   const { currentMedia, mediaRef } = usePlayer();
@@ -21,11 +22,9 @@ export const NowPlaying = () => {
       {/* Background/Video Layer */}
       <div className="absolute inset-0 z-0 flex items-center justify-center">
         {currentMedia.mediaType === 'Video' ? (
-          <video 
-            ref={mediaRef as React.RefObject<HTMLVideoElement>}
-            src={`http://localhost:5183/api/media/${currentMedia.id}/stream`}
-            className="w-full h-full object-contain"
-            playsInline
+          <VideoCanvas 
+            videoRef={mediaRef as React.RefObject<HTMLVideoElement>} 
+            className="w-full h-full object-contain" 
           />
         ) : currentMedia.coverUrl ? (
            <img src={`http://localhost:5183${currentMedia.coverUrl}`} alt="Cover" className="w-full h-full object-contain" />
