@@ -1,8 +1,20 @@
+using Microsoft.AspNetCore.Http.Features;
 using TuneVault.Application;
 using TuneVault.Infrastructure;
 using TuneVault.Infrastructure.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Cấu hình giới hạn kích thước upload (2GB) để cho phép up video FHD/4K
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 2147483648; // 2GB
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 2147483648; // 2GB
+});
 
 // Add CORS policy for React Frontend
 builder.Services.AddCors(options =>
