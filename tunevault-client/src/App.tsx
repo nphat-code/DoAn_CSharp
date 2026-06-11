@@ -8,6 +8,9 @@ import { Profile } from './pages/Profile';
 import { Search } from './pages/Search';
 import { Favorites } from './pages/Favorites';
 import { AlbumDetail } from './pages/AlbumDetail';
+import { NowPlaying } from './pages/NowPlaying';
+import { TrackDetail } from './pages/TrackDetail';
+import { AdminDashboard } from './pages/AdminDashboard';
 
 const Placeholder = ({ title }: { title: string }) => (
   <div className="p-6">
@@ -34,9 +37,12 @@ function App() {
           <Route path="favorites" element={isAuthenticated ? <Favorites /> : <Navigate to="/login" />} />
           <Route path="playlist/:id" element={isAuthenticated ? <PlaylistDetail /> : <Navigate to="/login" />} />
           <Route path="album/:id" element={isAuthenticated ? <AlbumDetail /> : <Navigate to="/login" />} />
+          <Route path="track/:id" element={isAuthenticated ? <TrackDetail /> : <Navigate to="/login" />} />
           <Route path="share-inbox" element={isAuthenticated ? <Placeholder title="Share Inbox" /> : <Navigate to="/login" />} />
           <Route path="notifications" element={isAuthenticated ? <Placeholder title="Notifications" /> : <Navigate to="/login" />} />
           <Route path="profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
+          <Route path="admin" element={isAuthenticated ? <AdminDashboard /> : <Navigate to="/login" />} />
+          <Route path="now-playing" element={isAuthenticated ? <NowPlaying /> : <Navigate to="/login" />} />
         </Route>
       </Routes>
     </BrowserRouter>

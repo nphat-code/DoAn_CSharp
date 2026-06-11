@@ -20,7 +20,7 @@ const formatDuration = (timeString: string | undefined) => {
 export const Favorites = () => {
   const [favorites, setFavorites] = useState<MediaItemDto[]>([]);
   const [loading, setLoading] = useState(true);
-  const { playMedia } = usePlayer();
+  const { playMedia, currentMedia, isFavorited, setIsFavorited } = usePlayer();
 
   const currentUserStr = localStorage.getItem('user');
   const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
@@ -40,6 +40,24 @@ export const Favorites = () => {
     fetchFavorites();
   }, []);
 
+  // Đồng bộ danh sách bài hát với thay đổi từ PlayerBar hoặc RightPanel
+  useEffect(() => {
+    if (!currentMedia || loading) return;
+    
+    setFavorites(prev => {
+      const isCurrentlyInList = prev.some(t => t.id === currentMedia.id);
+      
+      if (isFavorited && !isCurrentlyInList) {
+        // Đã thả tim từ nơi khác -> thêm vào đầu danh sách
+        return [currentMedia, ...prev];
+      } else if (!isFavorited && isCurrentlyInList) {
+        // Đã bỏ tim từ nơi khác -> xóa khỏi danh sách
+        return prev.filter(t => t.id !== currentMedia.id);
+      }
+      return prev;
+    });
+  }, [isFavorited, currentMedia, loading]);
+
   const handleToggleFavorite = async (e: React.MouseEvent, track: MediaItemDto) => {
     e.stopPropagation();
     try {
@@ -47,6 +65,10 @@ export const Favorites = () => {
       if (!res.isFavorited) {
         // Remove from list if un-favorited
         setFavorites(prev => prev.filter(t => t.id !== track.id));
+      }
+      // Đồng bộ nếu bài hát đang phát bị xóa khỏi danh sách yêu thích
+      if (currentMedia && currentMedia.id === track.id) {
+        setIsFavorited(res.isFavorited);
       }
     } catch (error) {
       alert("Lỗi khi thay đổi bài hát yêu thích");
@@ -87,17 +109,22 @@ export const Favorites = () => {
       {/* Header */}
       <div 
         className="flex items-end gap-6 px-6 pb-6 shrink-0"
-        style={{ height: '225.9px', minHeight: '225.9px' }}
+        style={{ height: 'clamp(195.5px, 25cqw, 340px)', minHeight: '195.5px' }}
       >
         <div 
           className="bg-gradient-to-br from-[#4F37E5] to-[#8C6CEE] shadow-2xl rounded-md flex-shrink-0 flex items-center justify-center"
-          style={{ width: '174.11px', height: '174.11px' }}
+          style={{ width: 'clamp(143.69px, 20cqw, 232px)', height: 'clamp(143.69px, 20cqw, 232px)' }}
         >
           <Heart size={64} className="fill-white text-white" />
         </div>
         <div className="flex flex-col justify-end min-w-0 flex-1 w-full pb-1">
-          <span className="text-sm font-bold text-white uppercase tracking-widest mb-1">Playlist</span>
-          <h1 className="text-5xl lg:text-7xl font-black text-white tracking-tighter leading-tight mb-2">Bài hát đã thích</h1>
+          <span className="text-sm font-bold text-white tracking-widest mb-1">Playlist</span>
+          <h1 
+            className="font-black text-white tracking-tighter leading-tight mb-2 truncate"
+            style={{ fontSize: 'clamp(48px, 6cqw, 72px)', lineHeight: '1.2' }}
+          >
+            Bài hát đã thích
+          </h1>
           <div className="flex items-center gap-2 text-sm text-zinc-300 font-medium">
             <span className="font-bold text-white hover:underline cursor-pointer">{currentUser?.username || "Người dùng"}</span>
             <span className="text-white font-bold">•</span>
@@ -167,10 +194,10 @@ export const Favorites = () => {
                 <div className="flex items-center justify-end gap-6 pr-4">
                   <button 
                     onClick={(e) => handleToggleFavorite(e, track)}
-                    className="text-[#1ED760] hover:scale-105 transition"
+                    className="hover:scale-105 transition"
                     title="Bỏ thích bài hát"
                   >
-                    <Heart size={16} className="fill-[#1ED760]" />
+                    <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
                   </button>
                   <div className="text-sm text-[#b3b3b3] font-medium w-10 text-right">{formatDuration(track.duration)}</div>
                 </div>

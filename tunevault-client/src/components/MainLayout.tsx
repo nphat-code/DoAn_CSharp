@@ -11,7 +11,52 @@ export const MainLayout = () => {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === '/';
-  const isProfile = location.pathname.startsWith('/profile');
+  const isNowPlaying = location.pathname === '/now-playing';
+
+  const [sidebarWidth, setSidebarWidth] = useState(420);
+  const [rightPanelWidth, setRightPanelWidth] = useState(420);
+
+  const startResizeSidebar = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = sidebarWidth;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const newWidth = Math.min(Math.max(200, startWidth + (moveEvent.clientX - startX)), 420);
+      setSidebarWidth(newWidth);
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = 'default';
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    document.body.style.cursor = 'col-resize';
+  };
+
+  const startResizeRightPanel = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = rightPanelWidth;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const newWidth = Math.min(Math.max(250, startWidth - (moveEvent.clientX - startX)), 420);
+      setRightPanelWidth(newWidth);
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = 'default';
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    document.body.style.cursor = 'col-resize';
+  };
 
   return (
     <NotificationProvider>
@@ -21,10 +66,24 @@ export const MainLayout = () => {
           <TopBar />
           
           {/* Vùng thân gồm Sidebar - MainContent - RightPanel */}
-          <div className="flex-1 flex overflow-hidden gap-2">
-            <Sidebar isExpanded={isSidebarExpanded} onToggleExpand={() => setIsSidebarExpanded(!isSidebarExpanded)} />
-            
-            <main className={`${isSidebarExpanded ? 'w-0 opacity-0 p-0 m-0' : 'flex-1 min-w-[450px]'} bg-spotify-card rounded-lg overflow-x-hidden overflow-y-auto relative shadow-2xl transition-all duration-300`}>
+          <div className="flex-1 flex overflow-hidden">
+            {!isNowPlaying && (
+              <>
+                <Sidebar isExpanded={isSidebarExpanded} onToggleExpand={() => setIsSidebarExpanded(!isSidebarExpanded)} width={sidebarWidth} />
+                
+                {/* Resizer Sidebar */}
+                <div 
+                  onMouseDown={startResizeSidebar}
+                  className="w-2 cursor-col-resize z-50 flex-shrink-0 bg-transparent"
+                  title="Kéo để thay đổi kích thước"
+                />
+              </>
+            )}
+
+            <main 
+              className={`${isSidebarExpanded && !isNowPlaying ? 'w-0 opacity-0 p-0 m-0' : 'flex-1 min-w-[300px]'} bg-spotify-card rounded-lg overflow-x-hidden overflow-y-auto relative shadow-2xl transition-all duration-300`}
+              style={{ containerType: 'inline-size' }}
+            >
                 
               {isHome && (
                 <>
@@ -39,7 +98,18 @@ export const MainLayout = () => {
                </div>
               </main>
 
-            <RightPanel />
+            {!isNowPlaying && (
+              <>
+                {/* Resizer RightPanel */}
+                <div 
+                  onMouseDown={startResizeRightPanel}
+                  className="w-2 cursor-col-resize z-50 flex-shrink-0 bg-transparent"
+                  title="Kéo để thay đổi kích thước"
+                />
+
+                <RightPanel width={rightPanelWidth} />
+              </>
+            )}
           </div>
 
           {/* Fixed PlayerBar */}

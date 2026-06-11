@@ -3,7 +3,7 @@ import { FastAverageColor } from 'fast-average-color';
 import { useParams, useNavigate } from 'react-router-dom';
 import { albumService, type AlbumDetailDto } from '../services/albumService';
 import { usePlayer } from '../context/PlayerContext';
-import { Play, Clock, Heart, Disc, PlusCircle, ArrowDownCircle, MoreHorizontal, User, Plus, Trash2 } from 'lucide-react';
+import { Play, Clock, Disc, PlusCircle, ArrowDownCircle, MoreHorizontal, User, Plus, Trash2 } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import { AddTrackToAlbumModal } from '../components/AddTrackToAlbumModal';
 import type { MediaItemDto } from '../types';
@@ -15,8 +15,33 @@ export const AlbumDetail = () => {
   const [bgColor, setBgColor] = useState<string>('rgba(49, 46, 129, 0.4)');
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAddTrackModal, setShowAddTrackModal] = useState(false);
-  const { playMedia } = usePlayer();
+  const { playMedia, currentMedia, isFavorited, setIsFavorited } = usePlayer();
+  const [likedTracks, setLikedTracks] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchLikedTracks = async () => {
+      try {
+        const data = await mediaService.getFavorites();
+        setLikedTracks(new Set(data.map(t => t.id)));
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    if (localStorage.getItem('token')) {
+      fetchLikedTracks();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!currentMedia) return;
+    setLikedTracks(prev => {
+      const next = new Set(prev);
+      if (isFavorited) next.add(currentMedia.id);
+      else next.delete(currentMedia.id);
+      return next;
+    });
+  }, [isFavorited, currentMedia]);
 
   const fetchDetails = async () => {
     try {
@@ -65,8 +90,16 @@ export const AlbumDetail = () => {
 
   const handleToggleFavorite = async (trackId: string) => {
     try {
-      await mediaService.toggleFavorite(trackId);
-      alert('Đã cập nhật bài hát yêu thích!');
+      const res = await mediaService.toggleFavorite(trackId);
+      setLikedTracks(prev => {
+        const next = new Set(prev);
+        if (res.isFavorited) next.add(trackId);
+        else next.delete(trackId);
+        return next;
+      });
+      if (currentMedia && currentMedia.id === trackId) {
+        setIsFavorited(res.isFavorited);
+      }
     } catch (error) {
       alert("Lỗi khi cập nhật");
     }
@@ -134,12 +167,12 @@ export const AlbumDetail = () => {
     >
       {/* Header */}
       <div 
-        className="flex items-end gap-6 px-6 pb-6 shrink-0"
-        style={{ height: '225.9px', minHeight: '225.9px' }}
+        className="flex items-end gap-6 px-6 pb-6 shrink-0 relative z-10"
+        style={{ height: 'clamp(195.5px, 25cqw, 340px)', minHeight: '195.5px' }}
       >
         <div 
-          className="shadow-2xl rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden relative group bg-zinc-800"
-          style={{ width: '174.11px', height: '174.11px' }}
+          className="bg-zinc-800 shadow-2xl flex-shrink-0 flex items-center justify-center overflow-hidden"
+          style={{ width: 'clamp(143.69px, 20cqw, 232px)', height: 'clamp(143.69px, 20cqw, 232px)' }}
         >
           {album.coverUrl ? (
             <img src={album.coverUrl.startsWith('http') ? album.coverUrl : `http://localhost:5183${album.coverUrl}`} alt={album.title} className="w-full h-full object-cover" />
@@ -150,8 +183,13 @@ export const AlbumDetail = () => {
           )}
         </div>
         <div className="flex flex-col justify-end min-w-0 flex-1 w-full pb-1">
-          <span className="text-sm font-bold text-white uppercase tracking-widest mb-1">Album</span>
-          <h1 className="text-5xl lg:text-7xl font-black text-white tracking-tighter leading-tight mb-4 truncate">{album.title}</h1>
+          <span className="text-sm font-bold text-white tracking-widest mb-1">Album</span>
+          <h1 
+            className="font-black text-white tracking-tighter leading-tight mb-2 line-clamp-2"
+            style={{ fontSize: 'clamp(48px, 6cqw, 72px)', lineHeight: '1.2' }}
+          >
+            {album.title}
+          </h1>
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-full overflow-hidden bg-zinc-700 flex-shrink-0 flex items-center justify-center">
               {album.artistImageUrl ? (
@@ -160,12 +198,12 @@ export const AlbumDetail = () => {
                 <User size={16} className="text-white opacity-50" />
               )}
             </div>
-            <span className="text-white font-bold text-sm hover:underline cursor-pointer">{album.artistName || 'Nghệ sĩ'}</span>
-            <span className="text-zinc-300 text-xs">•</span>
-            <span className="text-zinc-300 font-medium text-sm">{new Date(album.releaseDate).getFullYear()}</span>
-            <span className="text-zinc-300 text-xs">•</span>
-            <span className="text-zinc-300 font-medium text-sm">{album.tracks?.length || 0} bài hát,</span>
-            <span className="text-zinc-400 text-sm">{getTotalDuration()}</span>
+            <span className="text-white font-bold text-xs hover:underline cursor-pointer">{album.artistName || 'Nghệ sĩ'}</span>
+            <span className="text-zinc-300 text-[10px]">•</span>
+            <span className="text-zinc-300 font-medium text-xs">{new Date(album.releaseDate).getFullYear()}</span>
+            <span className="text-zinc-300 text-[10px]">•</span>
+            <span className="text-zinc-300 font-medium text-xs">{album.tracks?.length || 0} bài hát,</span>
+            <span className="text-zinc-400 text-xs">{getTotalDuration()}</span>
           </div>
         </div>
       </div>
@@ -239,16 +277,22 @@ export const AlbumDetail = () => {
                   <span className="text-spotify-lighttext text-sm truncate hover:underline hover:text-white inline-block w-fit">{track.artistName || album.artistName}</span>
                 </div>
 
-                <div className="text-sm text-spotify-lighttext font-medium text-right pr-8 flex items-center justify-end">{formatDuration(track.duration)}</div>
-
-                <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition justify-end">
+                <div className="text-sm text-spotify-lighttext font-medium text-right pr-8 flex items-center justify-end gap-6">
                   <button
                     onClick={(e) => { e.stopPropagation(); handleToggleFavorite(track.id); }}
-                    className="text-spotify-lighttext hover:text-white transition"
-                    title="Thích"
+                    className={`${likedTracks.has(track.id) ? 'opacity-100 text-[#1ed760]' : 'opacity-0 group-hover:opacity-100 text-spotify-lighttext hover:text-white'} transition`}
+                    title={likedTracks.has(track.id) ? "Bỏ thích" : "Thích"}
                   >
-                    <PlusCircle size={18} />
+                    {likedTracks.has(track.id) ? (
+                      <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
+                    ) : (
+                      <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                    )}
                   </button>
+                  <span className="w-10">{formatDuration(track.duration)}</span>
+                </div>
+
+                <div className="flex items-center gap-4 transition justify-end pr-2 opacity-0 group-hover:opacity-100">
                   <button className="text-spotify-lighttext hover:text-white transition">
                     <MoreHorizontal size={18} />
                   </button>

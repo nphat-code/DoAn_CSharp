@@ -1,4 +1,4 @@
-import { Home, Search, Bell, Download, User, UserPlus, Upload, Plus } from 'lucide-react';
+import { Home, Search, Bell, User, UserPlus, Upload, Plus, ShieldAlert } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { UploadModal } from './UploadModal';
@@ -50,12 +50,12 @@ export const TopBar = () => {
   return (
     <header className="h-16 flex items-center justify-between -m-2 p-2">
       {/* Logo */}
-      <div className="w-1/4">
+      <div className="flex-1 min-w-0">
         <div className="text-2xl font-bold tracking-tighter text-white cursor-pointer">TuneVault</div>
       </div>
 
       {/* Center Controls (Home + Search) */}
-      <div className="flex-1 flex items-center justify-center gap-2 max-w-lg">
+      <div className="flex items-center justify-center gap-2 w-full max-w-xl px-2">
         <NavLink 
           to="/" 
           className={({ isActive }) => 
@@ -87,10 +87,8 @@ export const TopBar = () => {
       </div>
 
       {/* Right Actions */}
-      <div className="flex shrink-0 items-center justify-end gap-4 relative">
-        <button className="bg-white text-black text-sm font-bold px-4 py-1.5 rounded-full hover:scale-105 transition whitespace-nowrap hidden lg:block">
-          Khám phá Premium
-        </button>
+      <div className="flex-1 flex items-center justify-end gap-4 relative min-w-0">
+
         {isAuthenticated && user?.role === 'Admin' && (
           <>
             <button 
@@ -118,10 +116,7 @@ export const TopBar = () => {
             </div>
           </>
         )}
-        <button className="flex items-center gap-1 text-sm font-bold text-zinc-300 hover:text-white transition whitespace-nowrap hidden lg:flex">
-          <Download size={16} />
-          Cài đặt ứng dụng
-        </button>
+
         <button className="text-zinc-400 hover:text-white transition">
           <Bell size={20} />
         </button>
@@ -151,6 +146,12 @@ export const TopBar = () => {
             {isMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-zinc-800 rounded-md shadow-lg py-1 z-50">
                 <NavLink to="/profile" className="block px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white" onClick={() => setIsMenuOpen(false)}>Hồ sơ</NavLink>
+                {user?.role === 'Admin' && (
+                  <NavLink to="/admin" className="block px-4 py-2 text-sm text-red-400 font-bold hover:bg-zinc-700 hover:text-red-300 flex items-center justify-between" onClick={() => setIsMenuOpen(false)}>
+                    Quản trị hệ thống
+                    <ShieldAlert size={14} />
+                  </NavLink>
+                )}
                 <a href="#" className="block px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white flex justify-between" onClick={() => setIsMenuOpen(false)}>Tài khoản <span className="text-xs">↗</span></a>
                 <a href="#" className="block px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white flex justify-between" onClick={() => setIsMenuOpen(false)}>Nâng cấp lên Premium <span className="text-xs">↗</span></a>
                 <a href="#" className="block px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white" onClick={() => setIsMenuOpen(false)}>Cài đặt</a>

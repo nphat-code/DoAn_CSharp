@@ -102,12 +102,12 @@ export const PlaylistDetail = () => {
     <div className="flex flex-col h-full bg-gradient-to-b from-indigo-900/40 to-black overflow-y-auto">
       {/* Header */}
       <div 
-        className="flex items-end gap-6 px-6 pb-6 shrink-0"
-        style={{ height: '225.9px', minHeight: '225.9px' }}
+        className="flex items-end gap-6 px-6 pb-6 shrink-0 relative z-10"
+        style={{ height: 'clamp(195.5px, 25cqw, 340px)', minHeight: '195.5px' }}
       >
         <div 
           className="bg-zinc-800 shadow-2xl rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden"
-          style={{ width: '174.11px', height: '174.11px' }}
+          style={{ width: 'clamp(143.69px, 20cqw, 232px)', height: 'clamp(143.69px, 20cqw, 232px)' }}
         >
           {playlist.coverUrl ? (
             <img src={playlist.coverUrl.startsWith('http') || playlist.coverUrl.startsWith('data:') ? playlist.coverUrl : `http://localhost:5183${playlist.coverUrl}`} alt={playlist.name} className="w-full h-full object-cover" />
@@ -116,10 +116,15 @@ export const PlaylistDetail = () => {
           )}
         </div>
         <div className="flex flex-col justify-end min-w-0 flex-1 w-full pb-1">
-          <span className="text-sm font-bold text-white uppercase tracking-widest mb-1">{playlist.isPublic ? "Công khai" : "Cá nhân"}</span>
-          <h1 className="text-5xl lg:text-7xl font-black text-white tracking-tighter leading-tight mb-2 truncate">{playlist.name}</h1>
+          <span className="text-sm font-bold text-white tracking-widest mb-1">{playlist.isPublic ? "Công khai" : "Cá nhân"}</span>
+          <h1 
+            className="font-black text-white tracking-tighter leading-tight mb-2 line-clamp-2"
+            style={{ fontSize: 'clamp(48px, 6cqw, 72px)', lineHeight: '1.2' }}
+          >
+            {playlist.name}
+          </h1>
           <p className="text-zinc-300 mb-2 truncate">{playlist.description || "Danh sách phát tuyệt vời của bạn."}</p>
-          <div className="flex items-center gap-2 text-sm text-zinc-300 font-medium">
+          <div className="flex items-center gap-2 text-xs text-zinc-300 font-medium">
             <span className="font-bold text-white hover:underline cursor-pointer">Người dùng</span>
             <span className="text-white font-bold">•</span>
             <span>{playlist.tracks?.length || 0} bài hát</span>

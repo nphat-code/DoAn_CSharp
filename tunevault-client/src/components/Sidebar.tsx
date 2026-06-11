@@ -1,5 +1,6 @@
 import { Library, Plus, ArrowRight, Search, List, Heart, Music } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { usePlayer } from '../context/PlayerContext';
 import { mediaService } from '../services/mediaService';
@@ -10,14 +11,16 @@ import type { MediaItemDto } from '../types';
 interface SidebarProps {
   isExpanded?: boolean;
   onToggleExpand?: () => void;
+  width?: number;
 }
 
-export const Sidebar = ({ isExpanded = false, onToggleExpand }: SidebarProps) => {
+export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarProps) => {
   const { playMedia } = usePlayer();
   const [library, setLibrary] = useState<MediaItemDto[]>([]);
   const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
   const [loading, setLoading] = useState(true);
   const isAuthenticated = !!localStorage.getItem('token');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,7 +58,10 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand }: SidebarProps) =>
   };
 
   return (
-    <div className={`${isExpanded ? 'flex-1' : 'w-[72px] lg:w-[360px]'} bg-spotify-card rounded-lg flex flex-col overflow-hidden h-full transition-all duration-300`}>
+    <div 
+      className={`${isExpanded ? 'flex-1' : ''} bg-spotify-card rounded-lg flex flex-col overflow-hidden h-full`}
+      style={!isExpanded ? { width: width ? `${width}px` : '420px', minWidth: '280px' } : {}}
+    >
       {/* Header */}
       <div className="p-4 flex flex-col gap-4 shadow-sm">
         <div className="flex items-center justify-between">
@@ -103,14 +109,14 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand }: SidebarProps) =>
                 <span className="text-white font-medium text-sm">Rất dễ, chúng tôi sẽ giúp bạn</span>
               </div>
               <button 
-                onClick={() => window.location.href = '/login'}
+                onClick={() => navigate('/login')}
                 className="bg-white text-black font-bold px-4 py-1.5 rounded-full text-sm hover:scale-105 transition"
               >
                 Tạo danh sách phát
               </button>
             </div>
           ) : (
-            <div onClick={() => window.location.href = '/favorites'} className={`p-2 hover:bg-spotify-hover rounded-md cursor-pointer transition ${isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'flex items-center gap-3'}`}>
+            <div onClick={() => navigate('/favorites')} className={`p-2 hover:bg-spotify-hover rounded-md cursor-pointer transition ${isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'flex items-center gap-3'}`}>
               <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-gradient-to-br from-indigo-600 to-purple-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
                 <Heart size={isExpanded ? 48 : 20} className="fill-white text-white shrink-0" />
               </div>
@@ -125,7 +131,7 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand }: SidebarProps) =>
           {isAuthenticated && playlists.map(playlist => (
             <div 
               key={playlist.id}
-              onClick={() => window.location.href = `/playlist/${playlist.id}`}
+              onClick={() => navigate(`/playlist/${playlist.id}`)}
               className={`p-2 hover:bg-spotify-hover rounded-md cursor-pointer transition ${isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'flex items-center gap-3'}`}
             >
               <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>

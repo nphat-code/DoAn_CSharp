@@ -15,7 +15,7 @@ export const Profile = () => {
   const [avatarUrlInput, setAvatarUrlInput] = useState('');
   const [usernameInput, setUsernameInput] = useState('');
   const [topTracks, setTopTracks] = useState<MediaItemDto[]>([]);
-  const [topArtists, setTopArtists] = useState<{name: string, avatarUrl: string}[]>([]);
+  const [topArtists, setTopArtists] = useState<{ name: string, avatarUrl: string }[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { playMedia } = usePlayer();
@@ -37,7 +37,7 @@ export const Profile = () => {
 
       const allMedia = await mediaService.getAllMedia();
       setTopTracks(allMedia.slice(0, 4));
-      
+
       const artistsMap = new Map();
       allMedia.forEach(m => {
         if (m.artistName && !artistsMap.has(m.artistName)) {
@@ -66,7 +66,7 @@ export const Profile = () => {
     try {
       await profileService.updateProfile({ username: usernameInput, avatarUrl: avatarUrlInput });
       setProfile(prev => prev ? { ...prev, username: usernameInput, avatarUrl: avatarUrlInput } : null);
-      
+
       const userStr = localStorage.getItem('user');
       if (userStr) {
         const user = JSON.parse(userStr);
@@ -75,7 +75,7 @@ export const Profile = () => {
         localStorage.setItem('user', JSON.stringify(user));
         window.dispatchEvent(new Event('userUpdated'));
       }
-      
+
       setIsEditing(false);
     } catch (error) {
       console.error("Lỗi khi cập nhật hồ sơ:", error);
@@ -102,15 +102,15 @@ export const Profile = () => {
   return (
     <div className="flex flex-col h-full bg-[#121212] overflow-y-auto">
       {/* Header */}
-      <div 
-        className="flex flex-col md:flex-row items-end gap-6 px-6 pb-6 bg-gradient-to-b from-[#535353] to-[#181818] text-white shrink-0"
-        style={{ height: '225.9px', minHeight: '225.9px' }}
+      <div
+        className="flex flex-col md:flex-row items-end gap-6 px-6 pb-6 bg-gradient-to-b from-[#535353] to-[#181818] text-white shrink-0 relative z-10"
+        style={{ height: 'clamp(225.9px, 30cqw, 380px)', minHeight: '225.9px' }}
       >
-        
+
         {/* Avatar */}
-        <div 
+        <div
           className="rounded-full overflow-hidden shadow-[0_4px_60px_rgba(0,0,0,0.5)] relative group flex-shrink-0 bg-[#282828]"
-          style={{ width: '174.11px', height: '174.11px' }}
+          style={{ width: 'clamp(174.11px, 25cqw, 260px)', height: 'clamp(174.11px, 25cqw, 260px)' }}
         >
           {profile.avatarUrl ? (
             <img src={profile.avatarUrl.startsWith('http') || profile.avatarUrl.startsWith('data:') ? profile.avatarUrl : `http://localhost:5183${profile.avatarUrl}`} alt="Avatar" className="w-full h-full object-cover" />
@@ -118,13 +118,13 @@ export const Profile = () => {
             <div className="w-full h-full flex items-center justify-center">
               <span className="text-zinc-500">
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-12 h-12 md:w-20 md:h-20 opacity-50">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
                 </svg>
               </span>
             </div>
           )}
-          
-          <button 
+
+          <button
             onClick={() => setIsEditing(!isEditing)}
             className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
           >
@@ -136,8 +136,9 @@ export const Profile = () => {
         {/* Info */}
         <div className="flex flex-col justify-center min-w-0 flex-1 w-full md:w-auto text-center md:text-left">
           <span className="text-sm font-bold tracking-wider mb-2 hidden md:block">Hồ sơ</span>
-          <h1 
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-2 tracking-tighter break-words w-full leading-tight cursor-pointer"
+          <h1
+            className="font-black mb-2 tracking-tighter break-words w-full leading-tight cursor-pointer line-clamp-2"
+            style={{ fontSize: 'clamp(48px, 8cqw, 108px)', lineHeight: '1.1' }}
             onClick={() => setIsEditing(true)}
             title="Chỉnh sửa hồ sơ"
           >
@@ -157,18 +158,18 @@ export const Profile = () => {
           <button className="hover:text-white transition-colors">
             <Settings size={32} />
           </button>
-          
+
           <div className="relative" ref={menuRef}>
-            <button 
+            <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className={`${isMenuOpen ? 'text-white' : ''} hover:text-white transition-colors`}
             >
               <MoreHorizontal size={32} />
             </button>
-            
+
             {isMenuOpen && (
               <div className="absolute top-full left-0 mt-2 w-64 bg-[#282828] rounded-md shadow-xl py-1 z-50 text-sm font-medium">
-                <button 
+                <button
                   onClick={() => {
                     setIsMenuOpen(false);
                     setIsEditing(true);
@@ -178,7 +179,7 @@ export const Profile = () => {
                   <Pencil size={18} />
                   <span>Chỉnh sửa hồ sơ</span>
                 </button>
-                <button 
+                <button
                   onClick={() => {
                     setIsMenuOpen(false);
                     navigator.clipboard.writeText(window.location.href);
@@ -199,14 +200,13 @@ export const Profile = () => {
           <div className="mb-12">
             <h2 className="text-2xl font-bold text-white mb-1 hover:underline cursor-pointer inline-block">Nghệ sĩ hàng đầu tháng này</h2>
             <p className="text-sm text-zinc-400 mb-6">Chỉ hiển thị với bạn</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-y-3 -mx-6">
               {topArtists.map((artist, idx) => (
-                <div 
-                  key={idx} 
-                  className="p-4 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
-                  style={{ width: '193.23px' }}
+                <div
+                  key={idx}
+                  className="p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
                 >
-                  <div className="relative w-full aspect-square mb-4 shadow-lg rounded-full bg-zinc-800 overflow-hidden shrink-0">
+                  <div className="relative w-full aspect-square mb-3 shadow-lg rounded-full bg-zinc-800 shrink-0">
                     <img src={artist.avatarUrl.startsWith('http') || artist.avatarUrl.startsWith('data:') ? artist.avatarUrl : `http://localhost:5183${artist.avatarUrl}`} alt={artist.name} className="w-full h-full object-cover rounded-full" />
                     {/* Play button overlay */}
                     <div className="absolute right-2 bottom-2 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
@@ -215,8 +215,10 @@ export const Profile = () => {
                       </button>
                     </div>
                   </div>
-                  <h3 className="text-white font-bold truncate w-full text-left">{artist.name}</h3>
-                  <p className="text-sm text-zinc-400 truncate w-full text-left mt-1">Nghệ sĩ</p>
+                  <div className="w-full">
+                    <h3 className="text-white font-bold truncate w-full text-left">{artist.name}</h3>
+                    <p className="text-sm text-zinc-400 truncate w-full text-left mt-1">Nghệ sĩ</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -235,8 +237,8 @@ export const Profile = () => {
             </div>
             <div className="flex flex-col">
               {topTracks.map((track, index) => (
-                <div 
-                  key={track.id} 
+                <div
+                  key={track.id}
                   className="flex items-center gap-4 px-4 py-2 hover:bg-white/10 rounded-md group cursor-pointer"
                   onClick={() => playMedia(track)}
                 >
@@ -244,10 +246,10 @@ export const Profile = () => {
                   <div className="w-6 text-center text-white hidden group-hover:flex items-center justify-center">
                     <Play size={16} fill="currentColor" />
                   </div>
-                  <img 
-                    src={track.coverUrl ? (track.coverUrl.startsWith('http') || track.coverUrl.startsWith('data:') ? track.coverUrl : `http://localhost:5183${track.coverUrl}`) : "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62"} 
-                    alt={track.title} 
-                    className="w-10 h-10 rounded shadow" 
+                  <img
+                    src={track.coverUrl ? (track.coverUrl.startsWith('http') || track.coverUrl.startsWith('data:') ? track.coverUrl : `http://localhost:5183${track.coverUrl}`) : "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62"}
+                    alt={track.title}
+                    className="w-10 h-10 rounded shadow"
                   />
                   <div className="flex-1 min-w-0">
                     <h4 className="text-white font-medium truncate group-hover:underline">{track.title}</h4>
@@ -270,9 +272,9 @@ export const Profile = () => {
         {playlists.length > 0 && (
           <div className="mb-12">
             <h2 className="text-2xl font-bold text-white mb-6">Playlist Công khai</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
               {playlists.map(playlist => (
-                <div key={playlist.id} className="bg-[#181818] p-4 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer">
+                <div key={playlist.id} className="bg-[#181818] p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer">
                   <div className="relative aspect-square mb-4 shadow-lg rounded-md bg-zinc-800">
                     {playlist.coverUrl ? (
                       <img src={playlist.coverUrl} alt={playlist.name} className="w-full h-full object-cover rounded-md" />
@@ -303,14 +305,14 @@ export const Profile = () => {
           <div className="bg-[#282828] rounded-xl w-full max-w-[500px] relative flex flex-col p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-white tracking-tight">Chi tiết hồ sơ</h2>
-              <button 
+              <button
                 onClick={() => setIsEditing(false)}
                 className="text-zinc-400 hover:text-white transition-colors p-1 bg-transparent hover:bg-white/10 rounded-full"
               >
                 <X size={24} />
               </button>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-6 mb-4">
               {/* Avatar Box inside modal */}
               <div className="w-40 h-40 rounded-full overflow-hidden shadow-[0_4px_60px_rgba(0,0,0,0.5)] relative group bg-[#181818] flex-shrink-0 mx-auto sm:mx-0">
@@ -320,14 +322,14 @@ export const Profile = () => {
                   <div className="w-full h-full flex items-center justify-center">
                     <span className="text-zinc-500">
                       <svg viewBox="0 0 24 24" fill="currentColor" className="w-20 h-20 opacity-50">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
                       </svg>
                     </span>
                   </div>
                 )}
                 {/* Visual overlay */}
                 <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div 
+                  <div
                     className="flex flex-col items-center justify-center cursor-pointer flex-1 w-full pt-2 hover:underline"
                     onClick={() => fileInputRef.current?.click()}
                   >
@@ -335,7 +337,7 @@ export const Profile = () => {
                     <Edit2 className="text-white w-10 h-10" />
                   </div>
                   {avatarUrlInput && (
-                    <div 
+                    <div
                       className="cursor-pointer pb-4 w-full flex justify-center hover:underline"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -346,13 +348,13 @@ export const Profile = () => {
                     </div>
                   )}
                 </div>
-                
+
                 {/* Hidden File Input */}
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  className="hidden" 
-                  accept="image/jpeg,image/png,image/gif,image/webp" 
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
@@ -369,8 +371,8 @@ export const Profile = () => {
               <div className="flex-1 flex flex-col justify-center">
                 <div className="relative">
                   <label className="absolute -top-2 left-3 bg-[#282828] px-1 text-xs font-bold text-white z-10">Tên</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={usernameInput}
                     onChange={e => setUsernameInput(e.target.value)}
                     className="w-full bg-[#3E3E3E] text-white px-4 py-3 rounded-md focus:outline-none focus:bg-[#4E4E4E] transition-colors font-medium border border-transparent hover:border-zinc-500 relative z-0"
@@ -380,14 +382,14 @@ export const Profile = () => {
             </div>
 
             <div className="flex justify-end mt-4">
-              <button 
+              <button
                 onClick={handleSaveProfile}
                 className="bg-white text-black font-bold py-3 px-8 rounded-full hover:scale-105 hover:bg-zinc-100 transition shadow-md"
               >
                 Lưu
               </button>
             </div>
-            
+
             <p className="text-xs text-zinc-400 font-medium mt-6 text-center sm:text-left leading-relaxed">
               Bằng cách tiếp tục, bạn đồng ý cho phép TuneVault truy cập vào hình ảnh bạn đã chọn để tải lên. Vui lòng đảm bảo bạn có quyền tải lên hình ảnh.
             </p>

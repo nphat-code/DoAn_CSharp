@@ -15,6 +15,9 @@ export default {
           green: '#1ed760',
           lighttext: '#b3b3b3',
         }
+      },
+      fontFamily: {
+        sans: ['Spotify Circular', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
       }
     },
   },

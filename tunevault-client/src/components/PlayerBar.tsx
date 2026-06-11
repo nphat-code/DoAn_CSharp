@@ -1,12 +1,11 @@
 import { usePlayer } from '../context/PlayerContext';
-import { Play, Pause, SkipBack, SkipForward, Volume2, Heart, PlusCircle, CheckCircle, Plus, Check, Library, Music } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, Heart, Plus, Check, Music, Library } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
-import { mediaService } from '../services/mediaService';
 import { playlistService } from '../services/playlistService';
 import type { PlaylistDto } from '../services/playlistService';
 
 export const PlayerBar = () => {
-  const { currentMedia, isPlaying, togglePlayPause, volume, setVolume, mediaRef } = usePlayer();
+  const { currentMedia, isPlaying, togglePlayPause, volume, setVolume, mediaRef, isFavorited, toggleFavorite } = usePlayer();
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -72,7 +71,6 @@ export const PlayerBar = () => {
     }
   };
 
-  const [isLiked, setIsLiked] = useState(false);
   const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
   const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -80,15 +78,6 @@ export const PlayerBar = () => {
   useEffect(() => {
     playlistService.getUserPlaylists().then(setPlaylists).catch(console.error);
   }, []);
-
-  // Load like state khi đổi bài
-  useEffect(() => {
-    if (currentMedia) {
-      mediaService.checkFavorite(currentMedia.id).then(res => setIsLiked(res.isFavorited)).catch(console.error);
-    } else {
-      setIsLiked(false);
-    }
-  }, [currentMedia]);
 
   // Đóng menu khi click ra ngoài
   useEffect(() => {
@@ -105,13 +94,8 @@ export const PlayerBar = () => {
     e.stopPropagation();
     if (!currentMedia) return;
     
-    if (!isLiked) {
-      try {
-        const result = await mediaService.toggleFavorite(currentMedia.id);
-        setIsLiked(result.isFavorited);
-      } catch (error) {
-        console.error("Lỗi khi thả tim:", error);
-      }
+    if (!isFavorited) {
+      await toggleFavorite();
     } else {
       setShowPlaylistMenu(prev => !prev);
     }
@@ -163,11 +147,11 @@ export const PlayerBar = () => {
           </div>
           
           <div className="relative" ref={menuRef}>
-            <button onClick={handleLikeClick} className="text-spotify-lighttext hover:text-white hover:scale-105 transition focus:outline-none flex items-center justify-center">
-              {isLiked ? (
-                <CheckCircle size={20} className="text-spotify-green fill-spotify-green/20" />
+            <button onClick={handleLikeClick} className="text-zinc-400 hover:text-white hover:scale-105 transition focus:outline-none flex items-center justify-center">
+              {isFavorited ? (
+                 <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
               ) : (
-                <PlusCircle size={20} />
+                 <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
               )}
             </button>
             
@@ -189,8 +173,7 @@ export const PlayerBar = () => {
                 <div className="max-h-64 overflow-y-auto mt-2 flex flex-col gap-1 custom-scrollbar">
                    <div 
                      onClick={async () => { 
-                       const res = await mediaService.toggleFavorite(currentMedia.id); 
-                       setIsLiked(res.isFavorited); 
+                       await toggleFavorite();
                      }}
                      className="flex items-center justify-between p-2 hover:bg-white/10 rounded-sm cursor-pointer group"
                    >
@@ -200,7 +183,7 @@ export const PlayerBar = () => {
                        </div>
                        <span className="text-sm text-white font-medium">Bài hát đã thích</span>
                      </div>
-                     {isLiked && <Check size={16} className="text-spotify-green" />}
+                     {isFavorited && <Check size={16} className="text-spotify-green" />}
                    </div>
 
                    {playlists.map(playlist => (
