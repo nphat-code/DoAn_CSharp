@@ -21,14 +21,7 @@ public class AuthController(IMediator mediator) : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] TuneVault.Application.Features.Auth.Commands.Register.RegisterCommand command)
     {
-        try
-        {
-            var response = await mediator.Send(command);
-            return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var response = await mediator.Send(command);
+        return Ok(response);
     }
 }

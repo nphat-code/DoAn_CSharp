@@ -51,6 +51,9 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
 
+// Đăng ký Global Exception Handler (Người hứng bom toàn cục)
+app.UseMiddleware<TuneVault.API.Middlewares.ExceptionHandlingMiddleware>();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
