@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { profileService, type ProfileDto } from '../services/profileService';
 import { playlistService, type PlaylistDto } from '../services/playlistService';
 import { mediaService } from '../services/mediaService';
@@ -7,6 +8,7 @@ import { usePlayer } from '../context/PlayerContext';
 import { Settings, MoreHorizontal, Play, Edit2, X, Pencil, Link as LinkIcon } from 'lucide-react';
 
 export const Profile = () => {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<ProfileDto | null>(null);
   const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -14,6 +16,7 @@ export const Profile = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [avatarUrlInput, setAvatarUrlInput] = useState('');
   const [usernameInput, setUsernameInput] = useState('');
+  const [bioInput, setBioInput] = useState('');
   const [topTracks, setTopTracks] = useState<MediaItemDto[]>([]);
   const [topArtists, setTopArtists] = useState<{ name: string, avatarUrl: string }[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -31,6 +34,7 @@ export const Profile = () => {
       setProfile(data);
       setAvatarUrlInput(data.avatarUrl || '');
       setUsernameInput(data.username || '');
+      setBioInput(data.bio || '');
 
       const userPlaylists = await playlistService.getUserPlaylists();
       setPlaylists(userPlaylists);
@@ -64,14 +68,15 @@ export const Profile = () => {
 
   const handleSaveProfile = async () => {
     try {
-      await profileService.updateProfile({ username: usernameInput, avatarUrl: avatarUrlInput });
-      setProfile(prev => prev ? { ...prev, username: usernameInput, avatarUrl: avatarUrlInput } : null);
+      await profileService.updateProfile({ username: usernameInput, avatarUrl: avatarUrlInput, bio: bioInput });
+      setProfile(prev => prev ? { ...prev, username: usernameInput, avatarUrl: avatarUrlInput, bio: bioInput } : null);
 
       const userStr = localStorage.getItem('user');
       if (userStr) {
         const user = JSON.parse(userStr);
         user.username = usernameInput;
         user.avatarUrl = avatarUrlInput;
+        user.bio = bioInput;
         localStorage.setItem('user', JSON.stringify(user));
         window.dispatchEvent(new Event('userUpdated'));
       }
@@ -144,7 +149,12 @@ export const Profile = () => {
           >
             {profile.username}
           </h1>
-          <div className="flex items-center justify-center md:justify-start text-sm text-zinc-300 font-semibold mt-1">
+          {profile.bio && (
+            <p className="text-zinc-200 mt-2 text-sm md:text-base font-medium max-w-2xl">
+              {profile.bio}
+            </p>
+          )}
+          <div className="flex items-center justify-center md:justify-start text-sm text-zinc-300 font-semibold mt-3">
             <span>{playlists.length} danh sách phát công khai</span>
           </div>
         </div>
@@ -274,10 +284,14 @@ export const Profile = () => {
             <h2 className="text-2xl font-bold text-white mb-6">Playlist Công khai</h2>
             <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
               {playlists.map(playlist => (
-                <div key={playlist.id} className="bg-[#181818] p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer">
-                  <div className="relative aspect-square mb-4 shadow-lg rounded-md bg-zinc-800">
+                <div 
+                  key={playlist.id} 
+                  className="bg-[#181818] p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
+                  onClick={() => navigate(`/playlist/${playlist.id}`)}
+                >
+                  <div className="relative w-full aspect-square mb-4 shadow-lg rounded-md bg-zinc-800 shrink-0">
                     {playlist.coverUrl ? (
-                      <img src={playlist.coverUrl} alt={playlist.name} className="w-full h-full object-cover rounded-md" />
+                      <img src={playlist.coverUrl.startsWith('http') || playlist.coverUrl.startsWith('data:') ? playlist.coverUrl : `http://localhost:5183${playlist.coverUrl}`} alt={playlist.name} className="w-full h-full object-cover rounded-md" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-zinc-800 rounded-md">
                         <span className="text-4xl text-zinc-500">🎵</span>
@@ -285,13 +299,21 @@ export const Profile = () => {
                     )}
                     {/* Play button overlay */}
                     <div className="absolute right-2 bottom-2 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                      <button className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black hover:bg-green-400 hover:scale-105 shadow-xl">
+                      <button 
+                        className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black hover:bg-green-400 hover:scale-105 shadow-xl"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/playlist/${playlist.id}`);
+                        }}
+                      >
                         <Play size={24} fill="currentColor" className="ml-1" />
                       </button>
                     </div>
                   </div>
-                  <h3 className="text-white font-bold truncate mb-1">{playlist.name}</h3>
-                  <p className="text-sm text-zinc-400 truncate">Của {profile.username}</p>
+                  <div className="w-full">
+                    <h3 className="text-white font-bold truncate w-full text-left mb-1">{playlist.name}</h3>
+                    <p className="text-sm text-zinc-400 truncate w-full text-left">Của {profile.username}</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -376,6 +398,17 @@ export const Profile = () => {
                     value={usernameInput}
                     onChange={e => setUsernameInput(e.target.value)}
                     className="w-full bg-[#3E3E3E] text-white px-4 py-3 rounded-md focus:outline-none focus:bg-[#4E4E4E] transition-colors font-medium border border-transparent hover:border-zinc-500 relative z-0"
+                  />
+                </div>
+
+                <div className="relative mt-6">
+                  <label className="absolute -top-2 left-3 bg-[#282828] px-1 text-xs font-bold text-white z-10">Tiểu sử</label>
+                  <textarea
+                    value={bioInput}
+                    onChange={e => setBioInput(e.target.value)}
+                    rows={3}
+                    placeholder="Giới thiệu đôi nét về bạn..."
+                    className="w-full bg-[#3E3E3E] text-white px-4 py-3 rounded-md focus:outline-none focus:bg-[#4E4E4E] transition-colors font-medium border border-transparent hover:border-zinc-500 relative z-0 resize-none"
                   />
                 </div>
               </div>

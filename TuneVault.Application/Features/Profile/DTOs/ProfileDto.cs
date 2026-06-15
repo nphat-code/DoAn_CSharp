@@ -5,5 +5,6 @@ public record ProfileDto(
     string Username,
     string Email,
     string? AvatarUrl,
+    string? Bio,
     DateTime CreatedAt
 );

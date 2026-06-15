@@ -5,6 +5,7 @@ export interface ProfileDto {
   username: string;
   email: string;
   avatarUrl: string | null;
+  bio: string | null;
   createdAt: string;
 }
 
@@ -24,7 +25,7 @@ export const profileService = {
     return response.data.success;
   },
 
-  updateProfile: async (data: { username: string, avatarUrl?: string }): Promise<boolean> => {
+  updateProfile: async (data: { username: string, avatarUrl?: string, bio?: string }): Promise<boolean> => {
     const response = await apiClient.put<{success: boolean}>('/profile', data);
     return response.data.success;
   }

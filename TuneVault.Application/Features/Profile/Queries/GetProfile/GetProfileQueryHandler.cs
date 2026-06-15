@@ -17,6 +17,7 @@ public class GetProfileQueryHandler(IUserRepository userRepository) : IRequestHa
             user.Username,
             user.Email,
             user.AvatarUrl,
+            user.Bio,
             user.CreatedAt
         );
     }

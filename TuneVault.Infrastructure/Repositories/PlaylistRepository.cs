@@ -16,7 +16,14 @@ public class PlaylistRepository(IDbConnection dbConnection) : IPlaylistRepositor
 
     public async Task<IEnumerable<Playlist>> GetUserPlaylistsAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var sql = "SELECT Id, Title as Name, Description, CoverUrl, IsPublic, CreatorId as UserProfileId, CreatedAt FROM Playlists WHERE CreatorId = @UserId ORDER BY CreatedAt DESC";
+        var sql = @"
+            SELECT p.Id, p.Title as Name, p.Description, 
+                   COALESCE(p.CoverUrl, 
+                            (SELECT m.CoverUrl FROM PlaylistItems pi JOIN MediaItems m ON pi.MediaItemId = m.Id WHERE pi.PlaylistId = p.Id ORDER BY pi.AddedAt ASC LIMIT 1)) as CoverUrl,
+                   p.IsPublic, p.CreatorId as UserProfileId, p.CreatedAt 
+            FROM Playlists p 
+            WHERE p.CreatorId = @UserId 
+            ORDER BY p.CreatedAt DESC";
         return await dbConnection.QueryAsync<Playlist>(
             new CommandDefinition(sql, new { UserId = userId }, cancellationToken: cancellationToken));
     }

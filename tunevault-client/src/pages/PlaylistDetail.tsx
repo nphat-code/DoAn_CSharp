@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { FastAverageColor } from 'fast-average-color';
 import { useParams } from 'react-router-dom';
 import { playlistService } from '../services/playlistService';
 import type { PlaylistDetailDto } from '../services/playlistService';
 import { usePlayer } from '../context/PlayerContext';
-import { Play, Trash2, Clock, Search, Heart } from 'lucide-react';
+import { Play, Trash2, Clock, Search, Heart, MoreHorizontal, X, Camera, Music, Image as ImageIcon } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import type { MediaItemDto } from '../types';
 
@@ -11,7 +12,17 @@ export const PlaylistDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [playlist, setPlaylist] = useState<PlaylistDetailDto | null>(null);
   const [loading, setLoading] = useState(true);
+  const [bgColor, setBgColor] = useState<string>('rgba(49, 46, 129, 0.4)');
   const { playMediaList, currentMedia, isPlaying, togglePlayPause } = usePlayer();
+
+  // Edit states
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editCover, setEditCover] = useState<string | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showCoverDropdown, setShowCoverDropdown] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchDetails = async () => {
     try {
@@ -83,6 +94,19 @@ export const PlaylistDetail = () => {
     }
   };
 
+  const formatDuration = (durationStr: string) => {
+    if (!durationStr) return "0:00";
+    const parts = durationStr.split(':');
+    if (parts.length >= 3) {
+      const hours = parseInt(parts[0], 10);
+      const minutes = parseInt(parts[1], 10);
+      const seconds = parseInt(parts[2].split('.')[0], 10);
+      if (hours > 0) return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+    return durationStr;
+  };
+
   const handleDeletePlaylist = async () => {
     if (!id) return;
     if (confirm("Xóa playlist này vĩnh viễn?")) {
@@ -94,6 +118,52 @@ export const PlaylistDetail = () => {
       }
     }
   };
+
+  const handleEditSave = async () => {
+    if (!id || !playlist) return;
+    try {
+      await playlistService.updatePlaylist(id, editName, editDescription, editCover);
+      setPlaylist({ ...playlist, name: editName, description: editDescription, coverUrl: editCover || undefined });
+      setShowEditModal(false);
+    } catch (error) {
+      alert("Lỗi khi cập nhật playlist.");
+    }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditCover(reader.result as string);
+        setShowCoverDropdown(false);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const displayCover = playlist?.coverUrl || (playlist?.tracks && playlist.tracks.length > 0 ? playlist.tracks[0].coverUrl : null);
+  const getCoverUrl = (url?: string | null) => url ? (url.startsWith('http') || url.startsWith('data:') ? url : `http://localhost:5183${url}`) : null;
+
+  useEffect(() => {
+    if (displayCover) {
+      const fac = new FastAverageColor();
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      const baseUrl = getCoverUrl(displayCover);
+      img.src = `${baseUrl}?c=${Date.now()}`;
+      img.onload = () => {
+        try {
+          const color = fac.getColor(img);
+          setBgColor(`rgba(${color.value[0]}, ${color.value[1]}, ${color.value[2]}, 0.8)`);
+        } catch (e) {
+          console.error("Lỗi lấy màu nền", e);
+        }
+      };
+    } else {
+      setBgColor('rgba(49, 46, 129, 0.4)');
+    }
+  }, [displayCover]);
 
   if (loading) return <div className="p-6 text-white">Đang tải chi tiết playlist...</div>;
   if (!playlist) return <div className="p-6 text-white">Playlist không tồn tại.</div>;
@@ -111,27 +181,53 @@ export const PlaylistDetail = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-indigo-900/40 to-black overflow-y-auto">
+    <div 
+      className="flex flex-col h-full bg-black relative"
+      style={{ overflowY: 'overlay' as any }}
+    >
+      {/* Background Gradient */}
+      <div 
+        className="absolute top-0 left-0 w-full h-[500px] pointer-events-none z-0"
+        style={{
+          background: `linear-gradient(to bottom, ${bgColor} 0%, rgba(0,0,0,1) 100%)`,
+        }}
+      />
       {/* Header */}
       <div 
         className="flex items-end gap-6 px-6 pb-6 shrink-0 relative z-10"
         style={{ height: 'clamp(195.5px, 25cqw, 340px)', minHeight: '195.5px' }}
       >
         <div 
-          className="bg-zinc-800 shadow-2xl rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden"
+          className="bg-zinc-800 shadow-2xl rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden group relative cursor-pointer"
           style={{ width: 'clamp(143.69px, 20cqw, 232px)', height: 'clamp(143.69px, 20cqw, 232px)' }}
+          onClick={() => {
+            setEditName(playlist.name);
+            setEditDescription(playlist.description || "");
+            setEditCover(playlist.coverUrl || null);
+            setShowEditModal(true);
+          }}
         >
-          {playlist.coverUrl ? (
-            <img src={playlist.coverUrl.startsWith('http') || playlist.coverUrl.startsWith('data:') ? playlist.coverUrl : `http://localhost:5183${playlist.coverUrl}`} alt={playlist.name} className="w-full h-full object-cover" />
+          {displayCover ? (
+            <img src={getCoverUrl(displayCover)!} alt={playlist.name} className="w-full h-full object-cover" />
           ) : (
-            <span className="text-zinc-500 font-bold">Playlist Cover</span>
+            <Music className="text-zinc-500 w-16 h-16" />
           )}
+          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
+            <Camera size={48} className="mb-2" />
+            <span className="text-sm font-bold">Chọn ảnh</span>
+          </div>
         </div>
         <div className="flex flex-col justify-end min-w-0 flex-1 w-full pb-1">
           <span className="text-sm font-bold text-white tracking-widest mb-1">{playlist.isPublic ? "Công khai" : "Cá nhân"}</span>
           <h1 
-            className="font-black text-white tracking-tighter leading-tight mb-2 line-clamp-2"
+            className="font-black text-white tracking-tighter leading-tight mb-2 line-clamp-2 cursor-pointer hover:underline"
             style={{ fontSize: 'clamp(48px, 6cqw, 72px)', lineHeight: '1.2' }}
+            onClick={() => {
+              setEditName(playlist.name);
+              setEditDescription(playlist.description || "");
+              setEditCover(playlist.coverUrl || null);
+              setShowEditModal(true);
+            }}
           >
             {playlist.name}
           </h1>
@@ -145,9 +241,9 @@ export const PlaylistDetail = () => {
       </div>
 
       {/* Content wrapper */}
-      <div className="flex-1 flex flex-col bg-gradient-to-b from-black/20 to-black/60 border-t border-white/10 pt-6 px-6">
+      <div className="flex-1 flex flex-col border-t border-white/10 pt-6 relative z-10 bg-black/20">
         {/* Controls */}
-        <div className="flex items-center gap-6 mb-6">
+        <div className="flex items-center gap-6 mb-6 px-6">
           <button 
             onClick={handleMainPlayClick}
             className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center hover:scale-105 transition hover:bg-green-400 shadow-xl"
@@ -160,20 +256,53 @@ export const PlaylistDetail = () => {
               <Play size={24} className="text-black fill-black ml-1" />
             )}
           </button>
-          <button onClick={handleDeletePlaylist} className="text-zinc-400 hover:text-white transition">
-            Xóa Playlist
-          </button>
+          
+          <div className="relative">
+            <button 
+              onClick={() => setShowDropdown(!showDropdown)} 
+              className="text-zinc-400 hover:text-white transition p-2"
+            >
+              <MoreHorizontal size={32} />
+            </button>
+            {showDropdown && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)}></div>
+                <div className="absolute left-0 mt-2 w-48 bg-zinc-800 rounded-md shadow-2xl border border-zinc-700 py-1 z-20">
+                  <button 
+                    onClick={() => {
+                      setShowDropdown(false);
+                      setEditName(playlist.name);
+                      setEditDescription(playlist.description || "");
+                      setEditCover(playlist.coverUrl || null);
+                      setShowEditModal(true);
+                    }}
+                    className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white transition"
+                  >
+                    Sửa thông tin chi tiết
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setShowDropdown(false);
+                      handleDeletePlaylist();
+                    }}
+                    className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white transition"
+                  >
+                    Xóa
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Track List Section */}
         <div className="w-full flex-1">
           {/* Table Header */}
-          <div className="grid grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(100px,2fr)_minmax(100px,1fr)] gap-4 px-4 py-2 border-b border-white/10 text-sm font-medium text-[#b3b3b3] mb-4 sticky top-0 bg-transparent z-10 items-center">
+          <div className="grid grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(120px,1fr)] gap-4 px-4 py-2 border-b border-white/10 text-sm font-medium text-[#b3b3b3] mb-4 sticky top-0 bg-transparent z-10 items-center">
             <div className="text-right pr-2">#</div>
             <div>Tiêu đề</div>
             <div className="hidden md:block">Album</div>
-            <div className="hidden lg:block">Ngày thêm</div>
-            <div className="flex justify-end pr-6"><Clock size={16} /></div>
+            <div className="flex justify-end pr-8"><Clock size={16} /></div>
           </div>
 
           {/* Tracks */}
@@ -183,7 +312,7 @@ export const PlaylistDetail = () => {
               return (
               <div 
                 key={track.id} 
-                className="grid grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(100px,2fr)_minmax(100px,1fr)] gap-4 px-4 py-2 hover:bg-white/10 rounded-md transition items-center group cursor-pointer"
+                className="grid grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(120px,1fr)] gap-4 px-4 py-2 hover:bg-white/10 rounded-md transition items-center group cursor-pointer"
                 onDoubleClick={() => {
                   if (isPlayingTrack) togglePlayPause();
                   else playMediaList(playlist.tracks, index);
@@ -219,7 +348,6 @@ export const PlaylistDetail = () => {
                   </div>
                 </div>
                 <div className="text-sm text-[#b3b3b3] truncate hover:text-white transition hidden md:block">{track.albumTitle || "Đĩa đơn"}</div>
-                <div className="text-sm text-[#b3b3b3] truncate hidden lg:block">Gần đây</div>
                 <div className="flex items-center justify-end gap-6 pr-4">
                   <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition">
                     <button className="text-[#b3b3b3] hover:text-white"><Heart size={16} /></button>
@@ -231,7 +359,7 @@ export const PlaylistDetail = () => {
                       <Trash2 size={16} />
                     </button>
                   </div>
-                  <div className="text-sm text-[#b3b3b3] font-medium w-10 text-right">{track.duration}</div>
+                  <div className="text-sm text-[#b3b3b3] font-medium w-12 text-right">{formatDuration(track.duration)}</div>
                 </div>
               </div>
             )})}
@@ -279,6 +407,118 @@ export const PlaylistDetail = () => {
          )}
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-zinc-800 rounded-lg shadow-2xl w-full max-w-[524px] overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="flex justify-between items-center p-6 pb-4">
+              <h2 className="text-2xl font-bold text-white">Sửa thông tin chi tiết</h2>
+              <button 
+                onClick={() => setShowEditModal(false)}
+                className="text-zinc-400 hover:text-white transition rounded-full p-2 hover:bg-white/10"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="p-6 pt-2 flex gap-4">
+              {/* Image Uploader */}
+              <div 
+                className="relative w-[180px] h-[180px] bg-zinc-700 rounded shadow-md group flex-shrink-0"
+                onMouseLeave={() => setShowCoverDropdown(false)}
+              >
+                {editCover || displayCover ? (
+                  <img src={getCoverUrl(editCover || displayCover)!} alt="Cover" className="w-full h-full object-cover rounded" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Music size={48} className="text-zinc-500" />
+                  </div>
+                )}
+                
+                {/* Hover overlay for clicking */}
+                <div 
+                  className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white cursor-pointer rounded"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Camera size={48} className="mb-2" />
+                  <span className="text-sm font-medium">Chọn ảnh</span>
+                </div>
+
+                {/* Top-right 3 dots */}
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="relative">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setShowCoverDropdown(!showCoverDropdown); }}
+                      className="p-1 bg-black/50 hover:bg-black/80 rounded-full text-white backdrop-blur-md"
+                    >
+                      <MoreHorizontal size={20} />
+                    </button>
+                    {showCoverDropdown && (
+                      <div className="absolute top-full right-0 mt-1 w-36 bg-zinc-800 rounded shadow-xl border border-zinc-700 py-1 z-50">
+                        <button 
+                          className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                          onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                        >
+                          Thay đổi ảnh
+                        </button>
+                        <button 
+                          className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            setEditCover(""); 
+                            setShowCoverDropdown(false); 
+                          }}
+                        >
+                          Xóa ảnh
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  className="hidden" 
+                  accept="image/jpeg, image/png, image/webp"
+                  onChange={handleImageUpload}
+                />
+              </div>
+
+              {/* Form Fields */}
+              <div className="flex flex-col flex-1 gap-4">
+                <input 
+                  type="text" 
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="Thêm tên"
+                  className="w-full bg-zinc-700/50 text-white p-3 rounded text-sm font-medium focus:outline-none focus:bg-zinc-700 focus:ring-1 focus:ring-white transition"
+                />
+                <textarea 
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  placeholder="Thêm phần mô tả không bắt buộc"
+                  className="w-full bg-zinc-700/50 text-white p-3 rounded text-sm font-medium focus:outline-none focus:bg-zinc-700 focus:ring-1 focus:ring-white transition resize-none flex-1 min-h-[100px]"
+                ></textarea>
+              </div>
+            </div>
+
+            <div className="p-6 pt-2 flex justify-end">
+              <button 
+                onClick={handleEditSave}
+                disabled={!editName.trim()}
+                className="px-8 py-3 bg-white text-black font-bold rounded-full hover:scale-105 transition disabled:opacity-50 disabled:hover:scale-100"
+              >
+                Lưu
+              </button>
+            </div>
+            <div className="px-6 pb-6 pt-2">
+              <p className="text-xs text-zinc-400 font-medium">Bằng cách tiếp tục, bạn đồng ý cho phép TuneVault truy cập vào hình ảnh bạn đã chọn để tải lên. Vui lòng đảm bảo bạn có quyền tải lên hình ảnh.</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -44,14 +44,16 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState("");
+  const [isPublic, setIsPublic] = useState(false);
 
   const submitCreatePlaylist = async () => {
     if (!newPlaylistName.trim()) return;
     try {
-      const newPlaylist = await playlistService.createPlaylist(newPlaylistName);
+      const newPlaylist = await playlistService.createPlaylist(newPlaylistName, undefined, isPublic);
       setPlaylists([newPlaylist, ...playlists]);
       setShowCreateModal(false);
       setNewPlaylistName("");
+      setIsPublic(false);
     } catch (error) {
       alert("Lỗi khi tạo playlist. Vui lòng đăng nhập.");
     }
@@ -136,7 +138,7 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
             >
               <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
                 {playlist.coverUrl ? (
-                  <img src={playlist.coverUrl} alt={playlist.name} className="w-full h-full object-cover shrink-0" />
+                  <img src={playlist.coverUrl.startsWith('http') || playlist.coverUrl.startsWith('data:') ? playlist.coverUrl : `http://localhost:5183${playlist.coverUrl}`} alt={playlist.name} className="w-full h-full object-cover shrink-0" />
                 ) : (
                   <Library size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
                 )}
@@ -186,12 +188,24 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
                value={newPlaylistName}
                onChange={(e) => setNewPlaylistName(e.target.value)}
                onKeyDown={(e) => { if (e.key === 'Enter') submitCreatePlaylist(); }}
-               className="w-full bg-zinc-700/50 text-white rounded-md p-3 outline-none focus:ring-2 focus:ring-white mb-6 placeholder-zinc-400 font-medium"
+               className="w-full bg-zinc-700/50 text-white rounded-md p-3 outline-none focus:ring-2 focus:ring-white mb-4 placeholder-zinc-400 font-medium"
                autoFocus
              />
+             <div className="flex items-center gap-2 mb-6">
+               <input 
+                 type="checkbox" 
+                 id="isPublic"
+                 checked={isPublic}
+                 onChange={(e) => setIsPublic(e.target.checked)}
+                 className="w-4 h-4 rounded text-green-500 focus:ring-green-500 bg-zinc-700 border-zinc-600"
+               />
+               <label htmlFor="isPublic" className="text-sm text-zinc-300 font-medium cursor-pointer">
+                 Đặt ở chế độ công khai
+               </label>
+             </div>
              <div className="flex justify-end gap-2">
                <button 
-                 onClick={() => { setShowCreateModal(false); setNewPlaylistName(""); }}
+                 onClick={() => { setShowCreateModal(false); setNewPlaylistName(""); setIsPublic(false); }}
                  className="px-6 py-3 font-bold text-white hover:scale-105 transition"
                >
                  Hủy

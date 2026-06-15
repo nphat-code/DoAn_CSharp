@@ -1,7 +1,9 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, UploadCloud, Music } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
+import { artistService, type ArtistDto } from '../services/artistService';
+import { albumService, type AlbumDto } from '../services/albumService';
 
 interface UploadModalProps {
   onClose: () => void;
@@ -10,14 +12,34 @@ interface UploadModalProps {
   artistId?: string;
 }
 
-export const UploadModal = ({ onClose, onSuccess, albumId, artistId }: UploadModalProps) => {
+export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artistId: initialArtistId }: UploadModalProps) => {
   const [title, setTitle] = useState('');
-  const [artist, setArtist] = useState('');
+  const [description, setDescription] = useState('');
+  const [selectedArtistId, setSelectedArtistId] = useState(initialArtistId || '');
+  const [selectedAlbumId, setSelectedAlbumId] = useState(initialAlbumId || '');
   const [file, setFile] = useState<File | null>(null);
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [artists, setArtists] = useState<ArtistDto[]>([]);
+  const [albums, setAlbums] = useState<AlbumDto[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const coverImageInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [artistsData, albumsData] = await Promise.all([
+          artistService.getAllArtists(),
+          albumService.getAllAlbums()
+        ]);
+        setArtists(artistsData);
+        setAlbums(albumsData);
+      } catch (err) {
+        console.error("Failed to load artists/albums", err);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,16 +49,16 @@ export const UploadModal = ({ onClose, onSuccess, albumId, artistId }: UploadMod
       setLoading(true);
       const formData = new FormData();
       formData.append('title', title);
-      formData.append('description', artist); // Map Artist to Description
+      if (description) formData.append('description', description);
       formData.append('file', file);
       if (coverImage) {
         formData.append('coverImage', coverImage);
       }
-      if (albumId) {
-        formData.append('albumId', albumId);
+      if (selectedAlbumId) {
+        formData.append('albumId', selectedAlbumId);
       }
-      if (artistId) {
-        formData.append('artistId', artistId);
+      if (selectedArtistId) {
+        formData.append('artistId', selectedArtistId);
       }
 
       await mediaService.uploadMedia(formData);
@@ -141,16 +163,45 @@ export const UploadModal = ({ onClose, onSuccess, albumId, artistId }: UploadMod
               />
             </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-bold text-white">Phân loại: Nghệ sĩ</label>
+                <select 
+                  value={selectedArtistId}
+                  onChange={(e) => setSelectedArtistId(e.target.value)}
+                  className="bg-[#3E3E3E] text-white rounded-md p-3 outline-none focus:ring-2 focus:ring-white"
+                  disabled={!!initialArtistId} // Khóa nếu mở từ trang nghệ sĩ
+                >
+                  <option value="">Không chọn</option>
+                  {artists.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-bold text-white">Phân loại: Album</label>
+                <select 
+                  value={selectedAlbumId}
+                  onChange={(e) => setSelectedAlbumId(e.target.value)}
+                  className="bg-[#3E3E3E] text-white rounded-md p-3 outline-none focus:ring-2 focus:ring-white"
+                  disabled={!!initialAlbumId} // Khóa nếu mở từ trang album
+                >
+                  <option value="">Không chọn</option>
+                  {albums
+                    .filter(a => !selectedArtistId || a.artistId === selectedArtistId) // Chỉ hiện album của nghệ sĩ đã chọn
+                    .map(a => <option key={a.id} value={a.id}>{a.title}</option>)}
+                </select>
+              </div>
+            </div>
+
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-bold text-white">Nghệ sĩ (Không bắt buộc)</label>
+              <label className="text-sm font-bold text-white">Mô tả thêm (Không bắt buộc)</label>
               <input 
                 type="text" 
-                value={artist}
-                onChange={(e) => setArtist(e.target.value)}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 className="bg-[#3E3E3E] text-white rounded-md p-3 outline-none focus:ring-2 focus:ring-white placeholder-zinc-400"
-                placeholder="VD: Ed Sheeran"
+                placeholder="VD: Bản thu âm trực tiếp năm 2024"
               />
-              <span className="text-xs text-zinc-400">Sẽ được hiển thị dưới tên bài hát.</span>
             </div>
           </div>
 

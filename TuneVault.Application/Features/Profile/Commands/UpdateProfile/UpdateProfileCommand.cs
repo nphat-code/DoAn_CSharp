@@ -1,5 +1,7 @@
+using TuneVault.Application.Security;
 using MediatR;
 
 namespace TuneVault.Application.Features.Profile.Commands.UpdateProfile;
 
-public record UpdateProfileCommand(Guid UserId, string Username, string? AvatarUrl) : IRequest<bool>;
+[Authorize]
+public record UpdateProfileCommand(Guid UserId, string Username, string? AvatarUrl, string? Bio) : IRequest<bool>;

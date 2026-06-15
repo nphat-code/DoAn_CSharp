@@ -45,7 +45,7 @@ public class ProfileController(IMediator mediator) : ControllerBase
         if (!Guid.TryParse(userIdString, out var userId))
             return Unauthorized("Không thể xác thực danh tính người dùng.");
 
-        var success = await mediator.Send(new TuneVault.Application.Features.Profile.Commands.UpdateProfile.UpdateProfileCommand(userId, dto.Username, dto.AvatarUrl));
+        var success = await mediator.Send(new TuneVault.Application.Features.Profile.Commands.UpdateProfile.UpdateProfileCommand(userId, dto.Username, dto.AvatarUrl, dto.Bio));
         return Ok(new { success });
     }
 }

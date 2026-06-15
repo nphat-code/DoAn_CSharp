@@ -49,6 +49,10 @@ builder.Services.AddOpenApiDocument(config =>
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+// Đăng ký Current User Service
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<TuneVault.Application.Interfaces.ICurrentUserService, TuneVault.API.Services.CurrentUserService>();
+
 var app = builder.Build();
 
 // Đăng ký Global Exception Handler (Người hứng bom toàn cục)

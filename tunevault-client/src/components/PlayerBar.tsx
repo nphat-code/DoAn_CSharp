@@ -28,13 +28,17 @@ export const PlayerBar = () => {
     }
   }, [isPlaying, currentMedia, volume, mediaRef]);
 
+  const isSeeking = useRef(false);
+
   useEffect(() => {
     const media = mediaRef.current;
     if (!media) return;
 
     const handleTimeUpdate = () => {
-      setProgress((media.currentTime / media.duration) * 100 || 0);
-      setCurrentTime(media.currentTime);
+      if (!isSeeking.current) {
+        setProgress((media.currentTime / media.duration) * 100 || 0);
+        setCurrentTime(media.currentTime);
+      }
       setDuration(media.duration);
     };
 
@@ -65,9 +69,21 @@ export const PlayerBar = () => {
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (mediaRef.current) {
       const seekTime = (Number(e.target.value) / 100) * mediaRef.current.duration;
-      mediaRef.current.currentTime = seekTime;
       setProgress(Number(e.target.value));
       setCurrentTime(seekTime);
+    }
+  };
+
+  const handleSeekStart = () => {
+    isSeeking.current = true;
+  };
+
+  const handleSeekEnd = (e: React.SyntheticEvent<HTMLInputElement>) => {
+    if (mediaRef.current && isSeeking.current) {
+      const target = e.target as HTMLInputElement;
+      const seekTime = (Number(target.value) / 100) * mediaRef.current.duration;
+      mediaRef.current.currentTime = seekTime;
+      isSeeking.current = false;
     }
   };
 
@@ -129,6 +145,7 @@ export const PlayerBar = () => {
           <video
             ref={mediaRef as React.RefObject<HTMLVideoElement>}
             src={`http://localhost:5183/api/media/${currentMedia.id}/stream`}
+            poster={currentMedia.coverUrl ? (currentMedia.coverUrl.startsWith('http') ? currentMedia.coverUrl : `http://localhost:5183${currentMedia.coverUrl}`) : undefined}
             playsInline
             className="w-full h-full object-cover scale-[1.3] transform-gpu"
           />
@@ -236,7 +253,12 @@ export const PlayerBar = () => {
           <span className="text-[11px] text-spotify-lighttext min-w-[32px] text-right">{formatTime(currentTime)}</span>
           <div className="w-full group flex items-center">
             <input 
-              type="range" min="0" max="100" value={progress || 0} onChange={handleSeek}
+              type="range" min="0" max="100" value={progress || 0} 
+              onChange={handleSeek}
+              onMouseDown={handleSeekStart}
+              onTouchStart={handleSeekStart}
+              onMouseUp={handleSeekEnd}
+              onTouchEnd={handleSeekEnd}
               className="spotify-slider"
               style={{ '--progress': `${progress || 0}%` } as React.CSSProperties}
             />

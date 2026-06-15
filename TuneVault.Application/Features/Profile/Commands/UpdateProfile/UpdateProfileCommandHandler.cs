@@ -11,7 +11,7 @@ public class UpdateProfileCommandHandler(IUserRepository userRepository) : IRequ
         if (user == null)
             throw new Exception("User not found");
 
-        await userRepository.UpdateProfileAsync(request.UserId, request.Username, request.AvatarUrl, cancellationToken);
+        await userRepository.UpdateProfileAsync(request.UserId, request.Username, request.AvatarUrl, request.Bio, cancellationToken);
         return true;
     }
 }

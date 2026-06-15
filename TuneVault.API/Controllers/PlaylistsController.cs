@@ -8,6 +8,7 @@ using TuneVault.Application.Features.Playlists.Commands.DeletePlaylist;
 using TuneVault.Application.Features.Playlists.Commands.RemoveTrackFromPlaylist;
 using TuneVault.Application.Features.Playlists.Queries.GetPlaylistDetails;
 using TuneVault.Application.Features.Playlists.Queries.GetUserPlaylists;
+using TuneVault.Application.Features.Playlists.Commands.UpdatePlaylist;
 
 namespace TuneVault.API.Controllers;
 
@@ -42,6 +43,16 @@ public class PlaylistsController(IMediator mediator) : ControllerBase
         var command = new CreatePlaylistCommand(userId, request.Name, request.Description, request.IsPublic);
         var result = await mediator.Send(command);
         return Ok(new { success = true, data = result });
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdatePlaylist(Guid id, [FromBody] UpdatePlaylistRequest request)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var command = new UpdatePlaylistCommand(id, userId, request.Name, request.Description, request.CoverUrl);
+        var result = await mediator.Send(command);
+        if (!result) return NotFound();
+        return Ok(new { success = true });
     }
 
     [HttpDelete("{id}")]
@@ -82,4 +93,11 @@ public class CreatePlaylistRequest
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public bool IsPublic { get; set; }
+}
+
+public class UpdatePlaylistRequest
+{
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string? CoverUrl { get; set; }
 }

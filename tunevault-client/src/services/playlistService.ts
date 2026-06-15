@@ -35,6 +35,14 @@ export const playlistService = {
     return response.data.data;
   },
 
+  updatePlaylist: async (id: string, name: string, description?: string, coverUrl?: string | null): Promise<void> => {
+    await apiClient.put(`/playlists/${id}`, {
+      name,
+      description,
+      coverUrl: coverUrl === null ? "" : coverUrl
+    });
+  },
+
   deletePlaylist: async (id: string): Promise<void> => {
     await apiClient.delete(`/playlists/${id}`);
   },

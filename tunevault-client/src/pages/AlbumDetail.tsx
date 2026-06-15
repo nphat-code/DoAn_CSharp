@@ -174,11 +174,16 @@ export const AlbumDetail = () => {
 
   return (
     <div 
-      className="flex flex-col h-full bg-black overflow-y-auto"
-      style={{
-        background: `linear-gradient(to bottom, ${bgColor} 0%, rgba(0,0,0,1) 70%)`
-      }}
+      className="flex flex-col h-full bg-black relative"
+      style={{ overflowY: 'overlay' as any }}
     >
+      {/* Background Gradient */}
+      <div 
+        className="absolute top-0 left-0 w-full h-[500px] pointer-events-none z-0"
+        style={{
+          background: `linear-gradient(to bottom, ${bgColor} 0%, rgba(0,0,0,1) 100%)`,
+        }}
+      />
       {/* Header */}
       <div 
         className="flex items-end gap-6 px-6 pb-6 shrink-0 relative z-10"
@@ -223,9 +228,9 @@ export const AlbumDetail = () => {
       </div>
 
       {/* Content wrapper */}
-      <div className="flex-1 flex flex-col bg-gradient-to-b from-black/20 to-black/60 border-t border-white/10 pt-6 px-6">
+      <div className="flex-1 flex flex-col border-t border-white/10 pt-6 relative z-10 bg-black/20">
         {/* Controls */}
-        <div className="flex items-center gap-6 mb-6 px-2">
+        <div className="flex items-center gap-6 mb-6 px-6">
           <button
           onClick={handleMainPlayClick}
           className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center hover:scale-105 transition hover:bg-green-400 shadow-xl"
@@ -268,24 +273,24 @@ export const AlbumDetail = () => {
         )}
       </div>
 
-      {/* Track List Section */}
-      <div className="w-full flex-1">
-        {/* Table Header */}
-        <div className="grid grid-cols-[32px_1fr_minmax(50px,100px)_60px] gap-4 px-4 py-2 border-b border-white/10 text-sm font-medium text-spotify-lighttext mb-4 sticky top-0 bg-transparent z-10 items-center">
-            <div className="text-right pr-2">#</div>
-            <div>Tiêu đề</div>
-            <div className="flex justify-end pr-8"><Clock size={16} /></div>
-            <div></div>
+        {/* Track List Section */}
+        <div className="w-full flex-1">
+          {/* Table Header */}
+          <div className="grid grid-cols-[32px_1fr_minmax(80px,120px)] gap-4 px-6 py-2 border-b border-white/10 text-sm font-medium text-spotify-lighttext mb-4 sticky top-0 bg-transparent z-10 items-center">
+              <div className="text-right pr-2">#</div>
+              <div>Tiêu đề</div>
+              <div className="flex justify-end pr-8"><Clock size={16} /></div>
           </div>
 
           {/* Tracks */}
-          <div className="flex flex-col gap-1 pb-10">
+          <div className="flex flex-col gap-0 pb-10 px-2">
             {album.tracks && album.tracks.map((track, index) => {
               const isPlayingTrack = currentMedia?.id === track.id;
+              
               return (
-              <div
-                key={track.id}
-                className="grid grid-cols-[32px_1fr_minmax(50px,100px)_60px] gap-4 px-4 py-2 hover:bg-white/10 rounded-md transition items-center group cursor-pointer"
+                <div 
+                  key={track.id} 
+                  className="grid grid-cols-[32px_1fr_minmax(80px,120px)] gap-4 px-4 py-2 hover:bg-white/10 rounded-md transition items-center group cursor-pointer"
                 onDoubleClick={() => handlePlayMedia(index)}
               >
                 <div className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-spotify-lighttext'} text-base font-medium flex items-center justify-end pr-2 relative w-full`}>
@@ -309,29 +314,27 @@ export const AlbumDetail = () => {
                   <span className="text-spotify-lighttext text-sm truncate hover:underline hover:text-white inline-block w-fit">{track.artistName || album.artistName}</span>
                 </div>
 
-                <div className="text-sm text-spotify-lighttext font-medium text-right pr-8 flex items-center justify-end gap-6">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleToggleFavorite(track.id); }}
-                    className={`${likedTracks.has(track.id) ? 'opacity-100 text-[#1ed760]' : 'opacity-0 group-hover:opacity-100 text-spotify-lighttext hover:text-white'} transition`}
-                    title={likedTracks.has(track.id) ? "Bỏ thích" : "Thích"}
-                  >
-                    {likedTracks.has(track.id) ? (
-                      <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
-                    ) : (
-                      <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
-                    )}
-                  </button>
-                  <span className="w-10">{formatDuration(track.duration)}</span>
-                </div>
-
-                <div className="flex items-center gap-4 transition justify-end pr-2 opacity-0 group-hover:opacity-100">
-                  <button className="text-spotify-lighttext hover:text-white transition">
-                    <MoreHorizontal size={18} />
-                  </button>
-                </div>
+                  <div className="flex items-center justify-end gap-6 pr-4">
+                    <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleToggleFavorite(track.id); }}
+                        className={`${likedTracks.has(track.id) ? 'opacity-100 text-[#1ed760]' : 'text-spotify-lighttext hover:text-white'}`}
+                      >
+                        {likedTracks.has(track.id) ? (
+                          <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
+                        ) : (
+                          <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                        )}
+                      </button>
+                      <button className="text-spotify-lighttext hover:text-white transition">
+                        <MoreHorizontal size={18} />
+                      </button>
+                    </div>
+                    <div className="text-sm text-spotify-lighttext font-medium w-12 text-right">{formatDuration(track.duration)}</div>
+                  </div>
               </div>
-            )})}
-            {(!album.tracks || album.tracks.length === 0) && (
+            );
+            })}{(!album.tracks || album.tracks.length === 0) && (
               <div className="text-zinc-500 font-medium py-4 px-2">Chưa có bài hát nào trong album này.</div>
             )}
           </div>
