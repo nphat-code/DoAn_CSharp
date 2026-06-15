@@ -499,3 +499,11 @@ yarn-error.log*
 **/wwwroot/uploads/
 **/wwwroot/covers/
 **/wwwroot/avatars/
+
+# Documentation and Setup Files
+GiaiThich_KienTruc_TuneVault.md
+KeHoachPhatTrien_TuneVault.md
+pdf_content.txt
+pdf_content_utf8.txt
+TuneVault_BaiTapLon.pdf
+setup_tunevault.ps1
