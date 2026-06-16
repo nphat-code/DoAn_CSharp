@@ -17,11 +17,10 @@ public class RemoveTrackFromAlbumCommandHandler(IAlbumRepository albumRepository
             throw new KeyNotFoundException("Bài hát không tồn tại");
 
         if (track.AlbumId != request.AlbumId)
-            throw new InvalidOperationException("Bài hát không thuộc album này");
+            throw new InvalidOperationException("Bài hát không thuộc Album này");
 
         track.AlbumId = null;
-        // Giữ nguyên ArtistId hoặc xóa nếu cần
-        // track.ArtistId = null; 
+        track.ArtistId = null;
 
         await mediaItemRepository.UpdateAsync(track, cancellationToken);
 

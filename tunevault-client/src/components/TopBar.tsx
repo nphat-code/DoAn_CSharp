@@ -6,8 +6,10 @@ import { AddArtistModal } from './AddArtistModal';
 import { CreateAlbumModal } from './CreateAlbumModal';
 import { mediaService } from '../services/mediaService';
 import type { SearchResultDto } from '../types';
+import { useNotification } from '../context/NotificationContext';
 
 export const TopBar = () => {
+  const { notifications, unreadCount, markAsRead, markAllAsRead, isDropdownOpen, setIsDropdownOpen } = useNotification();
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [user, setUser] = useState<any>(null);
@@ -17,6 +19,7 @@ export const TopBar = () => {
   const [showCreateAlbumModal, setShowCreateAlbumModal] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const notificationRef = useRef<HTMLDivElement>(null);
   const [searchResults, setSearchResults] = useState<SearchResultDto | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -29,6 +32,9 @@ export const TopBar = () => {
       }
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
+      }
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -259,9 +265,73 @@ export const TopBar = () => {
           </>
         )}
 
-        <button className="text-zinc-400 hover:text-white transition">
-          <Bell size={20} />
-        </button>
+        <div className="relative" ref={notificationRef}>
+          <button 
+            className={`transition relative ${isDropdownOpen ? 'text-white' : 'text-zinc-400 hover:text-white'}`}
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          >
+            <Bell size={20} />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
+          
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-4 w-80 bg-zinc-800 rounded-xl shadow-2xl border border-white/10 overflow-hidden z-50 flex flex-col max-h-[400px]">
+              <div className="p-4 border-b border-white/10 flex items-center justify-between">
+                <h3 className="font-bold text-white">Thông báo</h3>
+                {unreadCount > 0 && (
+                  <button 
+                    onClick={() => markAllAsRead()}
+                    className="text-xs text-zinc-400 hover:text-white transition"
+                  >
+                    Đánh dấu tất cả đã đọc
+                  </button>
+                )}
+              </div>
+              <div className="overflow-y-auto custom-scrollbar">
+                {notifications.length === 0 ? (
+                  <div className="p-6 text-center text-zinc-400 text-sm">
+                    Không có thông báo nào
+                  </div>
+                ) : (
+                  notifications.map(notif => (
+                    <div 
+                      key={notif.id}
+                      onClick={() => !notif.isRead && markAsRead(notif.id)}
+                      className={`p-4 border-b border-white/5 cursor-pointer transition hover:bg-white/5 flex gap-3 ${notif.isRead ? 'opacity-70' : 'bg-white/5'}`}
+                    >
+                      <div className="mt-1">
+                        {notif.type === 'Share' ? (
+                          <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center">
+                            <Bell size={14} />
+                          </div>
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-spotify-green/20 text-spotify-green flex items-center justify-center">
+                            <Bell size={14} />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm ${notif.isRead ? 'text-zinc-300' : 'text-white font-medium'}`}>
+                          {notif.message}
+                        </p>
+                        <p className="text-xs text-zinc-500 mt-1">
+                          {new Date(notif.createdAt).toLocaleString('vi-VN')}
+                        </p>
+                      </div>
+                      {!notif.isRead && (
+                        <div className="w-2 h-2 rounded-full bg-spotify-green self-center shrink-0"></div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
         
         {/* User Profile or Auth Buttons */}
         {isAuthenticated ? (

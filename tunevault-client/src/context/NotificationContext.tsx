@@ -1,29 +1,50 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import * as signalR from '@microsoft/signalr';
+import axios from 'axios';
 
 interface Notification {
-  id?: string;
+  id: string;
   message: string;
   type: string;
   createdAt: string;
-  isRead?: boolean;
+  isRead: boolean;
 }
 
 interface NotificationContextType {
   notifications: Notification[];
   unreadCount: number;
+  markAsRead: (id: string) => Promise<void>;
+  markAllAsRead: () => Promise<void>;
+  isDropdownOpen: boolean;
+  setIsDropdownOpen: (open: boolean) => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
+
+    // Fetch existing notifications
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get('http://localhost:5183/api/notifications', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setNotifications(response.data);
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+    
+    fetchNotifications();
 
     // 1. Khởi tạo kết nối SignalR Hub
     const connection = new signalR.HubConnectionBuilder()
@@ -36,7 +57,6 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     // 2. Lắng nghe Event từ Backend
     connection.on("ReceiveNotification", (notification: Notification) => {
       setNotifications(prev => [notification, ...prev]);
-      setUnreadCount(prev => prev + 1); // Tăng badge đỏ khi có thông báo mới
     });
 
     // 3. Khởi động kết nối
@@ -49,8 +69,43 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
+  const markAsRead = async (id: string) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    
+    try {
+      await axios.put(`http://localhost:5183/api/notifications/${id}/read`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    
+    try {
+      await axios.put(`http://localhost:5183/api/notifications/read-all`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
+  };
+
   return (
-    <NotificationContext.Provider value={{ notifications, unreadCount }}>
+    <NotificationContext.Provider value={{ 
+        notifications, 
+        unreadCount, 
+        markAsRead, 
+        markAllAsRead,
+        isDropdownOpen,
+        setIsDropdownOpen 
+    }}>
       {children}
     </NotificationContext.Provider>
   );
