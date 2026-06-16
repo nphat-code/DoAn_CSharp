@@ -11,6 +11,7 @@ import { AlbumDetail } from './pages/AlbumDetail';
 import { NowPlaying } from './pages/NowPlaying';
 import { TrackDetail } from './pages/TrackDetail';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { SharedWithMe } from './pages/SharedWithMe';
 
 const Placeholder = ({ title }: { title: string }) => (
   <div className="p-6">
@@ -35,6 +36,7 @@ function App() {
           <Route path="search" element={<Search />} />
           <Route path="library" element={isAuthenticated ? <Placeholder title="Library" /> : <Navigate to="/login" />} />
           <Route path="favorites" element={isAuthenticated ? <Favorites /> : <Navigate to="/login" />} />
+          <Route path="shared-with-me" element={isAuthenticated ? <SharedWithMe /> : <Navigate to="/login" />} />
           <Route path="playlist/:id" element={isAuthenticated ? <PlaylistDetail /> : <Navigate to="/login" />} />
           <Route path="album/:id" element={isAuthenticated ? <AlbumDetail /> : <Navigate to="/login" />} />
           <Route path="track/:id" element={isAuthenticated ? <TrackDetail /> : <Navigate to="/login" />} />

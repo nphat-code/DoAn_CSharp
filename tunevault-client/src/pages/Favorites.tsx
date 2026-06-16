@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { mediaService } from '../services/mediaService';
 import { usePlayer } from '../context/PlayerContext';
-import { Play, Heart, Clock } from 'lucide-react';
+import { Play, Heart, Clock, Share2 } from 'lucide-react';
 import type { MediaItemDto } from '../types';
+import { ShareMediaModal } from '../components/ShareMediaModal';
 
 const formatDuration = (timeString: string | undefined) => {
   if (!timeString) return "0:00";
@@ -24,6 +25,16 @@ export const Favorites = () => {
 
   const currentUserStr = localStorage.getItem('user');
   const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
+
+  // Share states
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareData, setShareData] = useState<{ id: string, type: string, title: string } | null>(null);
+
+  const handleShareTrack = (e: React.MouseEvent, trackId: string, trackTitle: string) => {
+    e.stopPropagation();
+    setShareData({ id: trackId, type: 'Bài hát', title: trackTitle });
+    setShowShareModal(true);
+  };
 
   const fetchFavorites = async () => {
     try {
@@ -232,6 +243,13 @@ export const Favorites = () => {
                   >
                     <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
                   </button>
+                  <button 
+                    onClick={(e) => handleShareTrack(e, track.id, track.title)}
+                    className="text-zinc-400 hover:text-white transition"
+                    title="Chia sẻ bài hát"
+                  >
+                    <Share2 size={16} />
+                  </button>
                   <div className="text-sm text-[#b3b3b3] font-medium w-10 text-right">{formatDuration(track.duration)}</div>
                 </div>
               </div>
@@ -240,6 +258,16 @@ export const Favorites = () => {
         </div>
       </div>
       </div>
+
+      {/* Share Modal */}
+      {showShareModal && shareData && (
+        <ShareMediaModal
+          mediaId={shareData.id}
+          mediaType={shareData.type}
+          mediaTitle={shareData.title}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
     </div>
   );
 };

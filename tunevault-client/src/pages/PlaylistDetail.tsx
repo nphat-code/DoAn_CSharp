@@ -4,15 +4,17 @@ import { useParams } from 'react-router-dom';
 import { playlistService } from '../services/playlistService';
 import type { PlaylistDetailDto } from '../services/playlistService';
 import { usePlayer } from '../context/PlayerContext';
-import { Play, Trash2, Clock, Search, Heart, MoreHorizontal, X, Camera, Music, Image as ImageIcon } from 'lucide-react';
+import { Play, Trash2, Clock, Search, Heart, MoreHorizontal, X, Camera, Music, Share2 } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import type { MediaItemDto } from '../types';
+import { ShareMediaModal } from '../components/ShareMediaModal';
 
 export const PlaylistDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [playlist, setPlaylist] = useState<PlaylistDetailDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [bgColor, setBgColor] = useState<string>('rgba(49, 46, 129, 0.4)');
+  const [openTrackDropdown, setOpenTrackDropdown] = useState<string | null>(null);
   const { playMediaList, currentMedia, isPlaying, togglePlayPause } = usePlayer();
 
   // Edit states
@@ -23,6 +25,10 @@ export const PlaylistDetail = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showCoverDropdown, setShowCoverDropdown] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Share states
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareData, setShareData] = useState<{ id: string, type: string, title: string } | null>(null);
 
   const fetchDetails = async () => {
     try {
@@ -53,7 +59,7 @@ export const PlaylistDetail = () => {
         const data = await mediaService.searchMedia(addQuery);
         // Lọc ra các bài hát chưa có trong playlist
         const existingIds = new Set(playlist?.tracks.map(t => t.id) || []);
-        setAddResults(data.filter(t => !existingIds.has(t.id)));
+        setAddResults(data.tracks ? data.tracks.filter(t => !existingIds.has(t.id)) : []);
       } catch (error) {
         console.error(error);
       } finally {
@@ -283,6 +289,17 @@ export const PlaylistDetail = () => {
                   <button 
                     onClick={() => {
                       setShowDropdown(false);
+                      setShareData({ id: playlist.id, type: 'Playlist', title: playlist.name });
+                      setShowShareModal(true);
+                    }}
+                    className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white transition flex items-center gap-2"
+                  >
+                    <Share2 size={16} />
+                    Chia sẻ
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setShowDropdown(false);
                       handleDeletePlaylist();
                     }}
                     className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white transition"
@@ -348,18 +365,53 @@ export const PlaylistDetail = () => {
                   </div>
                 </div>
                 <div className="text-sm text-[#b3b3b3] truncate hover:text-white transition hidden md:block">{track.albumTitle || "Đĩa đơn"}</div>
-                <div className="flex items-center justify-end gap-6 pr-4">
+                <div className="flex items-center justify-end gap-4 pr-4">
                   <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition">
                     <button className="text-[#b3b3b3] hover:text-white"><Heart size={16} /></button>
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); handleRemoveTrack(track.id); }}
-                      className="text-[#b3b3b3] hover:text-red-500 transition"
-                      title="Xóa bài hát"
-                    >
-                      <Trash2 size={16} />
-                    </button>
                   </div>
                   <div className="text-sm text-[#b3b3b3] font-medium w-12 text-right">{formatDuration(track.duration)}</div>
+                  <div className="relative flex items-center">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setOpenTrackDropdown(openTrackDropdown === track.id ? null : track.id); }}
+                      className={`text-[#b3b3b3] hover:text-white transition ${openTrackDropdown === track.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                    >
+                      <MoreHorizontal size={18} />
+                    </button>
+                    
+                    {openTrackDropdown === track.id && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpenTrackDropdown(null); }}></div>
+                        <div className="absolute right-0 top-full mt-1 w-48 bg-[#282828] rounded shadow-xl py-1 z-50 border border-white/10">
+                          <button 
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              setOpenTrackDropdown(null);
+                              setShareData({ id: track.id, type: 'Bài hát', title: track.title });
+                              setShowShareModal(true);
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
+                          >
+                            <Share2 size={16} />
+                            Chia sẻ bài hát
+                          </button>
+                          <button 
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              setOpenTrackDropdown(null);
+                              handleRemoveTrack(track.id); 
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-red-500 flex items-center gap-2"
+                          >
+                            <Trash2 size={16} />
+                            Xóa khỏi playlist
+                          </button>
+                          <button className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white">
+                            Thêm vào danh sách phát khác
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             )})}
@@ -407,6 +459,18 @@ export const PlaylistDetail = () => {
          )}
         </div>
       </div>
+
+      {showShareModal && shareData && (
+        <ShareMediaModal 
+          mediaId={shareData.id}
+          mediaType={shareData.type}
+          mediaTitle={shareData.title}
+          onClose={() => {
+            setShowShareModal(false);
+            setShareData(null);
+          }}
+        />
+      )}
 
       {/* Edit Modal */}
       {showEditModal && (

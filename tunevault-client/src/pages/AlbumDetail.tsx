@@ -3,9 +3,10 @@ import { FastAverageColor } from 'fast-average-color';
 import { useParams, useNavigate } from 'react-router-dom';
 import { albumService, type AlbumDetailDto } from '../services/albumService';
 import { usePlayer } from '../context/PlayerContext';
-import { Play, Clock, Disc, PlusCircle, ArrowDownCircle, MoreHorizontal, User, Plus, Trash2 } from 'lucide-react';
+import { Play, Clock, Disc, PlusCircle, ArrowDownCircle, MoreHorizontal, User, Plus, Trash2, Share2 } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import { AddTrackToAlbumModal } from '../components/AddTrackToAlbumModal';
+import { ShareMediaModal } from '../components/ShareMediaModal';
 
 export const AlbumDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,9 +15,14 @@ export const AlbumDetail = () => {
   const [bgColor, setBgColor] = useState<string>('rgba(49, 46, 129, 0.4)');
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAddTrackModal, setShowAddTrackModal] = useState(false);
+  const [openTrackDropdown, setOpenTrackDropdown] = useState<string | null>(null);
   const { playMediaList, currentMedia, isFavorited, setIsFavorited, isPlaying, togglePlayPause } = usePlayer();
   const [likedTracks, setLikedTracks] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
+
+  // Share states
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareData, setShareData] = useState<{ id: string, type: string, title: string } | null>(null);
 
   useEffect(() => {
     const fetchLikedTracks = async () => {
@@ -139,6 +145,33 @@ export const AlbumDetail = () => {
     }
   };
 
+  const handleRemoveTrack = async (trackId: string) => {
+    if (!album || !window.confirm("Bạn có chắc chắn muốn xóa bài hát này khỏi album?")) return;
+    try {
+      await albumService.removeTrackFromAlbum(album.id, trackId);
+      // Cập nhật lại list bài hát trong UI
+      setAlbum({
+        ...album,
+        tracks: album.tracks.filter(t => t.id !== trackId)
+      });
+    } catch (error) {
+      alert("Lỗi khi xóa bài hát");
+    }
+  };
+
+  const handleShareAlbum = () => {
+    if (!album) return;
+    setShareData({ id: album.id, type: 'Album', title: album.title });
+    setShowShareModal(true);
+  };
+
+  const handleShareTrack = (trackId: string, trackTitle: string) => {
+    setShareData({ id: trackId, type: 'Bài hát', title: trackTitle });
+    setShowShareModal(true);
+    setOpenTrackDropdown(null);
+  };
+
+
   const getTotalDuration = () => {
     if (!album || !album.tracks) return "0 phút";
     let totalSeconds = 0;
@@ -249,6 +282,9 @@ export const AlbumDetail = () => {
         <button className="text-zinc-400 hover:text-white transition" title="Tải xuống">
           <ArrowDownCircle size={32} />
         </button>
+        <button onClick={handleShareAlbum} className="text-zinc-400 hover:text-white transition" title="Chia sẻ">
+          <Share2 size={32} />
+        </button>
         <button className="text-zinc-400 hover:text-white transition ml-2" title="Khác">
           <MoreHorizontal size={32} />
         </button>
@@ -314,7 +350,7 @@ export const AlbumDetail = () => {
                   <span className="text-spotify-lighttext text-sm truncate hover:underline hover:text-white inline-block w-fit">{track.artistName || album.artistName}</span>
                 </div>
 
-                  <div className="flex items-center justify-end gap-6 pr-4">
+                  <div className="flex items-center justify-end gap-4 pr-4">
                     <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition">
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleToggleFavorite(track.id); }}
@@ -326,11 +362,47 @@ export const AlbumDetail = () => {
                           <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
                         )}
                       </button>
-                      <button className="text-spotify-lighttext hover:text-white transition">
-                        <MoreHorizontal size={18} />
-                      </button>
                     </div>
                     <div className="text-sm text-spotify-lighttext font-medium w-12 text-right">{formatDuration(track.duration)}</div>
+                    
+                    <div className="relative flex items-center">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setOpenTrackDropdown(openTrackDropdown === track.id ? null : track.id); }}
+                        className={`text-spotify-lighttext hover:text-white transition ${openTrackDropdown === track.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                      >
+                        <MoreHorizontal size={18} />
+                      </button>
+                      
+                      {openTrackDropdown === track.id && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpenTrackDropdown(null); }}></div>
+                          <div className="absolute right-0 top-full mt-1 w-48 bg-[#282828] rounded shadow-xl py-1 z-50 border border-white/10">
+                            {isAdmin && (
+                              <button 
+                                onClick={(e) => { 
+                                  e.stopPropagation(); 
+                                  setOpenTrackDropdown(null);
+                                  handleRemoveTrack(track.id); 
+                                }}
+                                className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-red-500 flex items-center gap-2"
+                              >
+                                <Trash2 size={16} />
+                                Xóa khỏi album
+                              </button>
+                            )}
+                            <button className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white">
+                              Thêm vào danh sách phát
+                            </button>
+                            <button 
+                              className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
+                              onClick={() => handleShareTrack(track.id, track.title)}
+                            >
+                              <Share2 size={16} /> Chia sẻ
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
               </div>
             );
@@ -349,6 +421,16 @@ export const AlbumDetail = () => {
             fetchDetails(); // Reload để thấy bài hát mới
           }}
           albumId={album.id}
+        />
+      )}
+
+      {/* Share Modal */}
+      {showShareModal && shareData && (
+        <ShareMediaModal
+          mediaId={shareData.id}
+          mediaType={shareData.type}
+          mediaTitle={shareData.title}
+          onClose={() => setShowShareModal(false)}
         />
       )}
     </div>

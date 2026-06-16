@@ -1,5 +1,5 @@
 import apiClient from './apiClient';
-import type { MediaItemDto } from '../types';
+import type { MediaItemDto, SearchResultDto } from '../types';
 
 export const mediaService = {
   getAllMedia: async (): Promise<MediaItemDto[]> => {
@@ -7,9 +7,9 @@ export const mediaService = {
     return response.data.data;
   },
 
-  searchMedia: async (query: string): Promise<MediaItemDto[]> => {
-    const response = await apiClient.get<{success: boolean, data: MediaItemDto[]}>('/media/search', {
-      params: { q: query }
+  searchMedia: async (query: string, page: number = 1, pageSize: number = 10): Promise<SearchResultDto> => {
+    const response = await apiClient.get<{success: boolean, data: SearchResultDto}>('/media/search', {
+      params: { q: query, page, pageSize }
     });
     return response.data.data;
   },

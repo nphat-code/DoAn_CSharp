@@ -70,12 +70,9 @@ public class MediaController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet("search")]
-    public async Task<IActionResult> Search([FromQuery] string q)
+    public async Task<IActionResult> Search([FromQuery] string q = "", [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
-        if (string.IsNullOrWhiteSpace(q))
-            return BadRequest("Search query cannot be empty");
-
-        var query = new TuneVault.Application.Features.Media.Queries.SearchMedia.SearchMediaQuery(q);
+        var query = new TuneVault.Application.Features.Media.Queries.SearchMedia.SearchMediaQuery(q, page, pageSize);
         var result = await mediator.Send(query);
         return Ok(new { success = true, data = result });
     }

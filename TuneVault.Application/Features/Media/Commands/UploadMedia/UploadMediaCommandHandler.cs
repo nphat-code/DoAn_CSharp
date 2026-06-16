@@ -85,19 +85,20 @@ public class UploadMediaCommandHandler(
         await mediaItemRepository.AddAsync(mediaItem, cancellationToken);
 
         // 5. Trả về DTO
-        return new MediaItemDto(
-            mediaItem.Id,
-            mediaItem.Title,
-            mediaItem.Description,
-            mediaItem.FileUrl,
-            mediaItem.MediaType,
-            mediaItem.Duration,
-            mediaItem.UploaderId,
-            mediaItem.CreatedAt,
-            mediaItem.CoverUrl,
-            request.Description, // artistName corresponds to Description here
-            artistBio,
-            artistAvatarUrl
-        );
+        return new MediaItemDto
+        {
+            Id = mediaItem.Id,
+            Title = mediaItem.Title,
+            Description = mediaItem.Description,
+            FileUrl = mediaItem.FileUrl,
+            MediaType = mediaItem.MediaType,
+            Duration = mediaItem.Duration,
+            UploaderId = mediaItem.UploaderId,
+            CreatedAt = mediaItem.CreatedAt,
+            CoverUrl = mediaItem.CoverUrl,
+            ArtistName = request.Description, // artistName corresponds to Description here
+            ArtistBio = artistBio,
+            ArtistAvatarUrl = artistAvatarUrl
+        };
     }
 }

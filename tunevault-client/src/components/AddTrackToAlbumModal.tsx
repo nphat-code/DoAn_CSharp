@@ -31,22 +31,27 @@ export const AddTrackToAlbumModal = ({ onClose, onSuccess, albumId }: AddTrackTo
     fetchAll();
   }, []);
 
-  const handleSearch = async () => {
-    if (!query.trim()) {
-      const data = await mediaService.getAllMedia();
-      setTracks(data);
-      return;
-    }
-    setLoading(true);
-    try {
-      const data = await mediaService.searchMedia(query);
-      setTracks(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const doSearch = async () => {
+      if (!query.trim()) {
+        const data = await mediaService.getAllMedia();
+        setTracks(data);
+        return;
+      }
+      setLoading(true);
+      try {
+        const data = await mediaService.searchMedia(query);
+        setTracks(data.tracks ? data.tracks : []);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    const debounceTimeout = setTimeout(doSearch, 300);
+    return () => clearTimeout(debounceTimeout);
+  }, [query]);
 
   const handleAdd = async (trackId: string) => {
     try {
@@ -76,7 +81,6 @@ export const AddTrackToAlbumModal = ({ onClose, onSuccess, albumId }: AddTrackTo
               type="text" 
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="Tìm bài hát..." 
               className="bg-transparent border-none outline-none text-sm text-white w-full placeholder-zinc-400"
             />

@@ -48,4 +48,15 @@ public class ProfileController(IMediator mediator) : ControllerBase
         var success = await mediator.Send(new TuneVault.Application.Features.Profile.Commands.UpdateProfile.UpdateProfileCommand(userId, dto.Username, dto.AvatarUrl, dto.Bio));
         return Ok(new { success });
     }
+
+    // GET /api/profile/search
+    [HttpGet("search")]
+    public async Task<ActionResult<IEnumerable<ProfileDto>>> SearchUsers([FromQuery] string q)
+    {
+        if (string.IsNullOrWhiteSpace(q))
+            return Ok(new List<ProfileDto>());
+
+        var result = await mediator.Send(new TuneVault.Application.Features.Profile.Queries.SearchUsers.SearchUsersQuery(q));
+        return Ok(result);
+    }
 }

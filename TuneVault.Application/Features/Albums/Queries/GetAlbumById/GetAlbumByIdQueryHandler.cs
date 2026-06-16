@@ -15,20 +15,22 @@ public class GetAlbumByIdQueryHandler(IAlbumRepository albumRepository)
         
         var tracks = await albumRepository.GetAlbumTracksAsync(request.Id, cancellationToken);
         
-        var trackDtos = tracks.Select(t => new MediaItemDto(
-            Id: t.Id,
-            Title: t.Title,
-            Description: t.Description,
-            FileUrl: t.FileUrl,
-            MediaType: t.MediaType,
-            Duration: t.Duration,
-            UploaderId: t.UploaderId,
-            CreatedAt: t.CreatedAt,
-            CoverUrl: t.CoverUrl ?? album.CoverUrl,
-            ArtistName: t.Artist?.Name ?? album.Artist?.Name,
-            ArtistBio: t.Artist?.Bio ?? album.Artist?.Bio,
-            ArtistAvatarUrl: t.Artist?.AvatarUrl ?? album.Artist?.AvatarUrl
-        ));
+        var trackDtos = tracks.Select(t => new MediaItemDto
+        {
+            Id = t.Id,
+            Title = t.Title,
+            Description = t.Description,
+            FileUrl = t.FileUrl,
+            MediaType = t.MediaType,
+            Duration = t.Duration,
+            UploaderId = t.UploaderId,
+            CreatedAt = t.CreatedAt,
+            CoverUrl = t.CoverUrl ?? album.CoverUrl,
+            ArtistName = t.Artist?.Name ?? album.Artist?.Name,
+            ArtistBio = t.Artist?.Bio ?? album.Artist?.Bio,
+            ArtistAvatarUrl = t.Artist?.AvatarUrl ?? album.Artist?.AvatarUrl,
+            AlbumTitle = album.Title
+        }).ToList();
 
         return new AlbumDetailDto(
             Id: album.Id,

@@ -1,4 +1,4 @@
-import { Library, Plus, ArrowRight, Search, List, Heart, Music } from 'lucide-react';
+import { Library, Plus, ArrowRight, Search, List, Heart, Music, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -118,15 +118,27 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
               </button>
             </div>
           ) : (
-            <div onClick={() => navigate('/favorites')} className={`p-2 hover:bg-spotify-hover rounded-md cursor-pointer transition ${isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'flex items-center gap-3'}`}>
-              <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-gradient-to-br from-indigo-600 to-purple-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
-                <Heart size={isExpanded ? 48 : 20} className="fill-white text-white shrink-0" />
+            <>
+              <div onClick={() => navigate('/favorites')} className={`p-2 hover:bg-spotify-hover rounded-md cursor-pointer transition ${isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'flex items-center gap-3'}`}>
+                <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-gradient-to-br from-indigo-600 to-purple-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
+                  <Heart size={isExpanded ? 48 : 20} className="fill-white text-white shrink-0" />
+                </div>
+                <div className={`flex-col w-full ${isExpanded ? 'flex' : 'hidden lg:flex'}`}>
+                  <span className="text-base text-white font-semibold truncate">Bài hát đã thích</span>
+                  <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • Tự động</span>
+                </div>
               </div>
-              <div className={`flex-col w-full ${isExpanded ? 'flex' : 'hidden lg:flex'}`}>
-                <span className="text-base text-white font-semibold truncate">Bài hát đã thích</span>
-                <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • Tự động</span>
+
+              <div onClick={() => navigate('/shared-with-me')} className={`p-2 hover:bg-spotify-hover rounded-md cursor-pointer transition ${isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'flex items-center gap-3'}`}>
+                <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-gradient-to-br from-emerald-600 to-teal-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
+                  <Users size={isExpanded ? 48 : 20} className="text-white shrink-0" />
+                </div>
+                <div className={`flex-col w-full ${isExpanded ? 'flex' : 'hidden lg:flex'}`}>
+                  <span className="text-base text-white font-semibold truncate">Đã chia sẻ với tôi</span>
+                  <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • Bạn bè</span>
+                </div>
               </div>
-            </div>
+            </>
           )}
           
           {/* User Playlists */}

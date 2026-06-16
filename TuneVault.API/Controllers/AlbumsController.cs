@@ -74,6 +74,15 @@ public class AlbumsController(IMediator mediator) : ControllerBase
         return Ok(new { success = true, message = "Đã thêm bài hát vào album" });
     }
 
+    [HttpDelete("{id}/tracks/{trackId}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> RemoveTrackFromAlbum(Guid id, Guid trackId)
+    {
+        var command = new TuneVault.Application.Features.Albums.Commands.RemoveTrackFromAlbum.RemoveTrackFromAlbumCommand(id, trackId);
+        await mediator.Send(command);
+        return Ok(new { success = true, message = "Đã xóa bài hát khỏi album" });
+    }
+
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteAlbum(Guid id)

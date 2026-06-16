@@ -27,3 +27,30 @@ export interface LoginResponseDto {
   avatarUrl?: string;
   token: string;
 }
+
+export interface ArtistDto {
+  id: string;
+  name: string;
+  bio?: string;
+  avatarUrl?: string;
+  createdAt: string;
+}
+
+export interface PlaylistDto {
+  id: string;
+  name: string;
+  description?: string;
+  coverUrl?: string;
+  isPublic: boolean;
+  createdAt: string;
+  userProfileId: string;
+}
+
+export interface SearchResultDto {
+  tracks: MediaItemDto[];
+  artists: ArtistDto[];
+  playlists: PlaylistDto[];
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+}

@@ -38,6 +38,10 @@ export const albumService = {
     await apiClient.post(`/albums/${albumId}/tracks`, { trackId });
   },
 
+  removeTrackFromAlbum: async (albumId: string, trackId: string): Promise<void> => {
+    await apiClient.delete(`/albums/${albumId}/tracks/${trackId}`);
+  },
+
   deleteAlbum: async (id: string): Promise<void> => {
     await apiClient.delete(`/albums/${id}`);
   }

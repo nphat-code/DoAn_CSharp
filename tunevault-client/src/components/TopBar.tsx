@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { UploadModal } from './UploadModal';
 import { AddArtistModal } from './AddArtistModal';
 import { CreateAlbumModal } from './CreateAlbumModal';
+import { mediaService } from '../services/mediaService';
+import type { SearchResultDto } from '../types';
 
 export const TopBar = () => {
   const navigate = useNavigate();
@@ -14,6 +16,10 @@ export const TopBar = () => {
   const [showAddArtistModal, setShowAddArtistModal] = useState(false);
   const [showCreateAlbumModal, setShowCreateAlbumModal] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const [searchResults, setSearchResults] = useState<SearchResultDto | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const isAuthenticated = !!localStorage.getItem('token');
 
   useEffect(() => {
@@ -21,10 +27,36 @@ export const TopBar = () => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false);
       }
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const doSearch = async () => {
+      if (!query.trim()) {
+        setSearchResults(null);
+        setShowDropdown(false);
+        return;
+      }
+      setIsSearching(true);
+      setShowDropdown(true);
+      try {
+        const data = await mediaService.searchMedia(query, 1, 5); // Fetch top 5 results
+        setSearchResults(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    const debounceTimeout = setTimeout(doSearch, 300);
+    return () => clearTimeout(debounceTimeout);
+  }, [query]);
 
   useEffect(() => {
     const loadUser = () => {
@@ -43,6 +75,7 @@ export const TopBar = () => {
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim() !== '') {
+      setShowDropdown(false);
       navigate(`/search?q=${encodeURIComponent(query)}`);
     }
   };
@@ -74,12 +107,18 @@ export const TopBar = () => {
             )
           }
         </NavLink>
-        <div className="flex-1 flex items-center bg-spotify-hover2 rounded-full h-12 px-4 group hover:bg-spotify-hover2/80 transition focus-within:bg-spotify-hover2 focus-within:ring-2 focus-within:ring-white">
+        <div ref={searchContainerRef} className="flex-1 relative flex items-center bg-spotify-hover2 rounded-full h-12 px-4 group hover:bg-spotify-hover2/80 transition focus-within:bg-spotify-hover2 focus-within:ring-2 focus-within:ring-white">
           <Search size={22} className="text-zinc-400 group-focus-within:text-white mr-3" />
           <input 
             type="text" 
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setShowDropdown(true);
+            }}
+            onFocus={() => {
+              if (query.trim() !== '') setShowDropdown(true);
+            }}
             onKeyDown={handleSearch}
             placeholder="Bạn muốn phát nội dung gì?" 
             className="bg-transparent border-none outline-none text-white w-full text-base placeholder-zinc-400 font-medium"
@@ -89,10 +128,103 @@ export const TopBar = () => {
                size={20} 
                className="text-zinc-400 hover:text-white cursor-pointer" 
                onClick={() => {
-                 if (query.trim() !== '') navigate(`/search?q=${encodeURIComponent(query)}`);
+                 if (query.trim() !== '') {
+                   setShowDropdown(false);
+                   navigate(`/search?q=${encodeURIComponent(query)}`);
+                 }
                }}
             />
           </div>
+          
+          {/* Live Search Dropdown */}
+          {showDropdown && query.trim() !== '' && (
+            <div className="absolute top-14 left-0 w-full bg-[#282828] rounded-xl shadow-2xl border border-white/10 overflow-hidden z-50 flex flex-col max-h-[70vh]">
+              {isSearching && !searchResults ? (
+                <div className="p-4 text-center text-zinc-400 text-sm">Đang tìm kiếm...</div>
+              ) : searchResults ? (
+                <div className="overflow-y-auto custom-scrollbar p-2">
+                  {/* Tracks */}
+                  {searchResults.tracks && searchResults.tracks.length > 0 && (
+                    <div className="mb-4">
+                      <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider px-2 mb-2">Bài hát</h3>
+                      <div className="flex flex-col">
+                        {searchResults.tracks.slice(0, 3).map(track => (
+                          <div 
+                            key={track.id} 
+                            onClick={() => { setShowDropdown(false); navigate(`/search?q=${encodeURIComponent(track.title)}`); }}
+                            className="flex items-center gap-3 p-2 hover:bg-white/10 rounded-md cursor-pointer transition"
+                          >
+                            <img src={track.coverUrl ? (track.coverUrl.startsWith('http') ? track.coverUrl : `http://localhost:5183${track.coverUrl}`) : ''} alt="" className="w-10 h-10 object-cover rounded-sm bg-zinc-800" />
+                            <div className="flex flex-col overflow-hidden">
+                              <span className="text-white text-sm font-medium truncate">{track.title}</span>
+                              <span className="text-zinc-400 text-xs truncate">{track.artistName}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Artists */}
+                  {searchResults.artists && searchResults.artists.length > 0 && (
+                    <div className="mb-4">
+                      <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider px-2 mb-2">Nghệ sĩ</h3>
+                      <div className="flex flex-col">
+                        {searchResults.artists.slice(0, 3).map(artist => (
+                          <div 
+                            key={artist.id} 
+                            onClick={() => { setShowDropdown(false); navigate(`/search?q=${encodeURIComponent(artist.name)}`); }}
+                            className="flex items-center gap-3 p-2 hover:bg-white/10 rounded-md cursor-pointer transition"
+                          >
+                            <img src={artist.avatarUrl ? (artist.avatarUrl.startsWith('http') ? artist.avatarUrl : `http://localhost:5183${artist.avatarUrl}`) : ''} alt="" className="w-10 h-10 object-cover rounded-full bg-zinc-800" />
+                            <div className="flex flex-col overflow-hidden">
+                              <span className="text-white text-sm font-medium truncate">{artist.name}</span>
+                              <span className="text-zinc-400 text-xs">Nghệ sĩ</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Playlists */}
+                  {searchResults.playlists && searchResults.playlists.length > 0 && (
+                    <div className="mb-2">
+                      <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider px-2 mb-2">Playlist</h3>
+                      <div className="flex flex-col">
+                        {searchResults.playlists.slice(0, 3).map(playlist => (
+                          <div 
+                            key={playlist.id} 
+                            onClick={() => { setShowDropdown(false); navigate(`/playlist/${playlist.id}`); }}
+                            className="flex items-center gap-3 p-2 hover:bg-white/10 rounded-md cursor-pointer transition"
+                          >
+                            <img src={playlist.coverUrl ? (playlist.coverUrl.startsWith('http') ? playlist.coverUrl : `http://localhost:5183${playlist.coverUrl}`) : ''} alt="" className="w-10 h-10 object-cover rounded-sm bg-zinc-800" />
+                            <div className="flex flex-col overflow-hidden">
+                              <span className="text-white text-sm font-medium truncate">{playlist.name}</span>
+                              <span className="text-zinc-400 text-xs">Playlist</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {(!searchResults.tracks?.length && !searchResults.artists?.length && !searchResults.playlists?.length) && (
+                    <div className="p-4 text-center text-zinc-400 text-sm">Không tìm thấy kết quả phù hợp</div>
+                  )}
+
+                  {(searchResults.tracks?.length > 0 || searchResults.artists?.length > 0 || searchResults.playlists?.length > 0) && (
+                    <button 
+                      onClick={() => { setShowDropdown(false); navigate(`/search?q=${encodeURIComponent(query)}`); }}
+                      className="w-full text-center py-3 text-sm font-bold text-white hover:text-white hover:bg-white/5 rounded-b-xl border-t border-white/10 transition mt-2"
+                    >
+                      Xem tất cả kết quả
+                    </button>
+                  )}
+                </div>
+              ) : null}
+            </div>
+          )}
         </div>
       </div>
 

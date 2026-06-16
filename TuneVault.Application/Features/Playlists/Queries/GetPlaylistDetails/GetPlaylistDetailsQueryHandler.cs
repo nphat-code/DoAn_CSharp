@@ -23,21 +23,22 @@ public class GetPlaylistDetailsQueryHandler(IPlaylistRepository playlistReposito
             IsPublic = playlist.IsPublic,
             CreatedAt = playlist.CreatedAt,
             UserProfileId = playlist.UserProfileId,
-            Tracks = tracks.Select(t => new MediaItemDto(
-                t.Id,
-                t.Title,
-                t.Description,
-                t.FileUrl,
-                t.MediaType.ToString(),
-                t.Duration,
-                t.UploaderId,
-                t.CreatedAt,
-                t.CoverUrl ?? t.Album?.CoverUrl,
-                t.Artist?.Name ?? t.Album?.Artist?.Name,
-                t.Artist?.Bio ?? t.Album?.Artist?.Bio,
-                t.Artist?.AvatarUrl ?? t.Album?.Artist?.AvatarUrl,
-                t.Album?.Title
-            )).ToList()
+            Tracks = tracks.Select(t => new MediaItemDto
+            {
+                Id = t.Id,
+                Title = t.Title,
+                Description = t.Description,
+                FileUrl = t.FileUrl,
+                MediaType = t.MediaType,
+                Duration = t.Duration,
+                UploaderId = t.UploaderId,
+                CreatedAt = t.CreatedAt,
+                CoverUrl = t.CoverUrl ?? t.Album?.CoverUrl,
+                ArtistName = t.Artist?.Name ?? t.Album?.Artist?.Name,
+                ArtistBio = t.Artist?.Bio ?? t.Album?.Artist?.Bio,
+                ArtistAvatarUrl = t.Artist?.AvatarUrl ?? t.Album?.Artist?.AvatarUrl,
+                AlbumTitle = t.Album?.Title
+            }).ToList()
         };
 
         return detailDto;

@@ -54,4 +54,11 @@ public class UserRepository(IDbConnection dbConnection) : IUserRepository
         var command = new CommandDefinition(sql, new { Username = username, AvatarUrl = avatarUrl, Bio = bio, Id = userId }, cancellationToken: cancellationToken);
         await dbConnection.ExecuteAsync(command);
     }
+
+    public async Task<IEnumerable<UserProfile>> SearchUsersAsync(string query, CancellationToken cancellationToken)
+    {
+        var sql = "SELECT * FROM UserProfiles WHERE Username ILIKE @Query ORDER BY Username LIMIT 10";
+        var command = new CommandDefinition(sql, new { Query = $"%{query}%" }, cancellationToken: cancellationToken);
+        return await dbConnection.QueryAsync<UserProfile>(command);
+    }
 }

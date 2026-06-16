@@ -1,0 +1,110 @@
+import React, { useEffect, useState } from 'react';
+import { shareService } from '../services/shareService';
+import type { MediaShareDto } from '../services/shareService';
+import { Play, Music, Users, MessageCircle } from 'lucide-react';
+import { usePlayer } from '../context/PlayerContext';
+import { useNavigate } from 'react-router-dom';
+
+export const SharedWithMe: React.FC = () => {
+  const [shares, setShares] = useState<MediaShareDto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { playMediaList } = usePlayer();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchShares = async () => {
+      try {
+        const data = await shareService.getSharedWithMe();
+        setShares(data);
+      } catch (error) {
+        console.error('Error fetching shared media:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchShares();
+  }, []);
+
+  const handlePlay = (share: MediaShareDto) => {
+    if (share.mediaType.toLowerCase() === 'playlist' || share.mediaType.toLowerCase() === 'album') {
+      navigate(`/${share.mediaType.toLowerCase()}/${share.mediaItemId}`);
+    } else {
+      // Simulate playing a single track
+      playMediaList([{
+        id: share.mediaItemId,
+        title: share.mediaTitle,
+        coverUrl: share.mediaCoverUrl || null,
+        duration: "0:00",
+        mediaUrl: "", // Need actual URL in real scenario
+        artistId: null,
+        artistName: share.mediaArtistName,
+        albumId: null,
+        albumTitle: null
+      } as any], 0);
+    }
+  };
+
+  if (loading) {
+    return <div className="p-6 text-white text-center">Đang tải...</div>;
+  }
+
+  return (
+    <div className="p-6">
+      <h1 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+        <Users className="text-spotify-green" size={32} />
+        Đã chia sẻ với tôi
+      </h1>
+
+      {shares.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <Music size={64} className="text-zinc-600 mb-4" />
+          <h2 className="text-xl font-bold text-white mb-2">Chưa có gì ở đây</h2>
+          <p className="text-zinc-400 max-w-sm">Hiện tại chưa có ai chia sẻ bài hát hoặc danh sách phát nào với bạn.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
+          {shares.map(share => (
+            <div key={share.id} className="bg-[#181818] p-4 rounded-xl hover:bg-[#282828] transition group cursor-pointer" onClick={() => handlePlay(share)}>
+              <div className="flex items-center gap-3 mb-4 border-b border-white/5 pb-3">
+                {share.senderAvatarUrl ? (
+                  <img src={share.senderAvatarUrl.startsWith('http') ? share.senderAvatarUrl : `http://localhost:5183${share.senderAvatarUrl}`} className="w-8 h-8 rounded-full object-cover" alt="" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-white">
+                    {share.senderName.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div>
+                  <p className="text-xs text-zinc-400">Được chia sẻ bởi</p>
+                  <p className="text-sm font-bold text-white">{share.senderName}</p>
+                </div>
+              </div>
+
+              <div className="relative aspect-square w-full mb-4 shadow-lg rounded-md overflow-hidden bg-zinc-800">
+                {share.mediaCoverUrl ? (
+                  <img src={share.mediaCoverUrl.startsWith('http') ? share.mediaCoverUrl : `http://localhost:5183${share.mediaCoverUrl}`} className="w-full h-full object-cover" alt="" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-zinc-600">
+                    <Music size={48} />
+                  </div>
+                )}
+                <div className="absolute right-2 bottom-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center text-black opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 shadow-xl z-10">
+                  <Play size={24} className="ml-1 fill-black" />
+                </div>
+              </div>
+
+              <h3 className="font-bold text-white mb-1 truncate text-lg">{share.mediaTitle}</h3>
+              <p className="text-sm text-zinc-400 mb-3 capitalize">{share.mediaType}</p>
+
+              {share.message && (
+                <div className="bg-white/5 rounded-md p-3 flex items-start gap-2 mt-2">
+                  <MessageCircle size={14} className="text-spotify-green mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-zinc-300 italic line-clamp-2">"{share.message}"</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
