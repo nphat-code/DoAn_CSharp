@@ -507,3 +507,7 @@ pdf_content.txt
 pdf_content_utf8.txt
 TuneVault_BaiTapLon.pdf
 setup_tunevault.ps1
+
+# Local configuration files
+appsettings.Development.json
+appsettings.*.json

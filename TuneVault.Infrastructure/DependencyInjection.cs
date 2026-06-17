@@ -42,7 +42,9 @@ public static class DependencyInjection
         services.AddScoped<IAlbumRepository, AlbumRepository>();
         services.AddScoped<ISearchRepository, SearchRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<IRecommendationRepository, RecommendationRepository>();
         services.AddScoped<INotificationService, TuneVault.Infrastructure.Services.NotificationService>();
+        services.AddHttpClient<IAiService, TuneVault.Infrastructure.Services.ClaudeAiService>();
 
         services.AddSignalR();
 
