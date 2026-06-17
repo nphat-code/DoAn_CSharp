@@ -358,6 +358,7 @@ export const TopBar = () => {
             {isMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-zinc-800 rounded-md shadow-lg py-1 z-50">
                 <NavLink to="/profile" className="block px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white" onClick={() => setIsMenuOpen(false)}>Hồ sơ</NavLink>
+                <NavLink to="/recent-history" className="block px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white" onClick={() => setIsMenuOpen(false)}>Gần đây</NavLink>
                 {user?.role === 'Admin' && (
                   <NavLink to="/admin" className="block px-4 py-2 text-sm text-red-400 font-bold hover:bg-zinc-700 hover:text-red-300 flex items-center justify-between" onClick={() => setIsMenuOpen(false)}>
                     Quản trị hệ thống

@@ -12,6 +12,7 @@ import { NowPlaying } from './pages/NowPlaying';
 import { TrackDetail } from './pages/TrackDetail';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { SharedWithMe } from './pages/SharedWithMe';
+import { RecentHistory } from './pages/RecentHistory';
 
 const Placeholder = ({ title }: { title: string }) => (
   <div className="p-6">
@@ -41,6 +42,7 @@ function App() {
           <Route path="album/:id" element={isAuthenticated ? <AlbumDetail /> : <Navigate to="/login" />} />
           <Route path="track/:id" element={isAuthenticated ? <TrackDetail /> : <Navigate to="/login" />} />
           <Route path="share-inbox" element={isAuthenticated ? <Placeholder title="Share Inbox" /> : <Navigate to="/login" />} />
+          <Route path="recent-history" element={isAuthenticated ? <RecentHistory /> : <Navigate to="/login" />} />
           <Route path="notifications" element={isAuthenticated ? <Placeholder title="Notifications" /> : <Navigate to="/login" />} />
           <Route path="profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
           <Route path="admin" element={isAuthenticated ? <AdminDashboard /> : <Navigate to="/login" />} />

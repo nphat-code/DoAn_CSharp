@@ -25,4 +25,19 @@ public class HistoryController(IMediator mediator) : ControllerBase
 
         return Ok(new { success });
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetRecentHistory([FromQuery] int limit = 10)
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdString, out var userId))
+        {
+            return Unauthorized("Không thể xác thực danh tính người dùng.");
+        }
+
+        var query = new TuneVault.Application.Features.History.Queries.GetUserHistory.GetUserHistoryQuery(userId, limit);
+        var history = await mediator.Send(query);
+
+        return Ok(new { success = true, data = history });
+    }
 }

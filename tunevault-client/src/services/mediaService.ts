@@ -28,6 +28,13 @@ export const mediaService = {
     await apiClient.post(`/history/play/${mediaId}`);
   },
 
+  getRecentHistory: async (limit: number = 10): Promise<any[]> => {
+    const response = await apiClient.get<{success: boolean, data: any[]}>('/history', {
+      params: { limit }
+    });
+    return response.data.data;
+  },
+
   toggleFavorite: async (mediaId: string): Promise<{ isFavorited: boolean }> => {
     const response = await apiClient.post<{ isFavorited: boolean }>(`/favorites/toggle/${mediaId}`);
     return response.data;

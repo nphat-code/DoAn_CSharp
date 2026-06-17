@@ -28,6 +28,13 @@ export const RightPanel = ({ width }: RightPanelProps) => {
   const handleDeleteMedia = async () => {
     if (confirm("Bạn có chắc chắn muốn xóa bài này vĩnh viễn khỏi hệ thống không? Hành động này không thể hoàn tác.")) {
       try {
+        // Dừng phát nhạc và giải phóng file lock trên trình duyệt trước khi gọi API xóa
+        if (mediaRef.current) {
+          mediaRef.current.pause();
+          mediaRef.current.removeAttribute('src');
+          mediaRef.current.load();
+        }
+
         await mediaService.deleteMedia(currentMedia.id);
         alert("Đã xóa bài hát thành công!");
         window.location.reload(); // Tải lại trang để cập nhật danh sách
@@ -119,7 +126,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                 <div className="flex flex-col overflow-hidden mr-2">
                   <h2 className="text-[24px] leading-[28.8px] font-bold text-white mb-1 hover:underline cursor-pointer truncate drop-shadow-lg">{currentMedia.title}</h2>
                   <div className="flex items-center gap-1">
-                      <p className="text-zinc-200 font-medium hover:underline cursor-pointer text-[16px] leading-[22.4px] truncate drop-shadow-md">{currentMedia.artistName || currentMedia.description || 'Unknown Artist'}</p>
+                      <p className="text-zinc-200 font-medium hover:underline cursor-pointer text-[16px] leading-[22.4px] truncate drop-shadow-md">{(currentMedia as any).artist?.name || currentMedia.artistName || currentMedia.description || 'Unknown Artist'}</p>
                   </div>
                 </div>
                 
@@ -166,7 +173,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
              <div className="p-4 flex flex-col gap-2 relative">
                 {/* Name & Tick */}
                 <div className="flex items-center gap-2">
-                  <h4 className="font-bold text-white text-base hover:underline">{currentMedia.artistName || currentMedia.description || 'Unknown Artist'}</h4>
+                  <h4 className="font-bold text-white text-base hover:underline">{(currentMedia as any).artist?.name || currentMedia.artistName || currentMedia.description || 'Unknown Artist'}</h4>
                   <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-sm" title="Verified Artist">
                     <svg height="10" width="10" viewBox="0 0 24 24" fill="currentColor"><path d="m10.814.5a1.658 1.658 0 0 1 2.372 0l2.512 2.572 3.595-.043a1.658 1.658 0 0 1 1.678 1.678l-.043 3.595 2.572 2.512c.667.65.667 1.722 0 2.372l-2.572 2.512.043 3.595a1.658 1.658 0 0 1-1.678 1.678l-3.595-.043-2.512 2.572a1.658 1.658 0 0 1-2.372 0l-2.512-2.572-3.595.043a1.658 1.658 0 0 1-1.678-1.678l.043-3.595L.5 13.186a1.658 1.658 0 0 1 0-2.372l2.572-2.512-.043-3.595a1.658 1.658 0 0 1 1.678-1.678l3.595.043L10.814.5zm6.584 9.12a1 1 0 0 0-1.414-1.413l-6.011 6.01-1.894-1.893a1 1 0 0 0-1.414 1.414l3.308 3.308 7.425-7.425z"></path></svg>
                   </div>

@@ -22,22 +22,25 @@ public class PlayHistoryRepository(IDbConnection dbConnection) : IPlayHistoryRep
         var sql = @"
             SELECT 
                 h.Id, h.UserId as UserProfileId, h.MediaItemId, h.ListenedAt as PlayedAt,
-                m.Id, m.Title, m.FileUrl, m.MediaType, m.Duration, m.Description, m.CreatedAt
+                m.Id, m.Title, m.FileUrl, m.MediaType, CAST(m.Duration AS interval) as Duration, m.Description, m.CoverUrl, m.ArtistId, m.CreatedAt,
+                a.Id, a.Name, a.Bio, a.AvatarUrl
             FROM ListeningHistory h
             INNER JOIN MediaItems m ON h.MediaItemId = m.Id
+            LEFT JOIN Artists a ON m.ArtistId = a.Id
             WHERE h.UserId = @UserId
             ORDER BY h.ListenedAt DESC";
             
         var command = new CommandDefinition(sql, new { UserId = userId }, cancellationToken: cancellationToken);
         
-        return await dbConnection.QueryAsync<PlayHistory, MediaItem, PlayHistory>(
+        return await dbConnection.QueryAsync<PlayHistory, MediaItem, Artist, PlayHistory>(
             command,
-            (history, mediaItem) => 
+            (history, mediaItem, artist) => 
             {
+                mediaItem.Artist = artist;
                 history.MediaItem = mediaItem;
                 return history;
             },
-            splitOn: "Id"
+            splitOn: "Id,Id"
         );
     }
 }
