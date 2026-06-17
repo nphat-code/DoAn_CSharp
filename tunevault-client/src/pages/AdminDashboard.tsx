@@ -138,7 +138,7 @@ export const AdminDashboard = () => {
                 <tr key={track.id} className="hover:bg-zinc-800/50 transition">
                   <td className="px-6 py-4 font-bold text-white flex items-center gap-3">
                     {track.coverUrl ? (
-                      <img src={track.coverUrl.startsWith('http') ? track.coverUrl : `http://localhost:5183${track.coverUrl}`} className="w-10 h-10 rounded bg-zinc-800 object-cover" alt="cover" />
+                      <img src={track.coverUrl.startsWith('http') ? track.coverUrl : `https://tunevault-api.onrender.com${track.coverUrl}`} className="w-10 h-10 rounded bg-zinc-800 object-cover" alt="cover" />
                     ) : <div className="w-10 h-10 rounded bg-zinc-800 flex items-center justify-center"><Music size={16}/></div>}
                     {track.title}
                   </td>
@@ -157,7 +157,7 @@ export const AdminDashboard = () => {
                 <tr key={album.id} className="hover:bg-zinc-800/50 transition">
                   <td className="px-6 py-4 font-bold text-white flex items-center gap-3">
                     {album.coverUrl ? (
-                      <img src={album.coverUrl.startsWith('http') ? album.coverUrl : `http://localhost:5183${album.coverUrl}`} className="w-10 h-10 rounded bg-zinc-800 object-cover" alt="cover" />
+                      <img src={album.coverUrl.startsWith('http') ? album.coverUrl : `https://tunevault-api.onrender.com${album.coverUrl}`} className="w-10 h-10 rounded bg-zinc-800 object-cover" alt="cover" />
                     ) : <div className="w-10 h-10 rounded bg-zinc-800 flex items-center justify-center"><Disc size={16}/></div>}
                     {album.title}
                   </td>
@@ -176,7 +176,7 @@ export const AdminDashboard = () => {
                 <tr key={artist.id} className="hover:bg-zinc-800/50 transition">
                   <td className="px-6 py-4 font-bold text-white flex items-center gap-3">
                     {artist.avatarUrl ? (
-                      <img src={artist.avatarUrl.startsWith('http') ? artist.avatarUrl : `http://localhost:5183${artist.avatarUrl}`} className="w-10 h-10 rounded-full bg-zinc-800 object-cover" alt="avatar" />
+                      <img src={artist.avatarUrl.startsWith('http') ? artist.avatarUrl : `https://tunevault-api.onrender.com${artist.avatarUrl}`} className="w-10 h-10 rounded-full bg-zinc-800 object-cover" alt="avatar" />
                     ) : <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center"><User size={16}/></div>}
                     {artist.name}
                   </td>

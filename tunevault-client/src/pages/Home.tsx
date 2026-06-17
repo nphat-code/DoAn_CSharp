@@ -115,7 +115,7 @@ export const Home = () => {
               >
                 <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center group-hover:shadow-xl transition relative overflow-hidden">
                   {track.coverUrl ? (
-                    <img src={`http://localhost:5183${track.coverUrl}`} alt={track.title} className="w-full h-full object-cover" />
+                    <img src={`https://tunevault-api.onrender.com${track.coverUrl}`} alt={track.title} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                        <span className="text-3xl font-black text-white/50">{track.title.charAt(0)}</span>
@@ -164,7 +164,7 @@ export const Home = () => {
                 >
                   <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center relative overflow-hidden">
                     {album.coverUrl ? (
-                      <img src={`http://localhost:5183${album.coverUrl}`} alt={album.title} className="w-full h-full object-cover" />
+                      <img src={`https://tunevault-api.onrender.com${album.coverUrl}`} alt={album.title} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
                          <Disc size={64} className="text-white/30" />
@@ -206,7 +206,7 @@ export const Home = () => {
               >
                 <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center group-hover:shadow-xl transition relative overflow-hidden">
                   {track.coverUrl ? (
-                    <img src={`http://localhost:5183${track.coverUrl}`} alt={track.title} className="w-full h-full object-cover" />
+                    <img src={`https://tunevault-api.onrender.com${track.coverUrl}`} alt={track.title} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                        <span className="text-3xl font-black text-white/50">{track.title.charAt(0)}</span>

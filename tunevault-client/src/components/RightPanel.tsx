@@ -51,7 +51,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
   const getImageUrl = (url: string | undefined | null) => {
     if (!url) return "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62"; // Fallback Ed Sheeran image
     if (url.startsWith('http')) return url;
-    return `http://localhost:5183${url}`;
+    return `https://tunevault-api.onrender.com${url}`;
   };
 
   return (
@@ -72,7 +72,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
              className="w-full h-full object-cover scale-[1.3] transform-gpu" 
            />
          ) : currentMedia.coverUrl ? (
-           <img src={`http://localhost:5183${currentMedia.coverUrl}`} alt="Cover" className="w-full h-full object-cover scale-[1.3] transform-gpu" />
+           <img src={`https://tunevault-api.onrender.com${currentMedia.coverUrl}`} alt="Cover" className="w-full h-full object-cover scale-[1.3] transform-gpu" />
          ) : (
            <img src="https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62" alt="Cover" className="w-full h-full object-cover scale-[1.3] transform-gpu" />
          )}

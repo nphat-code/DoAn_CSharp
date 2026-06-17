@@ -118,7 +118,7 @@ export const Profile = () => {
           style={{ width: 'clamp(174.11px, 25cqw, 260px)', height: 'clamp(174.11px, 25cqw, 260px)' }}
         >
           {profile.avatarUrl ? (
-            <img src={profile.avatarUrl.startsWith('http') || profile.avatarUrl.startsWith('data:') ? profile.avatarUrl : `http://localhost:5183${profile.avatarUrl}`} alt="Avatar" className="w-full h-full object-cover" />
+            <img src={profile.avatarUrl.startsWith('http') || profile.avatarUrl.startsWith('data:') ? profile.avatarUrl : `https://tunevault-api.onrender.com${profile.avatarUrl}`} alt="Avatar" className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <span className="text-zinc-500">
@@ -217,7 +217,7 @@ export const Profile = () => {
                   className="p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
                 >
                   <div className="relative w-full aspect-square mb-3 shadow-lg rounded-full bg-zinc-800 shrink-0">
-                    <img src={artist.avatarUrl.startsWith('http') || artist.avatarUrl.startsWith('data:') ? artist.avatarUrl : `http://localhost:5183${artist.avatarUrl}`} alt={artist.name} className="w-full h-full object-cover rounded-full" />
+                    <img src={artist.avatarUrl.startsWith('http') || artist.avatarUrl.startsWith('data:') ? artist.avatarUrl : `https://tunevault-api.onrender.com${artist.avatarUrl}`} alt={artist.name} className="w-full h-full object-cover rounded-full" />
                     {/* Play button overlay */}
                     <div className="absolute right-2 bottom-2 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
                       <button className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black hover:bg-green-400 hover:scale-105 shadow-xl">
@@ -257,7 +257,7 @@ export const Profile = () => {
                     <Play size={16} fill="currentColor" />
                   </div>
                   <img
-                    src={track.coverUrl ? (track.coverUrl.startsWith('http') || track.coverUrl.startsWith('data:') ? track.coverUrl : `http://localhost:5183${track.coverUrl}`) : "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62"}
+                    src={track.coverUrl ? (track.coverUrl.startsWith('http') || track.coverUrl.startsWith('data:') ? track.coverUrl : `https://tunevault-api.onrender.com${track.coverUrl}`) : "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62"}
                     alt={track.title}
                     className="w-10 h-10 rounded shadow"
                   />
@@ -291,7 +291,7 @@ export const Profile = () => {
                 >
                   <div className="relative w-full aspect-square mb-4 shadow-lg rounded-md bg-zinc-800 shrink-0">
                     {playlist.coverUrl ? (
-                      <img src={playlist.coverUrl.startsWith('http') || playlist.coverUrl.startsWith('data:') ? playlist.coverUrl : `http://localhost:5183${playlist.coverUrl}`} alt={playlist.name} className="w-full h-full object-cover rounded-md" />
+                      <img src={playlist.coverUrl.startsWith('http') || playlist.coverUrl.startsWith('data:') ? playlist.coverUrl : `https://tunevault-api.onrender.com${playlist.coverUrl}`} alt={playlist.name} className="w-full h-full object-cover rounded-md" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-zinc-800 rounded-md">
                         <span className="text-4xl text-zinc-500">🎵</span>
@@ -339,7 +339,7 @@ export const Profile = () => {
               {/* Avatar Box inside modal */}
               <div className="w-40 h-40 rounded-full overflow-hidden shadow-[0_4px_60px_rgba(0,0,0,0.5)] relative group bg-[#181818] flex-shrink-0 mx-auto sm:mx-0">
                 {avatarUrlInput ? (
-                  <img src={avatarUrlInput.startsWith('http') || avatarUrlInput.startsWith('data:') ? avatarUrlInput : `http://localhost:5183${avatarUrlInput}`} alt="Avatar Preview" className="w-full h-full object-cover" />
+                  <img src={avatarUrlInput.startsWith('http') || avatarUrlInput.startsWith('data:') ? avatarUrlInput : `https://tunevault-api.onrender.com${avatarUrlInput}`} alt="Avatar Preview" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <span className="text-zinc-500">

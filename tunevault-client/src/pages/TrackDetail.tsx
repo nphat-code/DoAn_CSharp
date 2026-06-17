@@ -60,7 +60,7 @@ export const TrackDetail = () => {
       const fac = new FastAverageColor();
       const img = new Image();
       img.crossOrigin = 'Anonymous';
-      const baseUrl = track.coverUrl.startsWith('http') ? track.coverUrl : `http://localhost:5183${track.coverUrl}`;
+      const baseUrl = track.coverUrl.startsWith('http') ? track.coverUrl : `https://tunevault-api.onrender.com${track.coverUrl}`;
       img.src = `${baseUrl}?c=${Date.now()}`;
       img.onload = () => {
         try {
@@ -103,8 +103,8 @@ export const TrackDetail = () => {
     }
   };
 
-  const coverUrl = track.coverUrl ? `http://localhost:5183${track.coverUrl}` : "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62";
-  const artistAvatar = track.artistAvatarUrl ? `http://localhost:5183${track.artistAvatarUrl}` : "https://i.scdn.co/image/ab67616d00001e023192276cb04c3da1dd1f2cf8"; // Default avatar
+  const coverUrl = track.coverUrl ? `https://tunevault-api.onrender.com${track.coverUrl}` : "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62";
+  const artistAvatar = track.artistAvatarUrl ? `https://tunevault-api.onrender.com${track.artistAvatarUrl}` : "https://i.scdn.co/image/ab67616d00001e023192276cb04c3da1dd1f2cf8"; // Default avatar
 
   return (
     <div 

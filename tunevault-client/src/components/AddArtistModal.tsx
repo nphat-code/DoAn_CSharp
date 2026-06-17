@@ -46,7 +46,7 @@ export const AddArtistModal = ({ onClose, onSuccess }: AddArtistModalProps) => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5183/api/artists', formData, {
+      await axios.post('https://tunevault-api.onrender.com/api/artists', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`

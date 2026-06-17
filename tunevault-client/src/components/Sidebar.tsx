@@ -154,7 +154,7 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
             >
               <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
                 {playlist.coverUrl ? (
-                  <img src={playlist.coverUrl.startsWith('http') || playlist.coverUrl.startsWith('data:') ? playlist.coverUrl : `http://localhost:5183${playlist.coverUrl}`} alt={playlist.name} className="w-full h-full object-cover shrink-0" />
+                  <img src={playlist.coverUrl.startsWith('http') || playlist.coverUrl.startsWith('data:') ? playlist.coverUrl : `https://tunevault-api.onrender.com${playlist.coverUrl}`} alt={playlist.name} className="w-full h-full object-cover shrink-0" />
                 ) : (
                   <Library size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
                 )}
@@ -179,7 +179,7 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
                 >
                   <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
                     {album.coverUrl ? (
-                      <img src={`http://localhost:5183${album.coverUrl}`} alt={album.title} className="w-full h-full object-cover shrink-0" />
+                      <img src={`https://tunevault-api.onrender.com${album.coverUrl}`} alt={album.title} className="w-full h-full object-cover shrink-0" />
                     ) : (
                       <Disc size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
                     )}

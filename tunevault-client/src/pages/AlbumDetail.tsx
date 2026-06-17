@@ -78,7 +78,7 @@ export const AlbumDetail = () => {
       const fac = new FastAverageColor();
       const img = new Image();
       img.crossOrigin = 'Anonymous';
-      const baseUrl = album.coverUrl.startsWith('http') ? album.coverUrl : `http://localhost:5183${album.coverUrl}`;
+      const baseUrl = album.coverUrl.startsWith('http') ? album.coverUrl : `https://tunevault-api.onrender.com${album.coverUrl}`;
       img.src = `${baseUrl}?c=${Date.now()}`;
       img.onload = () => {
         try {
@@ -236,7 +236,7 @@ export const AlbumDetail = () => {
           style={{ width: 'clamp(143.69px, 20cqw, 232px)', height: 'clamp(143.69px, 20cqw, 232px)' }}
         >
           {album.coverUrl ? (
-            <img src={album.coverUrl.startsWith('http') ? album.coverUrl : `http://localhost:5183${album.coverUrl}`} alt={album.title} className="w-full h-full object-cover" />
+            <img src={album.coverUrl.startsWith('http') ? album.coverUrl : `https://tunevault-api.onrender.com${album.coverUrl}`} alt={album.title} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
               <Disc size={64} className="text-white/30" />
@@ -254,7 +254,7 @@ export const AlbumDetail = () => {
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-full overflow-hidden bg-zinc-700 flex-shrink-0 flex items-center justify-center">
               {album.artistImageUrl ? (
-                <img src={album.artistImageUrl.startsWith('http') ? album.artistImageUrl : `http://localhost:5183${album.artistImageUrl}`} alt={album.artistName} className="w-full h-full object-cover" />
+                <img src={album.artistImageUrl.startsWith('http') ? album.artistImageUrl : `https://tunevault-api.onrender.com${album.artistImageUrl}`} alt={album.artistName} className="w-full h-full object-cover" />
               ) : (
                 <User size={16} className="text-white opacity-50" />
               )}

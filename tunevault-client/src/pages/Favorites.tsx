@@ -236,7 +236,7 @@ export const Favorites = () => {
                 <div className="flex items-center gap-3 overflow-hidden">
                   <div className="w-10 h-10 bg-zinc-800 rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
                     {track.coverUrl ? (
-                      <img src={track.coverUrl.startsWith('http') || track.coverUrl.startsWith('data:') ? track.coverUrl : `http://localhost:5183${track.coverUrl}`} alt={track.title} className="w-full h-full object-cover" />
+                      <img src={track.coverUrl.startsWith('http') || track.coverUrl.startsWith('data:') ? track.coverUrl : `https://tunevault-api.onrender.com${track.coverUrl}`} alt={track.title} className="w-full h-full object-cover" />
                     ) : (
                       <span className="text-white/50 text-xs">{track.title.charAt(0)}</span>
                     )}

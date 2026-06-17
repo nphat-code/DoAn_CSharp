@@ -35,7 +35,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     // Fetch existing notifications
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get('http://localhost:5183/api/notifications', {
+        const response = await axios.get('https://tunevault-api.onrender.com/api/notifications', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setNotifications(response.data);
@@ -48,7 +48,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
     // 1. Khởi tạo kết nối SignalR Hub
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl("http://localhost:5183/hubs/notifications", {
+      .withUrl("https://tunevault-api.onrender.com/hubs/notifications", {
         accessTokenFactory: () => token // Tự động đính kèm Token JWT vào header
       })
       .withAutomaticReconnect()
@@ -74,7 +74,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     if (!token) return;
     
     try {
-      await axios.put(`http://localhost:5183/api/notifications/${id}/read`, {}, {
+      await axios.put(`https://tunevault-api.onrender.com/api/notifications/${id}/read`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
@@ -88,7 +88,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     if (!token) return;
     
     try {
-      await axios.put(`http://localhost:5183/api/notifications/read-all`, {}, {
+      await axios.put(`https://tunevault-api.onrender.com/api/notifications/read-all`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
