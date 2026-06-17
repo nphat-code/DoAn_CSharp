@@ -7,6 +7,10 @@ public class RemoveTrackFromPlaylistCommandHandler(IPlaylistRepository playlistR
 {
     public async Task<bool> Handle(RemoveTrackFromPlaylistCommand request, CancellationToken cancellationToken)
     {
+        var playlist = await playlistRepository.GetByIdAsync(request.PlaylistId, cancellationToken);
+        if (playlist == null || playlist.UserProfileId != request.UserId)
+            throw new UnauthorizedAccessException("Bạn không có quyền sửa playlist này.");
+
         await playlistRepository.RemoveTrackAsync(request.PlaylistId, request.MediaItemId, cancellationToken);
         return true;
     }

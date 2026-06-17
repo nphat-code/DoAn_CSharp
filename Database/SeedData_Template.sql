@@ -61,18 +61,18 @@ Sheeran launched the cycle for his fifth album in early 2023 with the release of
     INSERT INTO MediaItems (Id, Title, Description, FileUrl, MediaType, Duration, CoverUrl, UploaderId, ArtistId, AlbumId, CreatedAt)
     VALUES 
     -- 5 BÀI AUDIO
-    (media_ids[1], 'Eraser', 'Nhạc cực bốc', '/uploads/audio/Eraser.mp4', 'Audio', '03:47', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, album_id, NOW()),
-    (media_ids[2], 'Dive', 'Nhạc chill', '/uploads/audio/Dive.mp4', 'Audio', '03:58', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, album_id, NOW()),
-    (media_ids[3], 'New Man', 'Nhạc thất tình', '/uploads/audio/New_Man.mp4', 'Audio', '03:09', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, album_id, NOW()),
-    (media_ids[4], 'Hearts Don''t Break Around Here', 'Nhạc quẩy', '/uploads/audio/Hearts_Dont_Break_Around_Here.mp4', 'Audio', '04:08', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, album_id, NOW()),
-    (media_ids[5], 'What Do I Know', 'Vinahouse', '/uploads/audio/What_Do_I_Know.mp4', 'Audio', '03:57', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, album_id, NOW()),
+    (media_ids[1], 'Eraser', 'Nhạc cực bốc', '/uploads/audio/Eraser.mp4', 'Audio', '00:03:47', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, album_id, NOW()),
+    (media_ids[2], 'Dive', 'Nhạc chill', '/uploads/audio/Dive.mp4', 'Audio', '00:03:58', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, album_id, NOW()),
+    (media_ids[3], 'New Man', 'Nhạc thất tình', '/uploads/audio/New_Man.mp4', 'Audio', '00:03:09', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, album_id, NOW()),
+    (media_ids[4], 'Hearts Don''t Break Around Here', 'Nhạc quẩy', '/uploads/audio/Hearts_Dont_Break_Around_Here.mp4', 'Audio', '00:04:08', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, album_id, NOW()),
+    (media_ids[5], 'What Do I Know', 'Vinahouse', '/uploads/audio/What_Do_I_Know.mp4', 'Audio', '00:03:57', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, album_id, NOW()),
 
     -- 5 BÀI VIDEO
-    (media_ids[6], 'Castle On The Hill', 'MV Triệu view', '/uploads/video/Castle_On_The_Hill.mp4', 'Video', '04:48', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, NULL, NOW()),
-    (media_ids[7], 'Shape of You', 'MV Đầu tư khủng', '/uploads/video/Shape_of_You.mp4', 'Video', '04:23', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, NULL, NOW()),
-    (media_ids[8], 'Perfect', 'Hát live', '/uploads/video/Perfect.mp4', 'Video', '04:41', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, NULL, NOW()),
-    (media_ids[9], 'Galway Girl', 'Behind the scene', '/uploads/video/Galway_Girl.mp4', 'Video', '03:19', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, NULL, NOW()),
-    (media_ids[10], 'Happier', 'Nhảy cực cháy', '/uploads/video/Happier.mp4', 'Video', '03:35', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, NULL, NOW());
+    (media_ids[6], 'Castle On The Hill', 'MV Triệu view', '/uploads/video/Castle_On_The_Hill.mp4', 'Video', '00:04:48', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, NULL, NOW()),
+    (media_ids[7], 'Shape of You', 'MV Đầu tư khủng', '/uploads/video/Shape_of_You.mp4', 'Video', '00:04:23', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, NULL, NOW()),
+    (media_ids[8], 'Perfect', 'Hát live', '/uploads/video/Perfect.mp4', 'Video', '00:04:41', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, NULL, NOW()),
+    (media_ids[9], 'Galway Girl', 'Behind the scene', '/uploads/video/Galway_Girl.mp4', 'Video', '00:03:19', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, NULL, NOW()),
+    (media_ids[10], 'Happier', 'Nhảy cực cháy', '/uploads/video/Happier.mp4', 'Video', '00:03:35', '/uploads/covers/÷(Deluxe).jpg', admin_id, artist_id, NULL, NOW());
 
 
     -- ==========================================

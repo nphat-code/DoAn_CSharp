@@ -74,7 +74,8 @@ public class PlaylistsController(IMediator mediator) : ControllerBase
     [HttpPost("{playlistId}/tracks/{mediaItemId}")]
     public async Task<IActionResult> AddTrack(Guid playlistId, Guid mediaItemId)
     {
-        var command = new AddTrackToPlaylistCommand(playlistId, mediaItemId);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var command = new AddTrackToPlaylistCommand(playlistId, mediaItemId, userId);
         var result = await mediator.Send(command);
         return Ok(new { success = true });
     }
@@ -82,7 +83,8 @@ public class PlaylistsController(IMediator mediator) : ControllerBase
     [HttpDelete("{playlistId}/tracks/{mediaItemId}")]
     public async Task<IActionResult> RemoveTrack(Guid playlistId, Guid mediaItemId)
     {
-        var command = new RemoveTrackFromPlaylistCommand(playlistId, mediaItemId);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var command = new RemoveTrackFromPlaylistCommand(playlistId, mediaItemId, userId);
         var result = await mediator.Send(command);
         return Ok(new { success = true });
     }

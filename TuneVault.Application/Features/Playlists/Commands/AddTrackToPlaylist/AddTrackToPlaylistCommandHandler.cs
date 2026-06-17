@@ -8,6 +8,10 @@ public class AddTrackToPlaylistCommandHandler(IPlaylistRepository playlistReposi
 {
     public async Task<bool> Handle(AddTrackToPlaylistCommand request, CancellationToken cancellationToken)
     {
+        var playlist = await playlistRepository.GetByIdAsync(request.PlaylistId, cancellationToken);
+        if (playlist == null || playlist.UserProfileId != request.UserId)
+            throw new UnauthorizedAccessException("Bạn không có quyền sửa playlist này.");
+
         var playlistTrack = new PlaylistTrack
         {
             PlaylistId = request.PlaylistId,

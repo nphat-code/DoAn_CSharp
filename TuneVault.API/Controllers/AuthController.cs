@@ -15,13 +15,13 @@ public class AuthController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginCommand command)
     {
         var response = await mediator.Send(command);
-        return Ok(response);
+        return Ok(new { success = true, data = response });
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] TuneVault.Application.Features.Auth.Commands.Register.RegisterCommand command)
     {
         var response = await mediator.Send(command);
-        return Ok(response);
+        return Ok(new { success = true, data = response });
     }
 }

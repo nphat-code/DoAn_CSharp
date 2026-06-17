@@ -37,6 +37,17 @@ public class ShareController(IMediator mediator) : ControllerBase
         var result = await mediator.Send(query);
         return Ok(result);
     }
+
+    [HttpGet("by-me")]
+    public async Task<IActionResult> GetSharedByMe()
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userIdString)) return Unauthorized();
+
+        var query = new TuneVault.Application.Features.Share.Queries.GetSharedByMe.GetSharedByMeQuery(Guid.Parse(userIdString));
+        var result = await mediator.Send(query);
+        return Ok(result);
+    }
 }
 
 public class ShareMediaRequest

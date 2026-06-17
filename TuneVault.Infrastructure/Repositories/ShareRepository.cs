@@ -6,7 +6,7 @@ namespace TuneVault.Infrastructure.Repositories;
 
 public class ShareRepository(IDbConnection dbConnection) : IShareRepository
 {
-    public async Task ShareMediaAsync(Guid senderId, Guid receiverId, Guid mediaId, string message, Guid notificationId, string notificationMessage, DateTime createdAt)
+    public async Task<bool> ShareMediaAsync(Guid senderId, Guid receiverId, Guid mediaId, string message, Guid notificationId, string notificationMessage, DateTime createdAt)
     {
         if (dbConnection.State == ConnectionState.Closed)
         {
@@ -16,6 +16,17 @@ public class ShareRepository(IDbConnection dbConnection) : IShareRepository
         using var transaction = dbConnection.BeginTransaction();
         try
         {
+            // 1. Kiểm tra Receiver có tồn tại không
+            var receiverExists = await dbConnection.ExecuteScalarAsync<bool>(
+                "SELECT EXISTS(SELECT 1 FROM UserProfiles WHERE Id = @Id)", 
+                new { Id = receiverId }, transaction);
+                
+            if (!receiverExists)
+            {
+                throw new KeyNotFoundException("Người nhận không tồn tại trong hệ thống.");
+            }
+
+            // 2. Xác định loại Media
             var isPlaylist = await dbConnection.ExecuteScalarAsync<bool>(
                 "SELECT EXISTS(SELECT 1 FROM Playlists WHERE Id = @Id)", 
                 new { Id = mediaId }, transaction);
@@ -24,6 +35,23 @@ public class ShareRepository(IDbConnection dbConnection) : IShareRepository
                 "SELECT EXISTS(SELECT 1 FROM Albums WHERE Id = @Id)", 
                 new { Id = mediaId }, transaction);
 
+            // 3. Kiểm tra Idempotency (Không cho phép chia sẻ cùng 1 bài hát cho cùng 1 người nhiều lần)
+            string checkDuplicateSql = isPlaylist 
+                ? "SELECT EXISTS(SELECT 1 FROM MediaShares WHERE SenderId = @SenderId AND ReceiverId = @ReceiverId AND PlaylistId = @MediaId)"
+                : isAlbum 
+                    ? "SELECT EXISTS(SELECT 1 FROM MediaShares WHERE SenderId = @SenderId AND ReceiverId = @ReceiverId AND AlbumId = @MediaId)"
+                    : "SELECT EXISTS(SELECT 1 FROM MediaShares WHERE SenderId = @SenderId AND ReceiverId = @ReceiverId AND MediaItemId = @MediaId)";
+
+            var isDuplicate = await dbConnection.ExecuteScalarAsync<bool>(
+                checkDuplicateSql, 
+                new { SenderId = senderId, ReceiverId = receiverId, MediaId = mediaId }, transaction);
+
+            if (isDuplicate)
+            {
+                return false; // Đã chia sẻ rồi, trả về false để không tạo Notification trùng lặp
+            }
+
+            // 4. Lưu Share
             var shareSql = isPlaylist 
                 ? @"INSERT INTO MediaShares (Id, SenderId, ReceiverId, PlaylistId, Message, CreatedAt)
                     VALUES (@Id, @SenderId, @ReceiverId, @MediaId, @Message, @CreatedAt)"
@@ -42,6 +70,7 @@ public class ShareRepository(IDbConnection dbConnection) : IShareRepository
                 CreatedAt = createdAt
             }, transaction);
 
+            // 5. Lưu Notification
             var notifSql = @"
                 INSERT INTO Notifications (Id, UserId, Message, Type, IsRead, CreatedAt)
                 VALUES (@Id, @UserId, @Message, @Type, @IsRead, @CreatedAt)";
@@ -56,6 +85,7 @@ public class ShareRepository(IDbConnection dbConnection) : IShareRepository
             }, transaction);
 
             transaction.Commit();
+            return true;
         }
         catch
         {
@@ -101,6 +131,46 @@ public class ShareRepository(IDbConnection dbConnection) : IShareRepository
             ORDER BY ms.CreatedAt DESC";
 
         var command = new CommandDefinition(sql, new { ReceiverId = receiverId }, cancellationToken: cancellationToken);
+        return await dbConnection.QueryAsync<TuneVault.Application.Features.Share.DTOs.MediaShareDto>(command);
+    }
+
+    public async Task<IEnumerable<TuneVault.Application.Features.Share.DTOs.MediaShareDto>> GetSharedByMeAsync(Guid senderId, CancellationToken cancellationToken)
+    {
+        var sql = @"
+            SELECT ms.Id, 
+                   ms.SenderId, 
+                   u.Username as SenderName, 
+                   u.AvatarUrl as SenderAvatarUrl,
+                   ms.ReceiverId, 
+                   COALESCE(ms.MediaItemId, ms.PlaylistId, ms.AlbumId) as MediaItemId, 
+                   COALESCE(m.Title, p.Title, al_shared.Title) as MediaTitle, 
+                   COALESCE(m.CoverUrl, al_main.CoverUrl, p.CoverUrl, al_shared.CoverUrl, 
+                       (SELECT COALESCE(m2.CoverUrl, al.CoverUrl) 
+                        FROM PlaylistItems pi 
+                        INNER JOIN MediaItems m2 ON pi.MediaItemId = m2.Id 
+                        LEFT JOIN Albums al ON m2.AlbumId = al.Id
+                        WHERE pi.PlaylistId = p.Id 
+                        ORDER BY pi.AddedAt ASC LIMIT 1)) as MediaCoverUrl, 
+                   CASE 
+                       WHEN ms.PlaylistId IS NOT NULL THEN 'Playlist' 
+                       WHEN ms.AlbumId IS NOT NULL THEN 'Album' 
+                       ELSE m.MediaType 
+                   END as MediaType, 
+                   COALESCE(a.Name, a_album.Name) as MediaArtistName, 
+                   ms.Message, 
+                   ms.CreatedAt
+            FROM MediaShares ms
+            INNER JOIN UserProfiles u ON ms.ReceiverId = u.Id -- Get receiver info as 'Sender' alias for the DTO
+            LEFT JOIN MediaItems m ON ms.MediaItemId = m.Id
+            LEFT JOIN Albums al_main ON m.AlbumId = al_main.Id
+            LEFT JOIN Playlists p ON ms.PlaylistId = p.Id
+            LEFT JOIN Albums al_shared ON ms.AlbumId = al_shared.Id
+            LEFT JOIN Artists a ON m.ArtistId = a.Id
+            LEFT JOIN Artists a_album ON al_shared.ArtistId = a_album.Id
+            WHERE ms.SenderId = @SenderId
+            ORDER BY ms.CreatedAt DESC";
+
+        var command = new CommandDefinition(sql, new { SenderId = senderId }, cancellationToken: cancellationToken);
         return await dbConnection.QueryAsync<TuneVault.Application.Features.Share.DTOs.MediaShareDto>(command);
     }
 }

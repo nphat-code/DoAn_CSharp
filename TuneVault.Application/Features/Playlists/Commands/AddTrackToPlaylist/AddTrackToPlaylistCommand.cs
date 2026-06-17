@@ -6,4 +6,5 @@ namespace TuneVault.Application.Features.Playlists.Commands.AddTrackToPlaylist;
 [Authorize]
 public record AddTrackToPlaylistCommand(
     Guid PlaylistId,
-    Guid MediaItemId) : IRequest<bool>;
+    Guid MediaItemId,
+    Guid UserId) : IRequest<bool>;

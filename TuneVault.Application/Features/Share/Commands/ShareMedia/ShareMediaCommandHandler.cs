@@ -16,7 +16,7 @@ public class ShareMediaCommandHandler(
         var createdAt = DateTime.UtcNow;
 
         // 1 & 2. Gọi sang tầng Infrastructure để lưu DB (Bảo đảm Clean Architecture)
-        await shareRepository.ShareMediaAsync(
+        var success = await shareRepository.ShareMediaAsync(
             request.SenderId, 
             request.ReceiverId, 
             request.MediaId, 
@@ -24,6 +24,12 @@ public class ShareMediaCommandHandler(
             notifId, 
             notificationMessage, 
             createdAt);
+
+        if (!success)
+        {
+            // Trả về false nếu đã share rồi (idempotent), không gửi lại notification
+            return false;
+        }
 
         // 3. Đẩy thông báo Real-time cho Receiver
         await notificationService.SendNotificationToUserAsync(

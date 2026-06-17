@@ -63,6 +63,7 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
 
 public class ErrorResponse
 {
+    public bool Success { get; set; } = false;
     public string Message { get; set; } = string.Empty;
     public IDictionary<string, string[]>? Errors { get; set; }
 }

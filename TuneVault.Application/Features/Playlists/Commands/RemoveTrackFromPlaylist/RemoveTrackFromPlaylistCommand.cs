@@ -6,4 +6,5 @@ namespace TuneVault.Application.Features.Playlists.Commands.RemoveTrackFromPlayl
 [Authorize]
 public record RemoveTrackFromPlaylistCommand(
     Guid PlaylistId,
-    Guid MediaItemId) : IRequest<bool>;
+    Guid MediaItemId,
+    Guid UserId) : IRequest<bool>;

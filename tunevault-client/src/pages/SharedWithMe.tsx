@@ -8,13 +8,17 @@ import { useNavigate } from 'react-router-dom';
 export const SharedWithMe: React.FC = () => {
   const [shares, setShares] = useState<MediaShareDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'with-me' | 'by-me'>('with-me');
   const { playMediaList } = usePlayer();
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchShares = async () => {
+      setLoading(true);
       try {
-        const data = await shareService.getSharedWithMe();
+        const data = activeTab === 'with-me' 
+          ? await shareService.getSharedWithMe()
+          : await shareService.getSharedByMe();
         setShares(data);
       } catch (error) {
         console.error('Error fetching shared media:', error);
@@ -23,7 +27,7 @@ export const SharedWithMe: React.FC = () => {
       }
     };
     fetchShares();
-  }, []);
+  }, [activeTab]);
 
   const handlePlay = (share: MediaShareDto) => {
     if (share.mediaType.toLowerCase() === 'playlist' || share.mediaType.toLowerCase() === 'album') {
@@ -44,22 +48,41 @@ export const SharedWithMe: React.FC = () => {
     }
   };
 
-  if (loading) {
-    return <div className="p-6 text-white text-center">Đang tải...</div>;
-  }
-
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
-        <Users className="text-spotify-green" size={32} />
-        Đã chia sẻ với tôi
-      </h1>
+      <div className="flex flex-col gap-6 mb-6">
+        <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+          <Users className="text-spotify-green" size={32} />
+          Trung tâm chia sẻ
+        </h1>
+        
+        <div className="flex items-center gap-4 border-b border-white/10 pb-1">
+          <button 
+            onClick={() => setActiveTab('with-me')}
+            className={`pb-2 px-2 font-bold transition-all ${activeTab === 'with-me' ? 'text-spotify-green border-b-2 border-spotify-green' : 'text-zinc-400 hover:text-white'}`}
+          >
+            Được chia sẻ với tôi
+          </button>
+          <button 
+            onClick={() => setActiveTab('by-me')}
+            className={`pb-2 px-2 font-bold transition-all ${activeTab === 'by-me' ? 'text-spotify-green border-b-2 border-spotify-green' : 'text-zinc-400 hover:text-white'}`}
+          >
+            Tôi đã chia sẻ
+          </button>
+        </div>
+      </div>
 
-      {shares.length === 0 ? (
+      {loading ? (
+        <div className="p-6 text-white text-center">Đang tải...</div>
+      ) : shares.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <Music size={64} className="text-zinc-600 mb-4" />
           <h2 className="text-xl font-bold text-white mb-2">Chưa có gì ở đây</h2>
-          <p className="text-zinc-400 max-w-sm">Hiện tại chưa có ai chia sẻ bài hát hoặc danh sách phát nào với bạn.</p>
+          <p className="text-zinc-400 max-w-sm">
+            {activeTab === 'with-me' 
+              ? 'Hiện tại chưa có ai chia sẻ bài hát hoặc danh sách phát nào với bạn.'
+              : 'Bạn chưa chia sẻ bài hát hay danh sách phát nào cho ai cả.'}
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
@@ -74,7 +97,9 @@ export const SharedWithMe: React.FC = () => {
                   </div>
                 )}
                 <div>
-                  <p className="text-xs text-zinc-400">Được chia sẻ bởi</p>
+                  <p className="text-xs text-zinc-400">
+                    {activeTab === 'with-me' ? 'Được chia sẻ bởi' : 'Đã chia sẻ cho'}
+                  </p>
                   <p className="text-sm font-bold text-white">{share.senderName}</p>
                 </div>
               </div>

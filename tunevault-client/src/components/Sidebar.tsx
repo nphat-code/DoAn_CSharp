@@ -1,12 +1,11 @@
-import { Library, Plus, ArrowRight, Search, List, Heart, Music, Users } from 'lucide-react';
+import { Library, Plus, ArrowRight, Search, List, Heart, Users, Disc } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { usePlayer } from '../context/PlayerContext';
-import { mediaService } from '../services/mediaService';
 import { playlistService } from '../services/playlistService';
 import type { PlaylistDto } from '../services/playlistService';
-import type { MediaItemDto } from '../types';
+import { albumService } from '../services/albumService';
+import type { AlbumDto } from '../services/albumService';
 
 interface SidebarProps {
   isExpanded?: boolean;
@@ -15,8 +14,7 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarProps) => {
-  const { playMedia } = usePlayer();
-  const [library, setLibrary] = useState<MediaItemDto[]>([]);
+  const [albums, setAlbums] = useState<AlbumDto[]>([]);
   const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
   const [loading, setLoading] = useState(true);
   const isAuthenticated = !!localStorage.getItem('token');
@@ -26,13 +24,19 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
     const fetchData = async () => {
       try {
         const pList = [];
-        pList.push(mediaService.getAllMedia());
+        pList.push(albumService.getAllAlbums().catch(() => []));
         if (isAuthenticated) {
           pList.push(playlistService.getUserPlaylists().catch(() => []));
         }
-        const [libData, playData] = await Promise.all(pList);
-        setLibrary(libData as MediaItemDto[]);
-        if (playData) setPlaylists(playData as PlaylistDto[]);
+        
+        if (isAuthenticated) {
+            const [albumData, playData] = await Promise.all(pList);
+            setAlbums(albumData as AlbumDto[]);
+            setPlaylists(playData as PlaylistDto[]);
+        } else {
+            const [albumData] = await Promise.all(pList);
+            setAlbums(albumData as AlbumDto[]);
+        }
       } catch (error) {
         console.error(error);
       } finally {
@@ -134,7 +138,7 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
                   <Users size={isExpanded ? 48 : 20} className="text-white shrink-0" />
                 </div>
                 <div className={`flex-col w-full ${isExpanded ? 'flex' : 'hidden lg:flex'}`}>
-                  <span className="text-base text-white font-semibold truncate">Đã chia sẻ với tôi</span>
+                  <span className="text-base text-white font-semibold truncate">Trung tâm chia sẻ</span>
                   <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • Bạn bè</span>
                 </div>
               </div>
@@ -162,30 +166,34 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
             </div>
           ))}
           
+          {/* Albums */}
           {loading ? (
              <div className="p-4 text-center text-zinc-500 text-sm col-span-full">Đang tải thư viện...</div>
-          ) : library.length > 0 ? (
-             library.map(item => (
+          ) : (
+            <>
+              {albums.map(album => (
                 <div 
-                  key={item.id}
-                  onClick={() => playMedia(item)}
+                  key={album.id}
+                  onClick={() => navigate(`/album/${album.id}`)}
                   className={`p-2 hover:bg-spotify-hover rounded-md cursor-pointer transition ${isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'flex items-center gap-3'}`}
                 >
                   <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
-                    {item.coverUrl ? (
-                      <img src={`http://localhost:5183${item.coverUrl}`} alt={item.title} className="w-full h-full object-cover shrink-0" />
+                    {album.coverUrl ? (
+                      <img src={`http://localhost:5183${album.coverUrl}`} alt={album.title} className="w-full h-full object-cover shrink-0" />
                     ) : (
-                      <Music size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
+                      <Disc size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
                     )}
                   </div>
                   <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'hidden lg:flex'}`}>
-                    <span className="text-base text-white font-semibold truncate">{item.title}</span>
-                    <span className="text-sm text-spotify-lighttext font-medium truncate">{item.mediaType} • Tải lên gần đây</span>
+                    <span className="text-base text-white font-semibold truncate">{album.title}</span>
+                    <span className="text-sm text-spotify-lighttext font-medium truncate">Album • {album.artistName}</span>
                   </div>
                 </div>
-             ))
-          ) : (
-             isAuthenticated && <div className="p-4 text-center text-zinc-500 text-sm col-span-full">Thư viện trống.</div>
+              ))}
+              {albums.length === 0 && playlists.length === 0 && isAuthenticated && (
+                 <div className="p-4 text-center text-zinc-500 text-sm col-span-full">Thư viện trống.</div>
+              )}
+            </>
           )}
         </div>
       </div>

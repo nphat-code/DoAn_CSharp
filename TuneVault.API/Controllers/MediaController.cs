@@ -46,7 +46,7 @@ public class MediaController(IMediator mediator) : ControllerBase
 
         var response = await mediator.Send(command);
         coverStream?.Dispose();
-        return Ok(response);
+        return Ok(new { success = true, data = response });
     }
 
     [HttpGet]

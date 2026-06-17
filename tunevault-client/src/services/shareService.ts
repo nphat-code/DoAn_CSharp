@@ -30,5 +30,10 @@ export const shareService = {
   getSharedWithMe: async (): Promise<MediaShareDto[]> => {
     const response = await apiClient.get('/share/me');
     return response.data;
+  },
+
+  getSharedByMe: async (): Promise<MediaShareDto[]> => {
+    const response = await apiClient.get('/share/by-me');
+    return response.data;
   }
 };
