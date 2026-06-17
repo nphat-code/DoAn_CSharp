@@ -38,15 +38,10 @@ CREATE TABLE MediaItems (
     Duration VARCHAR(20) NOT NULL,
     CoverUrl VARCHAR(255) NULL,
     UploaderId UUID NOT NULL REFERENCES UserProfiles(Id) ON DELETE CASCADE,
+    ArtistId UUID NULL REFERENCES Artists(Id) ON DELETE SET NULL,
     AlbumId UUID NULL REFERENCES Albums(Id) ON DELETE SET NULL,
     CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP NULL
-);
-
-CREATE TABLE MediaArtists (
-    MediaItemId UUID NOT NULL REFERENCES MediaItems(Id) ON DELETE CASCADE,
-    ArtistId UUID NOT NULL REFERENCES Artists(Id) ON DELETE CASCADE,
-    PRIMARY KEY (MediaItemId, ArtistId)
 );
 
 CREATE TABLE Playlists (
@@ -77,7 +72,9 @@ CREATE TABLE MediaShares (
     Id UUID PRIMARY KEY,
     SenderId UUID NOT NULL REFERENCES UserProfiles(Id) ON DELETE CASCADE,
     ReceiverId UUID NOT NULL REFERENCES UserProfiles(Id) ON DELETE CASCADE,
-    MediaItemId UUID NOT NULL REFERENCES MediaItems(Id) ON DELETE CASCADE,
+    MediaItemId UUID NULL REFERENCES MediaItems(Id) ON DELETE CASCADE,
+    PlaylistId UUID NULL REFERENCES Playlists(Id) ON DELETE CASCADE,
+    AlbumId UUID NULL REFERENCES Albums(Id) ON DELETE CASCADE,
     Message TEXT NULL,
     CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -111,26 +108,3 @@ CREATE TABLE ArtistFollows (
     FollowedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (UserId, ArtistId)
 );
-
-
--- DỮ LIỆU MẪU DÀNH CHO POSTGRESQL
-
-INSERT INTO UserProfiles (Id, Username, Email, PasswordHash)
-VALUES 
--- User 1: john_doe | Mật khẩu là: 123456
-('3fa85f64-5717-4562-b3fc-2c963f66afa6', 'john_doe', 'john@example.com', '$2y$10$tZ2.9P/g450J/j7U8XqQ8eX/p3m5Hk30o9.G27T.L0QZ0H5jP2HqG'),
-
--- User 2: jane_smith | Mật khẩu là: 123456
-('7f81a7b4-1025-47eb-ba69-6d5df8f57291', 'jane_smith', 'jane@example.com', '$2y$10$tZ2.9P/g450J/j7U8XqQ8eX/p3m5Hk30o9.G27T.L0QZ0H5jP2HqG');
-
--- Insert 1 Artist
-INSERT INTO Artists (Id, Name, Bio)
-VALUES ('e7ab11a3-8326-4074-b9db-9dc3cbafc0ba', 'The Weeknd', 'Canadian singer, songwriter, and record producer.');
-
--- Insert 1 Album
-INSERT INTO Albums (Id, Title, ArtistId)
-VALUES ('b47b4e64-569b-43d9-9528-66af7d8f370a', 'After Hours', 'e7ab11a3-8326-4074-b9db-9dc3cbafc0ba');
-
--- Insert 1 Media Item (Để User2 lấy ID test share)
-INSERT INTO MediaItems (Id, Title, Description, FileUrl, MediaType, Duration, UploaderId, AlbumId)
-VALUES ('e0b23267-d86b-4e14-ad26-dfecaf915cda', 'Blinding Lights', 'Hit song', '/media/test.mp3', 'Audio', '00:03:20', '3fa85f64-5717-4562-b3fc-2c963f66afa6', 'b47b4e64-569b-43d9-9528-66af7d8f370a');

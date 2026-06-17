@@ -15,7 +15,7 @@ public class CreateAlbumCommandHandler(
         string? coverUrl = null;
         if (request.CoverImageStream != null && !string.IsNullOrWhiteSpace(request.CoverImageFileName))
         {
-            coverUrl = await fileStorageService.SaveFileAsync(request.CoverImageStream, request.CoverImageFileName, cancellationToken);
+            coverUrl = await fileStorageService.SaveFileAsync(request.CoverImageStream, request.CoverImageFileName, "covers", cancellationToken);
         }
 
         // 2. Xử lý Nghệ sĩ

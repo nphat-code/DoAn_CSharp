@@ -49,11 +49,27 @@ public class PlaylistRepository(IDbConnection dbConnection) : IPlaylistRepositor
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        var sqlTracks = "DELETE FROM PlaylistItems WHERE PlaylistId = @Id";
-        await dbConnection.ExecuteAsync(new CommandDefinition(sqlTracks, new { Id = id }, cancellationToken: cancellationToken));
+        if (dbConnection.State == ConnectionState.Closed)
+        {
+            dbConnection.Open();
+        }
 
-        var sql = "DELETE FROM Playlists WHERE Id = @Id";
-        await dbConnection.ExecuteAsync(new CommandDefinition(sql, new { Id = id }, cancellationToken: cancellationToken));
+        using var transaction = dbConnection.BeginTransaction();
+        try
+        {
+            var sqlTracks = "DELETE FROM PlaylistItems WHERE PlaylistId = @Id";
+            await dbConnection.ExecuteAsync(new CommandDefinition(sqlTracks, new { Id = id }, transaction, cancellationToken: cancellationToken));
+
+            var sql = "DELETE FROM Playlists WHERE Id = @Id";
+            await dbConnection.ExecuteAsync(new CommandDefinition(sql, new { Id = id }, transaction, cancellationToken: cancellationToken));
+
+            transaction.Commit();
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
     }
 
     public async Task AddTrackAsync(PlaylistTrack playlistTrack, CancellationToken cancellationToken)

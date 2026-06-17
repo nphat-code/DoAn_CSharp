@@ -15,7 +15,7 @@ export const PlaylistDetail = () => {
   const [loading, setLoading] = useState(true);
   const [bgColor, setBgColor] = useState<string>('rgba(49, 46, 129, 0.4)');
   const [openTrackDropdown, setOpenTrackDropdown] = useState<string | null>(null);
-  const { playMediaList, currentMedia, isPlaying, togglePlayPause } = usePlayer();
+  const { playMediaList, currentMedia, isPlaying, togglePlayPause, queue, updateQueueContext } = usePlayer();
 
   // Edit states
   const [showEditModal, setShowEditModal] = useState(false);
@@ -174,12 +174,15 @@ export const PlaylistDetail = () => {
   if (loading) return <div className="p-6 text-white">Đang tải chi tiết playlist...</div>;
   if (!playlist) return <div className="p-6 text-white">Playlist không tồn tại.</div>;
 
-  const isCurrentPlaylist = currentMedia && playlist.tracks?.some(t => t.id === currentMedia.id);
-  const isPlaylistPlaying = isCurrentPlaylist && isPlaying;
+  const isCurrentPlaylistTrackPlaying = currentMedia && playlist.tracks?.some(t => t.id === currentMedia.id);
+  const isPlaylistPlaying = isCurrentPlaylistTrackPlaying && isPlaying;
 
   const handleMainPlayClick = () => {
     if (!playlist || !playlist.tracks || playlist.tracks.length === 0) return;
-    if (isCurrentPlaylist) {
+    if (isCurrentPlaylistTrackPlaying) {
+      if (queue.length <= 1) {
+        updateQueueContext(playlist.tracks, currentMedia.id);
+      }
       togglePlayPause();
     } else {
       playMediaList(playlist.tracks, 0);
@@ -331,16 +334,28 @@ export const PlaylistDetail = () => {
                 key={track.id} 
                 className="grid grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(120px,1fr)] gap-4 px-4 py-2 hover:bg-white/10 rounded-md transition items-center group cursor-pointer"
                 onDoubleClick={() => {
-                  if (isPlayingTrack) togglePlayPause();
-                  else playMediaList(playlist.tracks, index);
+                  if (isPlayingTrack) {
+                    if (queue.length <= 1) {
+                      updateQueueContext(playlist.tracks, currentMedia.id);
+                    }
+                    togglePlayPause();
+                  } else {
+                    playMediaList(playlist.tracks, index);
+                  }
                 }}
               >
                 <div className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-[#b3b3b3]'} text-base font-medium flex items-center justify-end pr-2 relative w-full`}>
                   <span className="group-hover:hidden">{index + 1}</span>
                   <button className="hidden group-hover:block" onClick={(e) => { 
                     e.stopPropagation(); 
-                    if (isPlayingTrack) togglePlayPause();
-                    else playMediaList(playlist.tracks, index); 
+                    if (isPlayingTrack) {
+                      if (queue.length <= 1) {
+                        updateQueueContext(playlist.tracks, currentMedia.id);
+                      }
+                      togglePlayPause();
+                    } else {
+                      playMediaList(playlist.tracks, index); 
+                    }
                   }}>
                     {isPlayingTrack && isPlaying ? (
                       <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" className="text-white">

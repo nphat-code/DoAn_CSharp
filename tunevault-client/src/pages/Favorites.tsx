@@ -21,7 +21,7 @@ const formatDuration = (timeString: string | undefined) => {
 export const Favorites = () => {
   const [favorites, setFavorites] = useState<MediaItemDto[]>([]);
   const [loading, setLoading] = useState(true);
-  const { playMediaList, currentMedia, isFavorited, setIsFavorited, isPlaying, togglePlayPause } = usePlayer();
+  const { playMediaList, currentMedia, isFavorited, setIsFavorited, isPlaying, togglePlayPause, queue, updateQueueContext } = usePlayer();
 
   const currentUserStr = localStorage.getItem('user');
   const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
@@ -113,12 +113,15 @@ export const Favorites = () => {
     return `, ${m} phút ${s} giây`;
   };
 
-  const isCurrentPlaylist = currentMedia && favorites.some(t => t.id === currentMedia.id);
-  const isPlaylistPlaying = isCurrentPlaylist && isPlaying;
+  const isCurrentPlaylistTrackPlaying = currentMedia && favorites.some(t => t.id === currentMedia.id);
+  const isPlaylistPlaying = isCurrentPlaylistTrackPlaying && isPlaying;
 
   const handleMainPlayClick = () => {
     if (favorites.length === 0) return;
-    if (isCurrentPlaylist) {
+    if (isCurrentPlaylistTrackPlaying) {
+      if (queue.length <= 1) {
+        updateQueueContext(favorites, currentMedia.id);
+      }
       togglePlayPause();
     } else {
       playMediaList(favorites, 0);
@@ -198,16 +201,28 @@ export const Favorites = () => {
                 key={track.id} 
                 className="grid grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(100px,2fr)_minmax(100px,1fr)] gap-4 px-4 py-2 hover:bg-white/10 rounded-md transition items-center group cursor-pointer"
                 onDoubleClick={() => {
-                  if (isPlayingTrack) togglePlayPause();
-                  else playMediaList(favorites, index);
+                  if (isPlayingTrack) {
+                    if (queue.length <= 1) {
+                      updateQueueContext(favorites, currentMedia.id);
+                    }
+                    togglePlayPause();
+                  } else {
+                    playMediaList(favorites, index);
+                  }
                 }}
               >
                 <div className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-[#b3b3b3]'} text-base font-medium flex items-center justify-end pr-2 relative w-full`}>
                   <span className="group-hover:hidden">{index + 1}</span>
                   <button className="hidden group-hover:block" onClick={(e) => { 
                     e.stopPropagation(); 
-                    if (isPlayingTrack) togglePlayPause();
-                    else playMediaList(favorites, index); 
+                    if (isPlayingTrack) {
+                      if (queue.length <= 1) {
+                        updateQueueContext(favorites, currentMedia.id);
+                      }
+                      togglePlayPause();
+                    } else {
+                      playMediaList(favorites, index); 
+                    }
                   }}>
                     {isPlayingTrack && isPlaying ? (
                       <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" className="text-white">

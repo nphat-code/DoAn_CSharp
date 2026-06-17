@@ -12,13 +12,13 @@ public class UploadMediaCommandHandler(
 {
     public async Task<MediaItemDto> Handle(UploadMediaCommand request, CancellationToken cancellationToken)
     {
-        // 1. Lưu file vật lý
-        var fileUrl = await fileStorageService.SaveFileAsync(request.FileStream, request.FileName, cancellationToken);
+        var mediaFolder = request.ContentType.StartsWith("video", StringComparison.OrdinalIgnoreCase) ? "video" : "audio";
+        var fileUrl = await fileStorageService.SaveFileAsync(request.FileStream, request.FileName, mediaFolder, cancellationToken);
 
         string? coverUrl = null;
         if (request.CoverImageStream != null && !string.IsNullOrWhiteSpace(request.CoverImageFileName))
         {
-            coverUrl = await fileStorageService.SaveFileAsync(request.CoverImageStream, request.CoverImageFileName, cancellationToken);
+            coverUrl = await fileStorageService.SaveFileAsync(request.CoverImageStream, request.CoverImageFileName, "covers", cancellationToken);
         }
 
         // 2. Tính toán Duration từ file thực tế bằng TagLib#

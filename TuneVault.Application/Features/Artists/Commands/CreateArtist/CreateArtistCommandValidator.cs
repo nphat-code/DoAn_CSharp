@@ -11,6 +11,6 @@ public class CreateArtistCommandValidator : AbstractValidator<CreateArtistComman
             .MaximumLength(100).WithMessage("Tên nghệ sĩ không được vượt quá 100 ký tự.");
 
         RuleFor(x => x.Bio)
-            .MaximumLength(1000).WithMessage("Tiểu sử không được vượt quá 1000 ký tự.");
+            .MaximumLength(5000).WithMessage("Tiểu sử không được vượt quá 5000 ký tự.");
     }
 }

@@ -13,7 +13,7 @@ public class CreateArtistCommandHandler(
         string? avatarUrl = null;
         if (request.AvatarFileStream != null && !string.IsNullOrEmpty(request.AvatarFileName))
         {
-            avatarUrl = await fileStorageService.SaveFileAsync(request.AvatarFileStream, request.AvatarFileName, cancellationToken);
+            avatarUrl = await fileStorageService.SaveFileAsync(request.AvatarFileStream, request.AvatarFileName, "artists", cancellationToken);
         }
 
         var artist = new Artist

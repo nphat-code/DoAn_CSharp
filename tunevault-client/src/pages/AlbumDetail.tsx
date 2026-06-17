@@ -16,7 +16,7 @@ export const AlbumDetail = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAddTrackModal, setShowAddTrackModal] = useState(false);
   const [openTrackDropdown, setOpenTrackDropdown] = useState<string | null>(null);
-  const { playMediaList, currentMedia, isFavorited, setIsFavorited, isPlaying, togglePlayPause } = usePlayer();
+  const { playMediaList, currentMedia, isFavorited, setIsFavorited, isPlaying, togglePlayPause, queue, updateQueueContext } = usePlayer();
   const [likedTracks, setLikedTracks] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
 
@@ -121,13 +121,22 @@ export const AlbumDetail = () => {
     playMediaList(tracksWithCover, index);
   };
 
-  const isCurrentAlbum = currentMedia && album?.tracks?.some(t => t.id === currentMedia.id);
-  const isAlbumPlaying = isCurrentAlbum && isPlaying;
+  const isCurrentAlbumTrackPlaying = currentMedia && album?.tracks?.some(t => t.id === currentMedia.id);
+  const isAlbumPlaying = isCurrentAlbumTrackPlaying && isPlaying;
 
   const handleMainPlayClick = () => {
     if (!album || !album.tracks || album.tracks.length === 0) return;
     
-    if (isCurrentAlbum) {
+    if (isCurrentAlbumTrackPlaying) {
+      if (queue.length <= 1) {
+        // We were playing a single track, switch queue context to the album
+        updateQueueContext(album.tracks.map(t => ({
+          ...t,
+          coverUrl: t.coverUrl || album.coverUrl,
+          artistName: t.artistName || album.artistName,
+          artistAvatarUrl: t.artistAvatarUrl || album.artistImageUrl
+        })), currentMedia.id);
+      }
       togglePlayPause();
     } else {
       handlePlayMedia(0);
@@ -333,8 +342,19 @@ export const AlbumDetail = () => {
                   <span className="group-hover:hidden">{index + 1}</span>
                   <button className="hidden group-hover:block" onClick={(e) => { 
                     e.stopPropagation(); 
-                    if (isPlayingTrack) togglePlayPause();
-                    else handlePlayMedia(index); 
+                    if (isPlayingTrack) {
+                      if (queue.length <= 1) {
+                        updateQueueContext(album.tracks.map(t => ({
+                          ...t,
+                          coverUrl: t.coverUrl || album.coverUrl,
+                          artistName: t.artistName || album.artistName,
+                          artistAvatarUrl: t.artistAvatarUrl || album.artistImageUrl
+                        })), currentMedia.id);
+                      }
+                      togglePlayPause();
+                    } else {
+                      handlePlayMedia(index); 
+                    }
                   }}>
                     {isPlayingTrack && isPlaying ? (
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="text-white">

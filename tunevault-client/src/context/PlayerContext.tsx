@@ -11,6 +11,7 @@ interface PlayerContextType {
   playNext: () => void;
   playPrevious: () => void;
   togglePlayPause: () => void;
+  updateQueueContext: (newQueue: MediaItemDto[], trackId: string) => void;
   volume: number;
   setVolume: (v: number) => void;
   mediaRef: RefObject<HTMLMediaElement | null>;
@@ -19,6 +20,7 @@ interface PlayerContextType {
   isFavorited: boolean;
   setIsFavorited: (val: boolean) => void;
   toggleFavorite: () => Promise<void>;
+  queue: MediaItemDto[];
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -88,8 +90,29 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
       setIsPlaying(true);
       import('../services/mediaService').then(m => m.mediaService.recordPlayHistory(queue[nextIndex].id).catch(console.error));
     } else {
-      // End of queue
-      setIsPlaying(false);
+      // End of queue -> Auto play random track!
+      import('../services/mediaService').then(m => {
+        m.mediaService.getAllMedia().then(allMedia => {
+          if (allMedia.length > 0) {
+            const randomTrack = allMedia[Math.floor(Math.random() * allMedia.length)];
+            setQueue(prev => [...prev, randomTrack]);
+            setCurrentIndex(prev => prev + 1);
+            setCurrentMedia(randomTrack);
+            setIsPlaying(true);
+            m.mediaService.recordPlayHistory(randomTrack.id).catch(console.error);
+          } else {
+            setIsPlaying(false);
+          }
+        }).catch(() => setIsPlaying(false));
+      });
+    }
+  };
+
+  const updateQueueContext = (newQueue: MediaItemDto[], trackId: string) => {
+    const idx = newQueue.findIndex(t => t.id === trackId);
+    if (idx !== -1) {
+      setQueue(newQueue);
+      setCurrentIndex(idx);
     }
   };
 
@@ -112,8 +135,9 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   return (
     <PlayerContext.Provider value={{ 
       currentMedia, isPlaying, playMedia, playMediaList, playNext, playPrevious, 
-      togglePlayPause, volume, setVolume, mediaRef, 
-      showLoginModal, setShowLoginModal, isFavorited, setIsFavorited, toggleFavorite 
+      togglePlayPause, updateQueueContext, volume, setVolume, mediaRef, 
+      showLoginModal, setShowLoginModal, isFavorited, setIsFavorited, toggleFavorite,
+      queue 
     }}>
       {children}
     </PlayerContext.Provider>
