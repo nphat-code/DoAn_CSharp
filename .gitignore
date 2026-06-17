@@ -496,9 +496,9 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # Backend Media Uploads
-**/wwwroot/uploads/
-**/wwwroot/covers/
-**/wwwroot/avatars/
+# **/wwwroot/uploads/
+# **/wwwroot/covers/
+# **/wwwroot/avatars/
 
 # Documentation and Setup Files
 GiaiThich_KienTruc_TuneVault.md
