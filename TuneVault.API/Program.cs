@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", builder =>
     {
-        builder.WithOrigins("http://localhost:5173") // React Dev Server
+        builder.SetIsOriginAllowed(origin => true) // Cho phép mọi Domain (kể cả Vercel)
                .AllowAnyMethod()
                .AllowAnyHeader()
                .AllowCredentials(); // Quan trọng cho SignalR JWT
@@ -75,7 +75,8 @@ app.UseStaticFiles(new StaticFileOptions
 {
     OnPrepareResponse = ctx =>
     {
-        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "http://localhost:5173");
+        // Cho phép mọi trang web tải ảnh về
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
         ctx.Context.Response.Headers.Append("Access-Control-Allow-Methods", "GET, OPTIONS");
     }
 });
