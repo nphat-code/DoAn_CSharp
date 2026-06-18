@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Cấu hình base URL trỏ tới ASP.NET Core API
 const apiClient = axios.create({
-  baseURL: 'https://tunevault-api.onrender.com/api', // Đã sửa khớp với Port thực tế của Backend
+  baseURL: 'http://localhost:5183/api', // Chuyển về Localhost để test dữ liệu đã migrate
   headers: {
     'Content-Type': 'application/json',
   },
