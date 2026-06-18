@@ -10,7 +10,7 @@ public class GeminiAiService(HttpClient httpClient, IConfiguration configuration
     public async Task<IEnumerable<(string Title, string Artist)>> GetRecommendationsAsync(string playHistoryContext, string favoritesContext, CancellationToken cancellationToken)
     {
         var apiKey = configuration["Gemini:ApiKey"];
-        if (string.IsNullOrEmpty(apiKey) || apiKey == "API_KEY_CỦA_BẠN_ĐỂ_Ở_ĐÂY")
+        if (string.IsNullOrEmpty(apiKey) || apiKey == "API_KEY_CỦA_BẠN_ĐỂ_Ở_ĐÂY" || apiKey == "your_gemini_api_key_here")
         {
             // Trả về mock data nếu chưa cấu hình API Key để không bị sập ứng dụng
             return new List<(string, string)>
