@@ -21,12 +21,12 @@ public class GetAiRecommendationsQueryHandler(
         }
 
         // 2. Send to AI
-        Console.WriteLine("[AI RECOMMENDATION] Sending prompt to Claude AI...");
+        Console.WriteLine("[AI RECOMMENDATION] Sending prompt to Gemini AI...");
         var aiRecommendations = await aiService.GetRecommendationsAsync(historyContext, favoritesContext, cancellationToken);
 
         if (!aiRecommendations.Any())
         {
-            Console.WriteLine("[AI RECOMMENDATION] Claude AI returned empty or failed. Triggering Fallback.");
+            Console.WriteLine("[AI RECOMMENDATION] Gemini AI returned empty or failed. Triggering Fallback.");
             return await recommendationRepository.GetFallbackRecommendationsAsync(cancellationToken);
         }
 
@@ -35,11 +35,11 @@ public class GetAiRecommendationsQueryHandler(
 
         if (!results.Any())
         {
-            Console.WriteLine("[AI RECOMMENDATION] Claude AI returned songs that are NOT in the Database. Triggering Fallback.");
+            Console.WriteLine("[AI RECOMMENDATION] Gemini AI returned songs that are NOT in the Database. Triggering Fallback.");
             return await recommendationRepository.GetFallbackRecommendationsAsync(cancellationToken);
         }
 
-        Console.WriteLine($"[AI RECOMMENDATION] Successfully mapped Claude AI recommendations to Database items! Found {results.Count()} matches.");
+        Console.WriteLine($"[AI RECOMMENDATION] Successfully mapped Gemini AI recommendations to Database items! Found {results.Count()} matches.");
         return results;
     }
 }
