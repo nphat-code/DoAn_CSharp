@@ -17,7 +17,6 @@ public class AddTrackToAlbumCommandHandler(IAlbumRepository albumRepository, IMe
             throw new KeyNotFoundException("Bài hát không tồn tại");
 
         track.AlbumId = request.AlbumId;
-        track.ArtistId = album.ArtistId; // Gắn cùng artist với album
 
         await mediaItemRepository.UpdateAsync(track, cancellationToken);
 

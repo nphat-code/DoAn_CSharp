@@ -405,7 +405,7 @@ export const TopBar = () => {
           onClose={() => setShowUploadModal(false)}
           onSuccess={() => {
             setShowUploadModal(false);
-            window.location.reload(); // Refresh to see newly uploaded media
+            window.dispatchEvent(new Event('mediaUpdated'));
           }}
         />
       )}
@@ -415,7 +415,7 @@ export const TopBar = () => {
           onClose={() => setShowAddArtistModal(false)}
           onSuccess={() => {
             setShowAddArtistModal(false);
-            window.location.reload(); // Refresh to see newly created artist
+            window.dispatchEvent(new Event('mediaUpdated'));
           }}
         />
       )}

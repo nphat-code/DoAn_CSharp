@@ -31,11 +31,16 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
         
         if (isAuthenticated) {
             const [albumData, playData] = await Promise.all(pList);
-            setAlbums(albumData as AlbumDto[]);
+            const userStr = localStorage.getItem('user');
+            const user = userStr ? JSON.parse(userStr) : null;
+            const savedIds = user ? JSON.parse(localStorage.getItem(`savedAlbums_${user.id}`) || '[]') : [];
+            const allAlbums = albumData as AlbumDto[];
+            
+            setAlbums(allAlbums.filter(a => savedIds.includes(a.id)));
             setPlaylists(playData as PlaylistDto[]);
         } else {
-            const [albumData] = await Promise.all(pList);
-            setAlbums(albumData as AlbumDto[]);
+            setAlbums([]);
+            setPlaylists([]);
         }
       } catch (error) {
         console.error(error);
@@ -43,7 +48,12 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
         setLoading(false);
       }
     };
+    
     fetchData();
+
+    const handleUpdate = () => fetchData();
+    window.addEventListener('savedAlbumsUpdated', handleUpdate);
+    return () => window.removeEventListener('savedAlbumsUpdated', handleUpdate);
   }, [isAuthenticated]);
 
   const [showCreateModal, setShowCreateModal] = useState(false);

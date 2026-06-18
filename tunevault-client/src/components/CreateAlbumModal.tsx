@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Upload, X, Disc } from 'lucide-react';
 import { albumService } from '../services/albumService';
+import { artistService, type ArtistDto } from '../services/artistService';
 
 interface CreateAlbumModalProps {
   onClose: () => void;
@@ -11,6 +12,24 @@ export const CreateAlbumModal = ({ onClose }: CreateAlbumModalProps) => {
   const [artistName, setArtistName] = useState('');
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [allArtists, setAllArtists] = useState<ArtistDto[]>([]);
+  const [showArtistSuggestions, setShowArtistSuggestions] = useState(false);
+
+  useEffect(() => {
+    const fetchArtists = async () => {
+      try {
+        const artists = await artistService.getAllArtists();
+        setAllArtists(artists);
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách nghệ sĩ:", error);
+      }
+    };
+    fetchArtists();
+  }, []);
+
+  const filteredArtists = allArtists.filter(a => 
+    a.name.toLowerCase().includes(artistName.toLowerCase())
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +50,7 @@ export const CreateAlbumModal = ({ onClose }: CreateAlbumModalProps) => {
     try {
       await albumService.createAlbum(formData);
       alert('Tạo Album thành công!');
-      window.location.reload(); // Reload trang để cập nhật danh sách
+      window.dispatchEvent(new Event('mediaUpdated')); // Cập nhật dữ liệu mà không làm f5 trang
       onClose();
     } catch (error) {
       console.error(error);
@@ -66,16 +85,44 @@ export const CreateAlbumModal = ({ onClose }: CreateAlbumModalProps) => {
             />
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 relative">
             <label className="text-sm font-bold text-white">Tên Nghệ sĩ <span className="text-red-500">*</span></label>
             <input 
               type="text" 
               value={artistName}
-              onChange={e => setArtistName(e.target.value)}
+              onChange={e => {
+                setArtistName(e.target.value);
+                setShowArtistSuggestions(true);
+              }}
+              onFocus={() => setShowArtistSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowArtistSuggestions(false), 200)}
               className="bg-zinc-800 text-white px-4 py-3 rounded-md focus:ring-1 focus:ring-white outline-none border border-zinc-700 focus:border-white transition"
               placeholder="VD: The Weeknd"
               required
             />
+            {showArtistSuggestions && artistName && filteredArtists.length > 0 && (
+              <div className="absolute top-[100%] left-0 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-md shadow-xl z-50 max-h-48 overflow-y-auto">
+                {filteredArtists.map(artist => (
+                  <div
+                    key={artist.id}
+                    className="px-4 py-2 hover:bg-zinc-700 cursor-pointer text-white flex items-center gap-3 transition-colors"
+                    onClick={() => {
+                      setArtistName(artist.name);
+                      setShowArtistSuggestions(false);
+                    }}
+                  >
+                    {artist.avatarUrl ? (
+                      <img src={artist.avatarUrl.startsWith('http') || artist.avatarUrl.startsWith('data:') ? artist.avatarUrl : `https://tunevault-api.onrender.com${artist.avatarUrl}`} alt={artist.name} className="w-6 h-6 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-6 h-6 rounded-full bg-zinc-600 flex items-center justify-center text-xs">
+                        {artist.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <span>{artist.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">

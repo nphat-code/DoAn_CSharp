@@ -9,9 +9,10 @@ interface AddTrackToAlbumModalProps {
   onClose: () => void;
   onSuccess: () => void;
   albumId: string;
+  existingTrackIds?: string[];
 }
 
-export const AddTrackToAlbumModal = ({ onClose, onSuccess, albumId }: AddTrackToAlbumModalProps) => {
+export const AddTrackToAlbumModal = ({ onClose, onSuccess, albumId, existingTrackIds = [] }: AddTrackToAlbumModalProps) => {
   const [query, setQuery] = useState('');
   const [tracks, setTracks] = useState<MediaItemDto[]>([]);
   const [loading, setLoading] = useState(false);
@@ -21,7 +22,7 @@ export const AddTrackToAlbumModal = ({ onClose, onSuccess, albumId }: AddTrackTo
       setLoading(true);
       try {
         const data = await mediaService.getAllMedia(); // gets all media
-        setTracks(data);
+        setTracks(data.filter(t => !existingTrackIds.includes(t.id)));
       } catch (error) {
         console.error(error);
       } finally {
@@ -35,13 +36,14 @@ export const AddTrackToAlbumModal = ({ onClose, onSuccess, albumId }: AddTrackTo
     const doSearch = async () => {
       if (!query.trim()) {
         const data = await mediaService.getAllMedia();
-        setTracks(data);
+        setTracks(data.filter(t => !existingTrackIds.includes(t.id)));
         return;
       }
       setLoading(true);
       try {
         const data = await mediaService.searchMedia(query);
-        setTracks(data.tracks ? data.tracks : []);
+        const searchResults = data.tracks ? data.tracks : [];
+        setTracks(searchResults.filter((t: MediaItemDto) => !existingTrackIds.includes(t.id)));
       } catch (error) {
         console.error(error);
       } finally {

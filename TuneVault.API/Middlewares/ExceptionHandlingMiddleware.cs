@@ -31,8 +31,8 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
         switch (exception)
         {
             case ValidationException validationEx:
-                // Lỗi nghiệp vụ -> Chỉ ghi log Warning (Cảnh báo), không in đỏ lòm chật màn hình
-                logger.LogWarning("Validation failed: {Message}", exception.Message);
+                var errorDetails = string.Join(", ", validationEx.Errors.Select(e => $"{e.Key}: {string.Join(" | ", e.Value)}"));
+                logger.LogWarning("Validation failed: {Message}. Details: {Details}", exception.Message, errorDetails);
                 response.StatusCode = (int)HttpStatusCode.BadRequest;
                 responseModel.Errors = validationEx.Errors;
                 break;

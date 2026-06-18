@@ -12,12 +12,19 @@ namespace TuneVault.API.Controllers;
 [Authorize(Roles = "Admin")]
 public class ArtistsController(IMediator mediator) : ControllerBase
 {
+    public class CreateArtistRequest
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? Bio { get; set; }
+        public IFormFile? AvatarFile { get; set; }
+    }
+
     [HttpPost]
     [Consumes("multipart/form-data")]
-    public async Task<IActionResult> CreateArtist([FromForm] string name, [FromForm] string? bio, IFormFile? avatarFile)
+    public async Task<IActionResult> CreateArtist([FromForm] CreateArtistRequest request)
     {
-        using var stream = avatarFile?.OpenReadStream();
-        var command = new CreateArtistCommand(name, bio, stream, avatarFile?.FileName);
+        using var stream = request.AvatarFile?.OpenReadStream();
+        var command = new CreateArtistCommand(request.Name, request.Bio, stream, request.AvatarFile?.FileName);
         var artistId = await mediator.Send(command);
         return Ok(new { id = artistId, message = "Artist created successfully" });
     }

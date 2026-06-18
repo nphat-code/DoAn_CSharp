@@ -37,7 +37,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
 
         await mediaService.deleteMedia(currentMedia.id);
         alert("Đã xóa bài hát thành công!");
-        window.location.reload(); // Tải lại trang để cập nhật danh sách
+        window.dispatchEvent(new Event('mediaUpdated')); // Cập nhật dữ liệu mà không làm f5 trang
       } catch (error) {
         alert("Lỗi khi xóa.");
       }
@@ -89,7 +89,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
 
        {/* 2. SCROLLING CONTENT LAYER */}
        <div 
-         className="absolute inset-0 overflow-y-auto overflow-x-hidden custom-scrollbar z-10 flex flex-col"
+         className="absolute inset-0 overflow-y-auto overflow-x-hidden scrollbar-hide z-10 flex flex-col"
          onScroll={(e) => {
            if (bgLayerRef.current) {
              bgLayerRef.current.style.transform = `translate3d(0, -${e.currentTarget.scrollTop}px, 0)`;

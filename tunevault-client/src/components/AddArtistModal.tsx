@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Upload as UploadIcon, AlertCircle } from 'lucide-react';
-import axios from 'axios';
+import apiClient from '../services/apiClient';
 
 interface AddArtistModalProps {
   onClose: () => void;
@@ -45,16 +45,20 @@ export const AddArtistModal = ({ onClose, onSuccess }: AddArtistModalProps) => {
     if (avatarFile) formData.append('avatarFile', avatarFile);
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('https://tunevault-api.onrender.com/api/artists', formData, {
+      await apiClient.post('/artists', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}`
         }
       });
       onSuccess();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Có lỗi xảy ra khi thêm nghệ sĩ. Vui lòng thử lại.');
+      if (err.response?.data?.errors) {
+        const errors = err.response.data.errors;
+        const firstKey = Object.keys(errors)[0];
+        setError(errors[firstKey][0]);
+      } else {
+        setError(err.response?.data?.message || 'Có lỗi xảy ra khi thêm nghệ sĩ. Vui lòng thử lại.');
+      }
     } finally {
       setIsUploading(false);
     }

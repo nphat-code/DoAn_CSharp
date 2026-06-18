@@ -9,7 +9,7 @@ import { Plus, Trash2, Disc } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const Home = () => {
-  const { playMedia } = usePlayer();
+  const { playMedia, currentMedia, isPlaying, togglePlayPause } = usePlayer();
   const navigate = useNavigate();
   const [tracks, setTracks] = useState<MediaItemDto[]>([]);
   const [albums, setAlbums] = useState<AlbumDto[]>([]);
@@ -46,6 +46,9 @@ export const Home = () => {
 
     fetchData();
     // fetchAiData(); // Đã tắt AI theo yêu cầu
+
+    window.addEventListener('mediaUpdated', fetchData);
+    return () => window.removeEventListener('mediaUpdated', fetchData);
   }, []);
 
   const handleAddToLikedSongs = async (e: React.MouseEvent, trackId: string) => {
@@ -179,8 +182,22 @@ export const Home = () => {
                        <span className="text-3xl font-black text-white/50">{track.title.charAt(0)}</span>
                     </div>
                   )}
-                  <button className="absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black opacity-0 group-hover:opacity-100 transition shadow-xl translate-y-2 group-hover:translate-y-0">
-                    <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (currentMedia?.id === track.id) {
+                        togglePlayPause();
+                      } else {
+                        playMedia(track);
+                      }
+                    }}
+                    className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition shadow-xl ${currentMedia?.id === track.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}
+                  >
+                    {currentMedia?.id === track.id && isPlaying ? (
+                      <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+                    ) : (
+                      <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                    )}
                   </button>
                 </div>
                 <h3 className="font-bold text-white truncate text-base">{track.title}</h3>

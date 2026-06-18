@@ -12,6 +12,34 @@ public class UploadMediaCommandHandler(
 {
     public async Task<MediaItemDto> Handle(UploadMediaCommand request, CancellationToken cancellationToken)
     {
+        // 1. Tính toán Duration từ stream bằng file tạm TRƯỚC KHI upload
+        TimeSpan duration = TimeSpan.FromMinutes(3); // Giá trị mặc định
+        try
+        {
+            var tempFilePath = Path.GetTempFileName() + Path.GetExtension(request.FileName);
+            using (var tempFileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write))
+            {
+                request.FileStream.Position = 0;
+                await request.FileStream.CopyToAsync(tempFileStream, cancellationToken);
+            }
+
+            using (var tagFile = TagLib.File.Create(tempFilePath))
+            {
+                if (tagFile.Properties.Duration.TotalSeconds > 0)
+                {
+                    duration = tagFile.Properties.Duration;
+                }
+            }
+
+            System.IO.File.Delete(tempFilePath); // Dọn dẹp file tạm
+            request.FileStream.Position = 0; // Reset lại stream để upload
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Không thể đọc duration từ file tạm: {ex.Message}");
+        }
+
+        // 2. Upload file
         var mediaFolder = request.ContentType.StartsWith("video", StringComparison.OrdinalIgnoreCase) ? "video" : "audio";
         var fileUrl = await fileStorageService.SaveFileAsync(request.FileStream, request.FileName, mediaFolder, cancellationToken);
 
@@ -19,22 +47,6 @@ public class UploadMediaCommandHandler(
         if (request.CoverImageStream != null && !string.IsNullOrWhiteSpace(request.CoverImageFileName))
         {
             coverUrl = await fileStorageService.SaveFileAsync(request.CoverImageStream, request.CoverImageFileName, "covers", cancellationToken);
-        }
-
-        // 2. Tính toán Duration từ file thực tế bằng TagLib#
-        var physicalPath = fileStorageService.GetPhysicalPath(fileUrl);
-        TimeSpan duration = TimeSpan.FromMinutes(3); // Giá trị mặc định
-        try
-        {
-            using var tagFile = TagLib.File.Create(physicalPath);
-            if (tagFile.Properties.Duration.TotalSeconds > 0)
-            {
-                duration = tagFile.Properties.Duration;
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Không thể đọc duration từ file: {ex.Message}");
         }
         // 3. Phân loại MediaType dựa trên ContentType hoặc Extension
         string mediaType = request.ContentType.StartsWith("video") ? "Video" : "Audio";

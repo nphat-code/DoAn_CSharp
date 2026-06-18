@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { PlayerBar } from './PlayerBar';
@@ -15,6 +15,15 @@ export const MainLayout = () => {
 
   const [sidebarWidth, setSidebarWidth] = useState(420);
   const [rightPanelWidth, setRightPanelWidth] = useState(420);
+  
+  const scrollRef = useRef<HTMLElement>(null);
+  const gradientRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = () => {
+    if (scrollRef.current && gradientRef.current) {
+      gradientRef.current.style.transform = `translateY(-${scrollRef.current.scrollTop}px)`;
+    }
+  };
 
   const startResizeSidebar = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -80,23 +89,33 @@ export const MainLayout = () => {
               </>
             )}
 
-            <main 
-              className={`${isSidebarExpanded && !isNowPlaying ? 'w-0 opacity-0 p-0 m-0' : 'flex-1 min-w-[300px]'} bg-spotify-card rounded-lg overflow-x-hidden overflow-y-auto relative shadow-2xl transition-all duration-300`}
-              style={{ containerType: 'inline-size' }}
+            <div 
+              className={`${isSidebarExpanded && !isNowPlaying ? 'w-0 opacity-0 p-0 m-0' : 'flex-1 min-w-[300px]'} bg-spotify-card rounded-lg overflow-hidden relative shadow-2xl transition-all duration-300`}
             >
-                
               {isHome && (
-                <>
-                  {/* Gradient header background overlay */}
-                  <div className="absolute top-0 left-0 w-full h-80 bg-gradient-to-b from-indigo-800/40 via-spotify-card/80 to-spotify-card pointer-events-none z-0"></div>
-
-                </>
+                <div 
+                  ref={gradientRef}
+                  className="absolute top-0 left-0 w-full pointer-events-none z-0"
+                  style={{
+                    height: '320px',
+                    backgroundImage: 'linear-gradient(to bottom, rgba(79, 70, 229, 0.8) 0%, transparent 100%)'
+                  }}
+                />
               )}
-               
+
+              <main 
+                ref={scrollRef}
+                id="main-scroll-container"
+                onScroll={handleScroll}
+                className="w-full h-full relative z-10 overflow-x-hidden overflow-y-auto scrollbar-hide"
+                style={{ containerType: 'inline-size' }}
+              >
+                
                <div className="relative z-10 h-full">
                   <Outlet />
                </div>
               </main>
+            </div>
 
             {!isNowPlaying && (
               <>

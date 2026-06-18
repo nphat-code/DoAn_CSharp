@@ -20,7 +20,6 @@ public class RemoveTrackFromAlbumCommandHandler(IAlbumRepository albumRepository
             throw new InvalidOperationException("Bài hát không thuộc Album này");
 
         track.AlbumId = null;
-        track.ArtistId = null;
 
         await mediaItemRepository.UpdateAsync(track, cancellationToken);
 

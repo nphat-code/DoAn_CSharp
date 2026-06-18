@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { FastAverageColor } from 'fast-average-color';
 import { useParams, useNavigate } from 'react-router-dom';
 import { albumService, type AlbumDetailDto } from '../services/albumService';
 import { usePlayer } from '../context/PlayerContext';
-import { Play, Clock, Disc, PlusCircle, ArrowDownCircle, MoreHorizontal, User, Plus, Trash2, Share2 } from 'lucide-react';
+import { Play, Clock, Disc, PlusCircle, CheckCircle, ArrowDownCircle, MoreHorizontal, User, Plus, Trash2, Share2 } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import { AddTrackToAlbumModal } from '../components/AddTrackToAlbumModal';
 import { ShareMediaModal } from '../components/ShareMediaModal';
+import { playlistService } from '../services/playlistService';
+import type { PlaylistDto } from '../services/playlistService';
 
 export const AlbumDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,9 +17,13 @@ export const AlbumDetail = () => {
   const [bgColor, setBgColor] = useState<string>('rgba(49, 46, 129, 0.4)');
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAddTrackModal, setShowAddTrackModal] = useState(false);
-  const [openTrackDropdown, setOpenTrackDropdown] = useState<string | null>(null);
+  const [openTrackDropdown, setOpenTrackDropdown] = useState<{id: string, openUpwards: boolean} | null>(null);
   const { playMediaList, currentMedia, isFavorited, setIsFavorited, isPlaying, togglePlayPause, queue, updateQueueContext } = usePlayer();
   const [likedTracks, setLikedTracks] = useState<Set<string>>(new Set());
+  const [isSaved, setIsSaved] = useState(false);
+  const [showAlbumMenu, setShowAlbumMenu] = useState(false);
+  const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
+  const [showPlaylistMenu, setShowPlaylistMenu] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // Share states
@@ -35,6 +41,7 @@ export const AlbumDetail = () => {
     };
     if (localStorage.getItem('token')) {
       fetchLikedTracks();
+      playlistService.getUserPlaylists().then(setPlaylists).catch(console.error);
     }
   }, []);
 
@@ -53,6 +60,14 @@ export const AlbumDetail = () => {
       if (id) {
         const data = await albumService.getAlbumById(id);
         setAlbum(data);
+
+        // Check if saved
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          const savedAlbums = JSON.parse(localStorage.getItem(`savedAlbums_${user.id}`) || '[]');
+          setIsSaved(savedAlbums.includes(data.id));
+        }
       }
     } catch (error) {
       console.error(error);
@@ -63,6 +78,8 @@ export const AlbumDetail = () => {
 
   useEffect(() => {
     fetchDetails();
+    window.addEventListener('mediaUpdated', fetchDetails);
+    return () => window.removeEventListener('mediaUpdated', fetchDetails);
   }, [id]);
 
   useEffect(() => {
@@ -88,10 +105,38 @@ export const AlbumDetail = () => {
           console.error("Lỗi lấy màu nền", e);
         }
       };
+      img.onerror = () => {
+        setBgColor('rgba(49, 46, 129, 0.8)');
+      };
     } else {
       setBgColor('rgba(49, 46, 129, 0.4)');
     }
   }, [album?.coverUrl]);
+
+
+
+  const handleToggleSaveAlbum = () => {
+    if (!album) return;
+    const userStr = localStorage.getItem('user');
+    if (!userStr) {
+      alert("Vui lòng đăng nhập để lưu album.");
+      return;
+    }
+    const user = JSON.parse(userStr);
+    const storageKey = `savedAlbums_${user.id}`;
+    let savedAlbums = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    
+    if (isSaved) {
+      savedAlbums = savedAlbums.filter((id: string) => id !== album.id);
+      localStorage.setItem(storageKey, JSON.stringify(savedAlbums));
+      setIsSaved(false);
+    } else {
+      savedAlbums.push(album.id);
+      localStorage.setItem(storageKey, JSON.stringify(savedAlbums));
+      setIsSaved(true);
+    }
+    window.dispatchEvent(new Event('savedAlbumsUpdated'));
+  };
 
   const handleToggleFavorite = async (trackId: string) => {
     try {
@@ -211,24 +256,39 @@ export const AlbumDetail = () => {
     return durationStr;
   };
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const gradientRef = useRef<HTMLDivElement>(null);
+
   if (loading) return <div className="p-6 text-white">Đang tải chi tiết album...</div>;
   if (!album) return <div className="p-6 text-white">Album không tồn tại.</div>;
 
+  const handleScroll = () => {
+    if (scrollRef.current && gradientRef.current) {
+      gradientRef.current.style.transform = `translateY(-${scrollRef.current.scrollTop}px)`;
+    }
+  };
+
   return (
-    <div 
-      className="flex flex-col h-full bg-black relative"
-      style={{ overflowY: 'overlay' as any }}
-    >
-      {/* Background Gradient */}
+    <div className="flex flex-col h-full relative bg-black overflow-hidden">
+      {/* Background Gradient Layer */}
       <div 
-        className="absolute top-0 left-0 w-full h-[500px] pointer-events-none z-0"
+        ref={gradientRef}
+        className="absolute top-0 left-0 w-full pointer-events-none z-0"
         style={{
-          background: `linear-gradient(to bottom, ${bgColor} 0%, rgba(0,0,0,1) 100%)`,
+          height: '500px',
+          backgroundImage: `linear-gradient(to bottom, ${bgColor.replace(/([\d.]+)\)/, '0.9)')} 0%, transparent 100%)`
         }}
       />
-      {/* Header */}
+
+      {/* Scrollable Content Layer */}
       <div 
-        className="flex items-end gap-6 px-6 pb-6 shrink-0 relative z-10"
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto relative z-10 w-full scrollbar-hide"
+        onScroll={handleScroll}
+      >
+        {/* Header */}
+      <div 
+        className="flex items-end gap-6 px-6 pb-6 pt-16 shrink-0 relative z-10"
         style={{ height: 'clamp(195.5px, 25cqw, 340px)', minHeight: '195.5px' }}
       >
         <div 
@@ -285,18 +345,53 @@ export const AlbumDetail = () => {
             <Play size={24} className="text-black fill-black ml-1" />
           )}
         </button>
-        <button className="text-zinc-400 hover:text-white transition" title="Lưu vào Thư viện">
-          <PlusCircle size={32} />
+        <button onClick={handleToggleSaveAlbum} className={`${isSaved ? 'text-[#1ed760]' : 'text-zinc-400 hover:text-white'} transition`} title={isSaved ? "Xóa khỏi Thư viện" : "Lưu vào Thư viện"}>
+          {isSaved ? <CheckCircle size={32} /> : <PlusCircle size={32} />}
         </button>
         <button className="text-zinc-400 hover:text-white transition" title="Tải xuống">
           <ArrowDownCircle size={32} />
         </button>
-        <button onClick={handleShareAlbum} className="text-zinc-400 hover:text-white transition" title="Chia sẻ">
-          <Share2 size={32} />
-        </button>
-        <button className="text-zinc-400 hover:text-white transition ml-2" title="Khác">
-          <MoreHorizontal size={32} />
-        </button>
+        <div className="relative">
+          <button onClick={() => setShowAlbumMenu(!showAlbumMenu)} className="text-zinc-400 hover:text-white transition ml-2" title="Khác">
+            <MoreHorizontal size={32} />
+          </button>
+          
+          {showAlbumMenu && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowAlbumMenu(false)}></div>
+              <div className="absolute left-0 top-full mt-1 w-56 bg-[#282828] rounded shadow-xl py-1 z-50 border border-white/10">
+                <button 
+                  onClick={() => {
+                    handleToggleSaveAlbum();
+                    setShowAlbumMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
+                >
+                  {isSaved ? (
+                    <>
+                      <CheckCircle size={16} className="text-[#1ed760]" />
+                      Xóa khỏi Thư viện
+                    </>
+                  ) : (
+                    <>
+                      <PlusCircle size={16} />
+                      Thêm vào Thư viện
+                    </>
+                  )}
+                </button>
+                <button 
+                  onClick={() => {
+                    handleShareAlbum();
+                    setShowAlbumMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
+                >
+                  <Share2 size={16} /> Chia sẻ
+                </button>
+              </div>
+            </>
+          )}
+        </div>
         {isAdmin && (
           <div className="flex items-center gap-4 ml-4">
             <button 
@@ -387,16 +482,26 @@ export const AlbumDetail = () => {
                     
                     <div className="relative flex items-center">
                       <button 
-                        onClick={(e) => { e.stopPropagation(); setOpenTrackDropdown(openTrackDropdown === track.id ? null : track.id); }}
-                        className={`text-spotify-lighttext hover:text-white transition ${openTrackDropdown === track.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (openTrackDropdown?.id === track.id) {
+                            setOpenTrackDropdown(null);
+                          } else {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            const windowHeight = window.innerHeight;
+                            const openUpwards = rect.bottom > windowHeight - 350;
+                            setOpenTrackDropdown({ id: track.id, openUpwards });
+                          }
+                        }}
+                        className={`text-spotify-lighttext hover:text-white transition ${openTrackDropdown?.id === track.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                       >
                         <MoreHorizontal size={18} />
                       </button>
                       
-                      {openTrackDropdown === track.id && (
+                      {openTrackDropdown?.id === track.id && (
                         <>
                           <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpenTrackDropdown(null); }}></div>
-                          <div className="absolute right-0 top-full mt-1 w-48 bg-[#282828] rounded shadow-xl py-1 z-50 border border-white/10">
+                          <div className={`absolute right-0 ${openTrackDropdown.openUpwards ? 'bottom-full mb-1' : 'top-full mt-1'} w-max min-w-[240px] bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10`}>
                             {isAdmin && (
                               <button 
                                 onClick={(e) => { 
@@ -410,9 +515,64 @@ export const AlbumDetail = () => {
                                 Xóa khỏi album
                               </button>
                             )}
-                            <button className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white">
-                              Thêm vào danh sách phát
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleToggleFavorite(track.id);
+                                setOpenTrackDropdown(null);
+                              }}
+                              className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
+                            >
+                              {likedTracks.has(track.id) ? (
+                                <>
+                                  <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
+                                  Xóa khỏi Bài hát đã thích
+                                </>
+                              ) : (
+                                <>
+                                  <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                                  Lưu vào Bài hát đã thích
+                                </>
+                              )}
                             </button>
+                            <div 
+                              className="relative"
+                              onMouseEnter={() => setShowPlaylistMenu(track.id)}
+                              onMouseLeave={() => setShowPlaylistMenu(null)}
+                            >
+                              <button className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center justify-between">
+                                <span>Thêm vào danh sách phát</span>
+                                <svg role="img" height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 14l8-6-8-6v12z"></path></svg>
+                              </button>
+
+                              {showPlaylistMenu === track.id && (
+                                <div className={`absolute ${openTrackDropdown.openUpwards ? 'bottom-0' : 'top-0'} right-full mr-1 w-56 bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 max-h-64 overflow-y-auto custom-scrollbar`}>
+                                  {playlists.length === 0 ? (
+                                    <div className="px-4 py-2 text-sm text-zinc-500">Chưa có danh sách phát</div>
+                                  ) : (
+                                    playlists.map(p => (
+                                      <button 
+                                        key={p.id}
+                                        onClick={async (e) => {
+                                          e.stopPropagation();
+                                          try {
+                                            await playlistService.addTrackToPlaylist(p.id, track.id);
+                                            alert("Đã thêm vào " + p.name);
+                                            setOpenTrackDropdown(null);
+                                            setShowPlaylistMenu(null);
+                                          } catch(err) {
+                                            alert("Có thể bài hát đã có trong playlist này.");
+                                          }
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white truncate"
+                                      >
+                                        {p.name}
+                                      </button>
+                                    ))
+                                  )}
+                                </div>
+                              )}
+                            </div>
                             <button 
                               className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
                               onClick={() => handleShareTrack(track.id, track.title)}
@@ -441,6 +601,7 @@ export const AlbumDetail = () => {
             fetchDetails(); // Reload để thấy bài hát mới
           }}
           albumId={album.id}
+          existingTrackIds={album.tracks?.map(t => t.id) || []}
         />
       )}
 
@@ -453,6 +614,7 @@ export const AlbumDetail = () => {
           onClose={() => setShowShareModal(false)}
         />
       )}
+      </div>
     </div>
   );
 };

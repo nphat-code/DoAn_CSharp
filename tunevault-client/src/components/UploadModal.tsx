@@ -22,6 +22,13 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
   const [loading, setLoading] = useState(false);
   const [artists, setArtists] = useState<ArtistDto[]>([]);
   const [albums, setAlbums] = useState<AlbumDto[]>([]);
+  
+  const [artistSearchText, setArtistSearchText] = useState('');
+  const [showArtistSuggestions, setShowArtistSuggestions] = useState(false);
+  
+  const [albumSearchText, setAlbumSearchText] = useState('');
+  const [showAlbumSuggestions, setShowAlbumSuggestions] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const coverImageInputRef = useRef<HTMLInputElement>(null);
 
@@ -34,12 +41,30 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
         ]);
         setArtists(artistsData);
         setAlbums(albumsData);
+
+        // Pre-fill text if initial IDs are provided
+        if (initialArtistId) {
+          const artist = artistsData.find(a => a.id === initialArtistId);
+          if (artist) setArtistSearchText(artist.name);
+        }
+        if (initialAlbumId) {
+          const album = albumsData.find(a => a.id === initialAlbumId);
+          if (album) setAlbumSearchText(album.title);
+        }
       } catch (err) {
         console.error("Failed to load artists/albums", err);
       }
     };
     fetchData();
-  }, []);
+  }, [initialArtistId, initialAlbumId]);
+
+  const filteredArtists = artists.filter(a => 
+    a.name.toLowerCase().includes(artistSearchText.toLowerCase())
+  );
+
+  const filteredAlbums = albums
+    .filter(a => !selectedArtistId || a.artistId === selectedArtistId)
+    .filter(a => a.title.toLowerCase().includes(albumSearchText.toLowerCase()));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,33 +188,103 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-white">Phân loại: Nghệ sĩ</label>
-                <select 
-                  value={selectedArtistId}
-                  onChange={(e) => setSelectedArtistId(e.target.value)}
-                  className="bg-[#3E3E3E] text-white rounded-md p-3 outline-none focus:ring-2 focus:ring-white"
-                  disabled={!!initialArtistId} // Khóa nếu mở từ trang nghệ sĩ
-                >
-                  <option value="">Không chọn</option>
-                  {artists.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                </select>
+            <div className="flex flex-col gap-4">
+              {/* Autocomplete Nghệ sĩ */}
+              <div className="flex flex-col gap-2 relative">
+                <label className="text-sm font-bold text-white">Nghệ sĩ</label>
+                <input 
+                  type="text" 
+                  value={artistSearchText}
+                  onChange={(e) => {
+                    setArtistSearchText(e.target.value);
+                    setSelectedArtistId(''); // Xóa ID nếu người dùng gõ text mới
+                    setShowArtistSuggestions(true);
+                  }}
+                  onFocus={() => setShowArtistSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowArtistSuggestions(false), 200)}
+                  className="bg-[#3E3E3E] text-white rounded-md p-3 outline-none focus:ring-2 focus:ring-white placeholder-zinc-400"
+                  placeholder="VD: Sơn Tùng M-TP"
+                  disabled={!!initialArtistId}
+                />
+                {showArtistSuggestions && artistSearchText && filteredArtists.length > 0 && !initialArtistId && (
+                  <div className="absolute top-[100%] left-0 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-md shadow-xl z-50 max-h-48 overflow-y-auto">
+                    {filteredArtists.map(artist => (
+                      <div
+                        key={artist.id}
+                        className="px-4 py-2 hover:bg-zinc-700 cursor-pointer text-white flex items-center gap-3 transition-colors"
+                        onClick={() => {
+                          setArtistSearchText(artist.name);
+                          setSelectedArtistId(artist.id);
+                          setShowArtistSuggestions(false);
+                        }}
+                      >
+                        {artist.avatarUrl ? (
+                          <img src={artist.avatarUrl.startsWith('http') || artist.avatarUrl.startsWith('data:') ? artist.avatarUrl : `https://tunevault-api.onrender.com${artist.avatarUrl}`} alt={artist.name} className="w-6 h-6 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-6 h-6 rounded-full bg-zinc-600 flex items-center justify-center text-xs">
+                            {artist.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <span>{artist.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-white">Phân loại: Album</label>
-                <select 
-                  value={selectedAlbumId}
-                  onChange={(e) => setSelectedAlbumId(e.target.value)}
-                  className="bg-[#3E3E3E] text-white rounded-md p-3 outline-none focus:ring-2 focus:ring-white"
-                  disabled={!!initialAlbumId} // Khóa nếu mở từ trang album
-                >
-                  <option value="">Không chọn</option>
-                  {albums
-                    .filter(a => !selectedArtistId || a.artistId === selectedArtistId) // Chỉ hiện album của nghệ sĩ đã chọn
-                    .map(a => <option key={a.id} value={a.id}>{a.title}</option>)}
-                </select>
+              {/* Autocomplete Album */}
+              <div className="flex flex-col gap-2 relative">
+                <label className="text-sm font-bold text-white">Album</label>
+                <input 
+                  type="text" 
+                  value={albumSearchText}
+                  onChange={(e) => {
+                    setAlbumSearchText(e.target.value);
+                    setSelectedAlbumId(''); // Xóa ID nếu người dùng gõ text mới
+                    setShowAlbumSuggestions(true);
+                  }}
+                  onFocus={() => setShowAlbumSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowAlbumSuggestions(false), 200)}
+                  className="bg-[#3E3E3E] text-white rounded-md p-3 outline-none focus:ring-2 focus:ring-white placeholder-zinc-400"
+                  placeholder="VD: Chúng ta của hiện tại"
+                  disabled={!!initialAlbumId}
+                />
+                {showAlbumSuggestions && albumSearchText && filteredAlbums.length > 0 && !initialAlbumId && (
+                  <div className="absolute top-[100%] left-0 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-md shadow-xl z-50 max-h-48 overflow-y-auto">
+                    {filteredAlbums.map(album => (
+                      <div
+                        key={album.id}
+                        className="px-4 py-2 hover:bg-zinc-700 cursor-pointer text-white flex items-center gap-3 transition-colors"
+                        onClick={() => {
+                          setAlbumSearchText(album.title);
+                          setSelectedAlbumId(album.id);
+                          setShowAlbumSuggestions(false);
+                          
+                          // Tự động điền nghệ sĩ nếu chưa chọn
+                          if (!selectedArtistId) {
+                            setSelectedArtistId(album.artistId);
+                            const artist = artists.find(a => a.id === album.artistId);
+                            if (artist) setArtistSearchText(artist.name);
+                          }
+                        }}
+                      >
+                        {album.coverUrl ? (
+                          <img src={album.coverUrl.startsWith('http') || album.coverUrl.startsWith('data:') ? album.coverUrl : `https://tunevault-api.onrender.com${album.coverUrl}`} alt={album.title} className="w-6 h-6 rounded-md object-cover" />
+                        ) : (
+                          <div className="w-6 h-6 rounded-md bg-zinc-600 flex items-center justify-center text-xs">
+                            <Music size={12} />
+                          </div>
+                        )}
+                        <div className="flex flex-col">
+                          <span className="text-sm">{album.title}</span>
+                          <span className="text-xs text-zinc-400">
+                            {artists.find(a => a.id === album.artistId)?.name || 'Unknown'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
