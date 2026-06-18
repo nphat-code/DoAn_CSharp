@@ -26,9 +26,8 @@ jobs:
     - name: Build
       run: dotnet build --no-restore --configuration Release
       
-    # Bật phần này lên nếu bạn có viết Unit Test sau này
-    # - name: Test
-    #   run: dotnet test --no-build --verbosity normal --configuration Release
+    - name: Test
+      run: dotnet test --no-build --verbosity normal --configuration Release
 
   build-frontend:
     name: Build React Frontend
