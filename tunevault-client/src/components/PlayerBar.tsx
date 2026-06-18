@@ -144,7 +144,7 @@ export const PlayerBar = () => {
         {currentMedia.mediaType === 'Video' ? (
           <video
             ref={mediaRef as React.RefObject<HTMLVideoElement>}
-            src={`https://tunevault-api.onrender.com/api/media/${currentMedia.id}/stream`}
+            src={currentMedia.fileUrl?.startsWith('http') ? currentMedia.fileUrl : `https://tunevault-api.onrender.com/api/media/${currentMedia.id}/stream`}
             poster={currentMedia.coverUrl ? (currentMedia.coverUrl.startsWith('http') ? currentMedia.coverUrl : currentMedia.coverUrl?.startsWith('http') ? currentMedia.coverUrl : `https://tunevault-api.onrender.com${currentMedia.coverUrl}`) : undefined}
             playsInline
             className="w-full h-full object-cover scale-[1.3] transform-gpu"
@@ -152,7 +152,7 @@ export const PlayerBar = () => {
         ) : (
           <audio
             ref={mediaRef as React.RefObject<HTMLAudioElement>}
-            src={`https://tunevault-api.onrender.com/api/media/${currentMedia.id}/stream`} 
+            src={currentMedia.fileUrl?.startsWith('http') ? currentMedia.fileUrl : `https://tunevault-api.onrender.com/api/media/${currentMedia.id}/stream`} 
           />
         )}
       </div>
