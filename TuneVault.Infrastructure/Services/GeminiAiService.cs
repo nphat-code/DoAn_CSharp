@@ -44,7 +44,7 @@ Yêu cầu bắt buộc: Chỉ trả về ĐÚNG MỘT MẢNG JSON, không giả
             }
         };
 
-        var requestUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={apiKey}";
+        var requestUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={apiKey}";
 
         var response = await httpClient.PostAsJsonAsync(requestUrl, requestBody, cancellationToken);
         

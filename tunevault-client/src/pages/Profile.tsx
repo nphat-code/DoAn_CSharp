@@ -115,7 +115,7 @@ export const Profile = () => {
         {/* Avatar */}
         <div
           className="rounded-full overflow-hidden shadow-[0_4px_60px_rgba(0,0,0,0.5)] relative group flex-shrink-0 bg-[#282828]"
-          style={{ width: 'clamp(174.11px, 25cqw, 260px)', height: 'clamp(174.11px, 25cqw, 260px)' }}
+          style={{ width: 'clamp(150px, 22cqw, 230px)', height: 'clamp(150px, 22cqw, 230px)' }}
         >
           {profile.avatarUrl ? (
             <img src={profile.avatarUrl.startsWith('http') || profile.avatarUrl.startsWith('data:') ? profile.avatarUrl : profile.avatarUrl?.startsWith('http') ? profile.avatarUrl : `https://tunevault-api.onrender.com${profile.avatarUrl}`} alt="Avatar" className="w-full h-full object-cover" />
@@ -282,7 +282,7 @@ export const Profile = () => {
         {playlists.length > 0 && (
           <div className="mb-12">
             <h2 className="text-2xl font-bold text-white mb-6">Playlist Công khai</h2>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {playlists.map(playlist => (
                 <div 
                   key={playlist.id} 

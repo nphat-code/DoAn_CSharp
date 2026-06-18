@@ -56,6 +56,25 @@ public class SearchRepository(IDbConnection dbConnection) : ISearchRepository
         var artists = await dbConnection.QueryAsync<ArtistDto>(artistSql, new { Query = queryTerm, Limit = limit, Offset = offset });
         result.Artists = artists;
 
+        // Query Albums
+        string albumSql = string.IsNullOrWhiteSpace(query)
+            ? @"SELECT al.Id, al.Title, al.CoverUrl, al.ReleaseDate, al.ArtistId,
+                       a.Name as ArtistName
+                FROM Albums al
+                LEFT JOIN Artists a ON al.ArtistId = a.Id
+                ORDER BY al.CreatedAt DESC
+                LIMIT @Limit OFFSET @Offset"
+            : @"SELECT al.Id, al.Title, al.CoverUrl, al.ReleaseDate, al.ArtistId,
+                       a.Name as ArtistName
+                FROM Albums al
+                LEFT JOIN Artists a ON al.ArtistId = a.Id
+                WHERE al.Title ILIKE @Query OR a.Name ILIKE @Query
+                ORDER BY al.CreatedAt DESC
+                LIMIT @Limit OFFSET @Offset";
+
+        var albums = await dbConnection.QueryAsync<TuneVault.Application.Features.Albums.DTOs.AlbumDto>(albumSql, new { Query = queryTerm, Limit = limit, Offset = offset });
+        result.Albums = albums;
+
         // Query Playlists
         string playlistSql = string.IsNullOrWhiteSpace(query)
             ? @"SELECT Id, Title as Name, Description, CoverUrl, IsPublic, CreatedAt, CreatorId as UserProfileId
@@ -72,7 +91,22 @@ public class SearchRepository(IDbConnection dbConnection) : ISearchRepository
         var playlists = await dbConnection.QueryAsync<PlaylistDto>(playlistSql, new { Query = queryTerm, Limit = limit, Offset = offset });
         result.Playlists = playlists;
 
-        result.TotalItems = result.Tracks.Count() + result.Artists.Count() + result.Playlists.Count();
+        // Query Users
+        string userSql = string.IsNullOrWhiteSpace(query)
+            ? @"SELECT Id, Username, Email, AvatarUrl, Bio, CreatedAt
+                FROM UserProfiles
+                ORDER BY CreatedAt DESC
+                LIMIT @Limit OFFSET @Offset"
+            : @"SELECT Id, Username, Email, AvatarUrl, Bio, CreatedAt
+                FROM UserProfiles
+                WHERE Username ILIKE @Query OR Bio ILIKE @Query
+                ORDER BY CreatedAt DESC
+                LIMIT @Limit OFFSET @Offset";
+
+        var users = await dbConnection.QueryAsync<TuneVault.Application.Features.Profile.DTOs.ProfileDto>(userSql, new { Query = queryTerm, Limit = limit, Offset = offset });
+        result.Users = users;
+
+        result.TotalItems = result.Tracks.Count() + result.Artists.Count() + result.Albums.Count() + result.Playlists.Count() + result.Users.Count();
         result.TotalPages = (int)Math.Ceiling(result.TotalItems / (double)limit); 
         // Note: For true total pages, we'd need to run 3 COUNT queries.
 

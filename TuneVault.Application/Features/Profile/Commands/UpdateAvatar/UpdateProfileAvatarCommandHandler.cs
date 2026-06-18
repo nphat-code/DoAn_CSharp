@@ -3,7 +3,7 @@ using TuneVault.Application.Interfaces;
 
 namespace TuneVault.Application.Features.Profile.Commands.UpdateAvatar;
 
-public class UpdateProfileAvatarCommandHandler(IUserRepository userRepository) : IRequestHandler<UpdateProfileAvatarCommand, bool>
+public class UpdateProfileAvatarCommandHandler(IUserRepository userRepository, IFileStorageService fileStorageService) : IRequestHandler<UpdateProfileAvatarCommand, bool>
 {
     public async Task<bool> Handle(UpdateProfileAvatarCommand request, CancellationToken cancellationToken)
     {
@@ -11,7 +11,22 @@ public class UpdateProfileAvatarCommandHandler(IUserRepository userRepository) :
         if (user == null)
             throw new Exception("User not found");
 
-        await userRepository.UpdateAvatarAsync(request.UserId, request.AvatarUrl, cancellationToken);
+        var avatarUrlToSave = request.AvatarUrl;
+
+        if (!string.IsNullOrEmpty(request.AvatarUrl) && request.AvatarUrl.StartsWith("data:image"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(request.AvatarUrl, @"data:image/(?<type>.+?),(?<data>.+)");
+            if (match.Success)
+            {
+                var base64Data = match.Groups["data"].Value;
+                var extension = match.Groups["type"].Value.Split(';')[0];
+                var bytes = Convert.FromBase64String(base64Data);
+                using var stream = new MemoryStream(bytes);
+                avatarUrlToSave = await fileStorageService.SaveFileAsync(stream, $"avatar_{request.UserId}.{extension}", "covers", cancellationToken);
+            }
+        }
+
+        await userRepository.UpdateAvatarAsync(request.UserId, avatarUrlToSave, cancellationToken);
         return true;
     }
 }

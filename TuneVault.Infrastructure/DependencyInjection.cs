@@ -44,6 +44,7 @@ public static class DependencyInjection
         services.AddScoped<ISearchRepository, SearchRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IRecommendationRepository, RecommendationRepository>();
+        services.AddScoped<IFollowRepository, FollowRepository>();
         services.AddScoped<INotificationService, TuneVault.Infrastructure.Services.NotificationService>();
         services.AddHttpClient<IAiService, TuneVault.Infrastructure.Services.GeminiAiService>();
 

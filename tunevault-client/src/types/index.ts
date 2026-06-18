@@ -3,6 +3,8 @@ export interface UserProfileDto {
   username: string;
   email: string;
   avatarUrl?: string;
+  bio?: string;
+  createdAt?: string;
 }
 
 export interface MediaItemDto {
@@ -49,7 +51,9 @@ export interface PlaylistDto {
 export interface SearchResultDto {
   tracks: MediaItemDto[];
   artists: ArtistDto[];
+  albums: any[];
   playlists: PlaylistDto[];
+  users: UserProfileDto[];
   currentPage: number;
   totalPages: number;
   totalItems: number;

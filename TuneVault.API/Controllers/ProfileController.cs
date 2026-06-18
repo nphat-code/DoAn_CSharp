@@ -25,6 +25,22 @@ public class ProfileController(IMediator mediator) : ControllerBase
         return Ok(new { success = true, data = profile });
     }
 
+    // GET /api/profile/{id}
+    [HttpGet("{id}")]
+    [AllowAnonymous]
+    public async Task<ActionResult<ProfileDto>> GetProfileById(Guid id)
+    {
+        try 
+        {
+            var profile = await mediator.Send(new GetProfileQuery(id));
+            return Ok(new { success = true, data = profile });
+        }
+        catch (Exception ex)
+        {
+            return NotFound(new { success = false, message = ex.Message });
+        }
+    }
+
     // PUT /api/profile/avatar
     [HttpPut("avatar")]
     public async Task<IActionResult> UpdateAvatar([FromBody] string avatarUrl)

@@ -15,6 +15,11 @@ export const profileService = {
     return response.data.data;
   },
 
+  getProfileById: async (id: string): Promise<ProfileDto> => {
+    const response = await apiClient.get<{success: boolean, data: ProfileDto}>(`/profile/${id}`);
+    return response.data.data;
+  },
+
   updateAvatar: async (avatarUrl: string): Promise<boolean> => {
     // Send raw string by setting headers correctly, or wrap in quotes to act as JSON string
     const response = await apiClient.put<{success: boolean}>('/profile/avatar', `"${avatarUrl}"`, {

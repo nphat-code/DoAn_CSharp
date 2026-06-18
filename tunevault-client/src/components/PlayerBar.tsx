@@ -137,6 +137,12 @@ export const PlayerBar = () => {
     return <div className="h-20 bg-spotify-base flex items-center justify-center text-zinc-500">Select a track to play</div>;
   }
 
+  const optimizeCloudinaryUrl = (url: string | undefined) => {
+    if (!url) return '';
+    // Xóa f_auto/q_auto vì nó làm Cloudinary xử lý on-the-fly, phá vỡ tính năng tua (Range Requests)
+    return url.startsWith('http') ? url : `https://tunevault-api.onrender.com/api/media/${currentMedia.id}/stream`;
+  };
+
   return (
     <div className="h-20 bg-spotify-base flex items-center justify-between px-4 pb-2">
       {/* Global Media Element - Hidden by default, manually appended to targets */}
@@ -144,15 +150,17 @@ export const PlayerBar = () => {
         {currentMedia.mediaType === 'Video' ? (
           <video
             ref={mediaRef as React.RefObject<HTMLVideoElement>}
-            src={currentMedia.fileUrl?.startsWith('http') ? currentMedia.fileUrl : `https://tunevault-api.onrender.com/api/media/${currentMedia.id}/stream`}
+            src={optimizeCloudinaryUrl(currentMedia.fileUrl)}
             poster={currentMedia.coverUrl ? (currentMedia.coverUrl.startsWith('http') ? currentMedia.coverUrl : currentMedia.coverUrl?.startsWith('http') ? currentMedia.coverUrl : `https://tunevault-api.onrender.com${currentMedia.coverUrl}`) : undefined}
             playsInline
+            preload="auto"
             className="w-full h-full object-cover scale-[1.3] transform-gpu"
           />
         ) : (
           <audio
             ref={mediaRef as React.RefObject<HTMLAudioElement>}
-            src={currentMedia.fileUrl?.startsWith('http') ? currentMedia.fileUrl : `https://tunevault-api.onrender.com/api/media/${currentMedia.id}/stream`} 
+            src={optimizeCloudinaryUrl(currentMedia.fileUrl)} 
+            preload="auto"
           />
         )}
       </div>

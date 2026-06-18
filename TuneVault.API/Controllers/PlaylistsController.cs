@@ -26,6 +26,24 @@ public class PlaylistsController(IMediator mediator) : ControllerBase
         return Ok(new { success = true, data = result });
     }
 
+    [HttpGet("user/{userId}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetUserPublicPlaylists(Guid userId)
+    {
+        var query = new GetUserPlaylistsQuery(userId);
+        var result = await mediator.Send(query);
+        
+        var currentUserIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        bool isOwner = currentUserIdString != null && Guid.TryParse(currentUserIdString, out var currentUserId) && currentUserId == userId;
+        
+        if (!isOwner)
+        {
+            result = result.Where(p => p.IsPublic).ToList();
+        }
+        
+        return Ok(new { success = true, data = result });
+    }
+
     [HttpGet("{id}")]
     [AllowAnonymous] // Hoặc Authorize tùy theo IsPublic
     public async Task<IActionResult> GetPlaylistDetails(Guid id)

@@ -10,6 +10,7 @@ import { Favorites } from './pages/Favorites';
 import { AlbumDetail } from './pages/AlbumDetail';
 import { NowPlaying } from './pages/NowPlaying';
 import { TrackDetail } from './pages/TrackDetail';
+import { UserProfile } from './pages/UserProfile';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { SharedWithMe } from './pages/SharedWithMe';
 import { RecentHistory } from './pages/RecentHistory';
@@ -45,6 +46,7 @@ function App() {
           <Route path="recent-history" element={isAuthenticated ? <RecentHistory /> : <Navigate to="/login" />} />
           <Route path="notifications" element={isAuthenticated ? <Placeholder title="Notifications" /> : <Navigate to="/login" />} />
           <Route path="profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
+          <Route path="user/:id" element={isAuthenticated ? <UserProfile /> : <Navigate to="/login" />} />
           <Route path="admin" element={isAuthenticated ? <AdminDashboard /> : <Navigate to="/login" />} />
           <Route path="now-playing" element={isAuthenticated ? <NowPlaying /> : <Navigate to="/login" />} />
         </Route>

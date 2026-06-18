@@ -21,6 +21,11 @@ export const playlistService = {
     return response.data.data;
   },
 
+  getUserPublicPlaylists: async (userId: string): Promise<PlaylistDto[]> => {
+    const response = await apiClient.get<{success: boolean, data: PlaylistDto[]}>(`/playlists/user/${userId}`);
+    return response.data.data;
+  },
+
   getPlaylistDetails: async (id: string): Promise<PlaylistDetailDto> => {
     const response = await apiClient.get<{success: boolean, data: PlaylistDetailDto}>(`/playlists/${id}`);
     return response.data.data;
