@@ -149,7 +149,7 @@ export const PlaylistDetail = () => {
   };
 
   const displayCover = playlist?.coverUrl || (playlist?.tracks && playlist.tracks.length > 0 ? playlist.tracks[0].coverUrl : null);
-  const getCoverUrl = (url?: string | null) => url ? (url.startsWith('http') || url.startsWith('data:') ? url : `https://tunevault-api.onrender.com${url}`) : null;
+  const getCoverUrl = (url?: string | null) => url ? (url.startsWith('http') || url.startsWith('data:') ? url : url?.startsWith('http') ? url : `https://tunevault-api.onrender.com${url}`) : null;
 
   useEffect(() => {
     if (displayCover) {
@@ -369,7 +369,7 @@ export const PlaylistDetail = () => {
                 <div className="flex items-center gap-3 overflow-hidden">
                   <div className="w-10 h-10 bg-zinc-800 rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
                       {track.coverUrl ? (
-                        <img src={track.coverUrl.startsWith('http') || track.coverUrl.startsWith('data:') ? track.coverUrl : `https://tunevault-api.onrender.com${track.coverUrl}`} alt={track.title} className="w-full h-full object-cover" />
+                        <img src={track.coverUrl.startsWith('http') || track.coverUrl.startsWith('data:') ? track.coverUrl : track.coverUrl?.startsWith('http') ? track.coverUrl : `https://tunevault-api.onrender.com${track.coverUrl}`} alt={track.title} className="w-full h-full object-cover" />
                       ) : (
                         <span className="text-white/50 text-xs">{track.title.charAt(0)}</span>
                       )}

@@ -78,7 +78,7 @@ export const Search = () => {
                   >
                     <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center group-hover:shadow-xl transition relative overflow-hidden">
                       {track.coverUrl ? (
-                        <img src={`https://tunevault-api.onrender.com${track.coverUrl}`} alt={track.title} className="w-full h-full object-cover" />
+                        <img src={track.coverUrl?.startsWith('http') ? track.coverUrl : `https://tunevault-api.onrender.com${track.coverUrl}`} alt={track.title} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                            <span className="text-3xl font-black text-white/50">{track.title.charAt(0)}</span>
@@ -108,7 +108,7 @@ export const Search = () => {
                   >
                     <div className="w-full aspect-square bg-zinc-700 rounded-full mb-4 shadow-lg flex items-center justify-center relative overflow-hidden">
                       {artist.avatarUrl ? (
-                        <img src={`https://tunevault-api.onrender.com${artist.avatarUrl}`} alt={artist.name} className="w-full h-full object-cover" />
+                        <img src={artist.avatarUrl?.startsWith('http') ? artist.avatarUrl : `https://tunevault-api.onrender.com${artist.avatarUrl}`} alt={artist.name} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-zinc-700 to-zinc-900 flex items-center justify-center">
                            <span className="text-4xl font-black text-white/50">{artist.name.charAt(0)}</span>
@@ -136,7 +136,7 @@ export const Search = () => {
                   >
                     <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center relative overflow-hidden">
                       {playlist.coverUrl ? (
-                        <img src={playlist.coverUrl.startsWith('http') ? playlist.coverUrl : `https://tunevault-api.onrender.com${playlist.coverUrl}`} alt={playlist.name} className="w-full h-full object-cover" />
+                        <img src={playlist.coverUrl.startsWith('http') ? playlist.coverUrl : playlist.coverUrl?.startsWith('http') ? playlist.coverUrl : `https://tunevault-api.onrender.com${playlist.coverUrl}`} alt={playlist.name} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
                            <span className="text-3xl font-black text-white/50">{playlist.name.charAt(0)}</span>

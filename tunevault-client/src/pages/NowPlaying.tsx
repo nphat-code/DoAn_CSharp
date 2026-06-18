@@ -27,7 +27,7 @@ export const NowPlaying = () => {
             className="w-full h-full object-contain" 
           />
         ) : currentMedia.coverUrl ? (
-           <img src={`https://tunevault-api.onrender.com${currentMedia.coverUrl}`} alt="Cover" className="w-full h-full object-contain" />
+           <img src={currentMedia.coverUrl?.startsWith('http') ? currentMedia.coverUrl : `https://tunevault-api.onrender.com${currentMedia.coverUrl}`} alt="Cover" className="w-full h-full object-contain" />
         ) : (
            <img src="https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62" alt="Cover" className="w-full h-full object-contain" />
         )}

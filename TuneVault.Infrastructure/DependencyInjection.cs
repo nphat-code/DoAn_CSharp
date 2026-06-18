@@ -36,7 +36,8 @@ public static class DependencyInjection
         services.AddScoped<IMediaItemRepository, MediaItemRepository>();
         services.AddScoped<IPlaylistRepository, PlaylistRepository>();
         services.AddScoped<IShareRepository, ShareRepository>();
-        services.AddScoped<IFileStorageService, FileStorageService>();
+        // Thay đổi sang lưu trữ Cloudinary (Miễn phí, không cần thẻ tín dụng)
+        services.AddScoped<IFileStorageService, CloudinaryStorageService>();
         services.AddScoped<IPlayHistoryRepository, PlayHistoryRepository>();
         services.AddScoped<IFavoriteRepository, FavoriteRepository>();
         services.AddScoped<IAlbumRepository, AlbumRepository>();

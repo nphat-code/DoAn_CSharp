@@ -160,7 +160,7 @@ export const TopBar = () => {
                             onClick={() => { setShowDropdown(false); navigate(`/search?q=${encodeURIComponent(track.title)}`); }}
                             className="flex items-center gap-3 p-2 hover:bg-white/10 rounded-md cursor-pointer transition"
                           >
-                            <img src={track.coverUrl ? (track.coverUrl.startsWith('http') ? track.coverUrl : `https://tunevault-api.onrender.com${track.coverUrl}`) : ''} alt="" className="w-10 h-10 object-cover rounded-sm bg-zinc-800" />
+                            <img src={track.coverUrl ? (track.coverUrl.startsWith('http') ? track.coverUrl : track.coverUrl?.startsWith('http') ? track.coverUrl : `https://tunevault-api.onrender.com${track.coverUrl}`) : ''} alt="" className="w-10 h-10 object-cover rounded-sm bg-zinc-800" />
                             <div className="flex flex-col overflow-hidden">
                               <span className="text-white text-sm font-medium truncate">{track.title}</span>
                               <span className="text-zinc-400 text-xs truncate">{track.artistName}</span>
@@ -182,7 +182,7 @@ export const TopBar = () => {
                             onClick={() => { setShowDropdown(false); navigate(`/search?q=${encodeURIComponent(artist.name)}`); }}
                             className="flex items-center gap-3 p-2 hover:bg-white/10 rounded-md cursor-pointer transition"
                           >
-                            <img src={artist.avatarUrl ? (artist.avatarUrl.startsWith('http') ? artist.avatarUrl : `https://tunevault-api.onrender.com${artist.avatarUrl}`) : ''} alt="" className="w-10 h-10 object-cover rounded-full bg-zinc-800" />
+                            <img src={artist.avatarUrl ? (artist.avatarUrl.startsWith('http') ? artist.avatarUrl : artist.avatarUrl?.startsWith('http') ? artist.avatarUrl : `https://tunevault-api.onrender.com${artist.avatarUrl}`) : ''} alt="" className="w-10 h-10 object-cover rounded-full bg-zinc-800" />
                             <div className="flex flex-col overflow-hidden">
                               <span className="text-white text-sm font-medium truncate">{artist.name}</span>
                               <span className="text-zinc-400 text-xs">Nghệ sĩ</span>
@@ -204,7 +204,7 @@ export const TopBar = () => {
                             onClick={() => { setShowDropdown(false); navigate(`/playlist/${playlist.id}`); }}
                             className="flex items-center gap-3 p-2 hover:bg-white/10 rounded-md cursor-pointer transition"
                           >
-                            <img src={playlist.coverUrl ? (playlist.coverUrl.startsWith('http') ? playlist.coverUrl : `https://tunevault-api.onrender.com${playlist.coverUrl}`) : ''} alt="" className="w-10 h-10 object-cover rounded-sm bg-zinc-800" />
+                            <img src={playlist.coverUrl ? (playlist.coverUrl.startsWith('http') ? playlist.coverUrl : playlist.coverUrl?.startsWith('http') ? playlist.coverUrl : `https://tunevault-api.onrender.com${playlist.coverUrl}`) : ''} alt="" className="w-10 h-10 object-cover rounded-sm bg-zinc-800" />
                             <div className="flex flex-col overflow-hidden">
                               <span className="text-white text-sm font-medium truncate">{playlist.name}</span>
                               <span className="text-zinc-400 text-xs">Playlist</span>
@@ -341,7 +341,7 @@ export const TopBar = () => {
               className="w-8 h-8 rounded-full bg-zinc-800 border-2 border-transparent hover:border-zinc-500 flex items-center justify-center cursor-pointer transition focus:outline-none overflow-hidden"
             >
                {user?.avatarUrl ? (
-                 <img src={user.avatarUrl.startsWith('http') || user.avatarUrl.startsWith('data:') ? user.avatarUrl : `https://tunevault-api.onrender.com${user.avatarUrl}`} alt="Avatar" className="w-full h-full object-cover" />
+                 <img src={user.avatarUrl.startsWith('http') || user.avatarUrl.startsWith('data:') ? user.avatarUrl : user.avatarUrl?.startsWith('http') ? user.avatarUrl : `https://tunevault-api.onrender.com${user.avatarUrl}`} alt="Avatar" className="w-full h-full object-cover" />
                ) : (
                  <User size={18} className="text-white" />
                )}

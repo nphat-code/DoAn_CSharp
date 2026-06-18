@@ -90,7 +90,7 @@ export const SharedWithMe: React.FC = () => {
             <div key={share.id} className="bg-[#181818] p-4 rounded-xl hover:bg-[#282828] transition group cursor-pointer" onClick={() => handlePlay(share)}>
               <div className="flex items-center gap-3 mb-4 border-b border-white/5 pb-3">
                 {share.senderAvatarUrl ? (
-                  <img src={share.senderAvatarUrl.startsWith('http') ? share.senderAvatarUrl : `https://tunevault-api.onrender.com${share.senderAvatarUrl}`} className="w-8 h-8 rounded-full object-cover" alt="" />
+                  <img src={share.senderAvatarUrl.startsWith('http') ? share.senderAvatarUrl : share.senderAvatarUrl?.startsWith('http') ? share.senderAvatarUrl : `https://tunevault-api.onrender.com${share.senderAvatarUrl}`} className="w-8 h-8 rounded-full object-cover" alt="" />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-white">
                     {share.senderName.charAt(0).toUpperCase()}
@@ -106,7 +106,7 @@ export const SharedWithMe: React.FC = () => {
 
               <div className="relative aspect-square w-full mb-4 shadow-lg rounded-md overflow-hidden bg-zinc-800">
                 {share.mediaCoverUrl ? (
-                  <img src={share.mediaCoverUrl.startsWith('http') ? share.mediaCoverUrl : `https://tunevault-api.onrender.com${share.mediaCoverUrl}`} className="w-full h-full object-cover" alt="" />
+                  <img src={share.mediaCoverUrl.startsWith('http') ? share.mediaCoverUrl : share.mediaCoverUrl?.startsWith('http') ? share.mediaCoverUrl : `https://tunevault-api.onrender.com${share.mediaCoverUrl}`} className="w-full h-full object-cover" alt="" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-zinc-600">
                     <Music size={48} />

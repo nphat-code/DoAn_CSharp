@@ -107,7 +107,7 @@ export const ShareMediaModal: React.FC<ShareMediaModalProps> = ({ mediaId, media
                       className={`flex items-center gap-3 p-2 rounded-md cursor-pointer transition ${selectedUserId === u.id ? 'bg-spotify-green/20 border border-spotify-green/50' : 'hover:bg-white/10 border border-transparent'}`}
                     >
                       {u.avatarUrl ? (
-                        <img src={u.avatarUrl.startsWith('http') ? u.avatarUrl : `https://tunevault-api.onrender.com${u.avatarUrl}`} alt="" className="w-10 h-10 rounded-full object-cover" />
+                        <img src={u.avatarUrl.startsWith('http') ? u.avatarUrl : u.avatarUrl?.startsWith('http') ? u.avatarUrl : `https://tunevault-api.onrender.com${u.avatarUrl}`} alt="" className="w-10 h-10 rounded-full object-cover" />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center text-white font-bold uppercase">
                           {u.username.charAt(0)}
