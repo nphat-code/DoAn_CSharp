@@ -3,12 +3,15 @@ import { shareService } from '../services/shareService';
 import type { MediaShareDto } from '../services/shareService';
 import { Play, Music, Users, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { usePlayer } from '../context/PlayerContext';
+import { mediaService } from '../services/mediaService';
 
 export const SharedWithMe: React.FC = () => {
   const [shares, setShares] = useState<MediaShareDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'with-me' | 'by-me'>('with-me');
   const navigate = useNavigate();
+  const { playMediaList } = usePlayer();
 
   useEffect(() => {
     const fetchShares = async () => {
@@ -27,13 +30,22 @@ export const SharedWithMe: React.FC = () => {
     fetchShares();
   }, [activeTab]);
 
-  const handlePlay = (share: MediaShareDto) => {
+  const handlePlay = async (share: MediaShareDto) => {
     const type = share.mediaType.toLowerCase();
     if (type === 'playlist' || type === 'album') {
       navigate(`/${type}/${share.mediaItemId}`);
     } else {
-      // Điều hướng đến trang chi tiết bài hát thay vì phát trực tiếp vì thiếu mediaUrl
-      navigate(`/track/${share.mediaItemId}`);
+      try {
+        const allMedia = await mediaService.getAllMedia();
+        const trackToPlay = allMedia.find(m => m.id === share.mediaItemId);
+        if (trackToPlay) {
+          playMediaList([trackToPlay], 0);
+        } else {
+          alert("Không tìm thấy bài hát. Có thể nó đã bị xóa.");
+        }
+      } catch (err) {
+        console.error("Lỗi phát nhạc:", err);
+      }
     }
   };
 
