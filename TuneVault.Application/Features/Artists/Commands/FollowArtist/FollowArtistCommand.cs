@@ -12,7 +12,7 @@ public class FollowArtistCommandHandler(IArtistRepository artistRepository, ICur
 {
     public async Task<bool> Handle(FollowArtistCommand request, CancellationToken cancellationToken)
     {
-        var userId = Guid.Parse(currentUserService.UserId!);
+        var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException();
         return await artistRepository.FollowArtistAsync(userId, request.ArtistId, cancellationToken);
     }
 }

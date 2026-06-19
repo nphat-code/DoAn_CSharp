@@ -12,7 +12,7 @@ public class CheckFollowStatusQueryHandler(IArtistRepository artistRepository, I
 {
     public async Task<bool> Handle(CheckFollowStatusQuery request, CancellationToken cancellationToken)
     {
-        var userId = Guid.Parse(currentUserService.UserId!);
+        var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException();
         return await artistRepository.IsFollowingArtistAsync(userId, request.ArtistId, cancellationToken);
     }
 }
