@@ -31,17 +31,20 @@ export const AlbumDetail = () => {
   const [shareData, setShareData] = useState<{ id: string, type: string, title: string } | null>(null);
 
   useEffect(() => {
-    const fetchLikedTracks = async () => {
+    const fetchInitialData = async () => {
       try {
-        const data = await mediaService.getFavorites();
-        setLikedTracks(new Set(data.map(t => t.id)));
+        const [favoritesData, playlistsData] = await Promise.all([
+          mediaService.getFavorites(),
+          playlistService.getUserPlaylists()
+        ]);
+        setLikedTracks(new Set(favoritesData.map(t => t.id)));
+        setPlaylists(playlistsData);
       } catch (err) {
         console.error(err);
       }
     };
     if (localStorage.getItem('token')) {
-      fetchLikedTracks();
-      playlistService.getUserPlaylists().then(setPlaylists).catch(console.error);
+      fetchInitialData();
     }
   }, []);
 

@@ -58,9 +58,15 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     });
 
     // 3. Khởi động kết nối
-    connection.start()
-      .then(() => console.log("SignalR Connected!"))
-      .catch(err => console.error("SignalR Connection Error: ", err));
+    const startConnection = async () => {
+      try {
+        await connection.start();
+        console.log("SignalR Connected!");
+      } catch (err) {
+        console.error("SignalR Connection Error: ", err);
+      }
+    };
+    startConnection();
 
     return () => {
       connection.stop();

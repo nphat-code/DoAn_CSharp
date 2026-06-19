@@ -92,7 +92,15 @@ export const PlayerBar = () => {
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    playlistService.getUserPlaylists().then(setPlaylists).catch(console.error);
+    const fetchPlaylists = async () => {
+      try {
+        const data = await playlistService.getUserPlaylists();
+        setPlaylists(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchPlaylists();
   }, []);
 
   // Đóng menu khi click ra ngoài

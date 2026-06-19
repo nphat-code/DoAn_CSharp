@@ -7,9 +7,9 @@ interface PlayerContextType {
   currentMedia: MediaItemDto | null;
   isPlaying: boolean;
   playMedia: (media: MediaItemDto) => void;
-  playMediaList: (mediaList: MediaItemDto[], startIndex?: number) => void;
-  playNext: () => void;
-  playPrevious: () => void;
+  playMediaList: (mediaList: MediaItemDto[], startIndex?: number) => Promise<void>;
+  playNext: () => Promise<void>;
+  playPrevious: () => Promise<void>;
   togglePlayPause: () => void;
   updateQueueContext: (newQueue: MediaItemDto[], trackId: string) => void;
   volume: number;
@@ -63,7 +63,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const playMediaList = (mediaList: MediaItemDto[], startIndex: number = 0) => {
+  const playMediaList = async (mediaList: MediaItemDto[], startIndex: number = 0) => {
     const isAuthenticated = !!localStorage.getItem('token');
     if (!isAuthenticated) {
       setShowLoginModal(true);
@@ -75,36 +75,48 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     setCurrentIndex(startIndex);
     setCurrentMedia(mediaList[startIndex]);
     setIsPlaying(true);
-    import('../services/mediaService').then(m => m.mediaService.recordPlayHistory(mediaList[startIndex].id).catch(console.error));
+    try {
+      const m = await import('../services/mediaService');
+      await m.mediaService.recordPlayHistory(mediaList[startIndex].id);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const playMedia = (media: MediaItemDto) => {
     playMediaList([media], 0);
   };
 
-  const playNext = () => {
+  const playNext = async () => {
     if (queue.length > 0 && currentIndex < queue.length - 1) {
       const nextIndex = currentIndex + 1;
       setCurrentIndex(nextIndex);
       setCurrentMedia(queue[nextIndex]);
       setIsPlaying(true);
-      import('../services/mediaService').then(m => m.mediaService.recordPlayHistory(queue[nextIndex].id).catch(console.error));
+      try {
+        const m = await import('../services/mediaService');
+        await m.mediaService.recordPlayHistory(queue[nextIndex].id);
+      } catch (error) {
+        console.error(error);
+      }
     } else {
       // End of queue -> Auto play random track!
-      import('../services/mediaService').then(m => {
-        m.mediaService.getAllMedia().then(allMedia => {
-          if (allMedia.length > 0) {
-            const randomTrack = allMedia[Math.floor(Math.random() * allMedia.length)];
-            setQueue(prev => [...prev, randomTrack]);
-            setCurrentIndex(prev => prev + 1);
-            setCurrentMedia(randomTrack);
-            setIsPlaying(true);
-            m.mediaService.recordPlayHistory(randomTrack.id).catch(console.error);
-          } else {
-            setIsPlaying(false);
-          }
-        }).catch(() => setIsPlaying(false));
-      });
+      try {
+        const m = await import('../services/mediaService');
+        const allMedia = await m.mediaService.getAllMedia();
+        if (allMedia.length > 0) {
+          const randomTrack = allMedia[Math.floor(Math.random() * allMedia.length)];
+          setQueue(prev => [...prev, randomTrack]);
+          setCurrentIndex(prev => prev + 1);
+          setCurrentMedia(randomTrack);
+          setIsPlaying(true);
+          await m.mediaService.recordPlayHistory(randomTrack.id);
+        } else {
+          setIsPlaying(false);
+        }
+      } catch {
+        setIsPlaying(false);
+      }
     }
   };
 
@@ -116,13 +128,18 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const playPrevious = () => {
+  const playPrevious = async () => {
     if (queue.length > 0 && currentIndex > 0) {
       const prevIndex = currentIndex - 1;
       setCurrentIndex(prevIndex);
       setCurrentMedia(queue[prevIndex]);
       setIsPlaying(true);
-      import('../services/mediaService').then(m => m.mediaService.recordPlayHistory(queue[prevIndex].id).catch(console.error));
+      try {
+        const m = await import('../services/mediaService');
+        await m.mediaService.recordPlayHistory(queue[prevIndex].id);
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
