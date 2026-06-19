@@ -25,6 +25,7 @@ public class GetUserFavoritesQueryHandler(IFavoriteRepository favoriteRepository
             ArtistName = f.MediaItem.Artist?.Name ?? f.MediaItem.Album?.Artist?.Name,
             ArtistBio = f.MediaItem.Artist?.Bio ?? f.MediaItem.Album?.Artist?.Bio,
             ArtistAvatarUrl = f.MediaItem.Artist?.AvatarUrl ?? f.MediaItem.Album?.Artist?.AvatarUrl,
+            ArtistId = f.MediaItem.Artist?.Id ?? f.MediaItem.Album?.Artist?.Id ?? f.MediaItem.ArtistId,
             AlbumTitle = f.MediaItem.Album?.Title
         });
     }
