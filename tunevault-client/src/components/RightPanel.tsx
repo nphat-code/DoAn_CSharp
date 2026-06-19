@@ -47,7 +47,6 @@ export const RightPanel = ({ width }: RightPanelProps) => {
         await artistService.followArtist(currentMedia.artistId);
         setIsFollowingArtist(true);
         window.dispatchEvent(new Event('followedArtistsUpdated'));
-        alert(`Đã theo dõi và thêm ${(currentMedia as any).artist?.name || currentMedia.artistName || 'nghệ sĩ'} vào thư viện!`);
       }
     } catch (error) {
       console.error("Lỗi khi theo dõi nghệ sĩ", error);
