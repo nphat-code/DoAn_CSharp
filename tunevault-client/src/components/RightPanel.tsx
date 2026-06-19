@@ -138,7 +138,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                          alert("Đã sao chép đường liên kết đến Bài hát!");
                       }}
                       className="text-zinc-200 hover:text-white hover:scale-105 transition" 
-                      title="Sao chép đường liên kết đến Bài hát"
+                      title="Chia sẻ"
                    >
                        <svg role="img" height="24" width="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3v12M8 7l4-4 4 4M20 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6" strokeLinecap="round" strokeLinejoin="round"></path></svg>
                    </button>
