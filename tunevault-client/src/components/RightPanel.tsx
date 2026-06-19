@@ -2,9 +2,10 @@ import { usePlayer } from '../context/PlayerContext';
 import { MoreHorizontal, X, Trash2, Maximize2 } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import { useNavigate } from 'react-router-dom';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { VideoCanvas } from './VideoCanvas';
 import { ShareMediaModal } from './ShareMediaModal';
+import { artistService } from '../services/artistService';
 
 interface RightPanelProps {
   width?: number;
@@ -15,6 +16,43 @@ export const RightPanel = ({ width }: RightPanelProps) => {
   const navigate = useNavigate();
   const bgLayerRef = useRef<HTMLDivElement>(null);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [isFollowingArtist, setIsFollowingArtist] = useState(false);
+  const [loadingFollow, setLoadingFollow] = useState(false);
+
+  useEffect(() => {
+    const checkFollowStatus = async () => {
+      if (currentMedia?.artistId) {
+        try {
+          const status = await artistService.getFollowStatus(currentMedia.artistId);
+          setIsFollowingArtist(status);
+        } catch (error) {
+          console.error("Lỗi khi kiểm tra follow status", error);
+        }
+      } else {
+        setIsFollowingArtist(false);
+      }
+    };
+    checkFollowStatus();
+  }, [currentMedia?.artistId]);
+
+  const handleToggleFollowArtist = async () => {
+    if (!currentMedia?.artistId) return;
+    setLoadingFollow(true);
+    try {
+      if (isFollowingArtist) {
+        await artistService.unfollowArtist(currentMedia.artistId);
+        setIsFollowingArtist(false);
+      } else {
+        await artistService.followArtist(currentMedia.artistId);
+        setIsFollowingArtist(true);
+        alert(`Đã theo dõi và thêm ${(currentMedia as any).artist?.name || currentMedia.artistName || 'nghệ sĩ'} vào thư viện!`);
+      }
+    } catch (error) {
+      console.error("Lỗi khi theo dõi nghệ sĩ", error);
+    } finally {
+      setLoadingFollow(false);
+    }
+  };
 
   if (!currentMedia) {
     return (
@@ -181,9 +219,19 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                 {/* Listeners & Follow Button */}
                 <div className="flex items-center justify-between mb-1">
                   <p className="text-zinc-300 text-sm drop-shadow-md">86.906.547 người nghe hằng tháng</p>
-                  <button className="text-white text-xs font-bold border border-zinc-400 rounded-full px-4 py-1 hover:border-white hover:scale-105 transition">
-                    Theo dõi
-                  </button>
+                  {currentMedia?.artistId && (
+                    <button 
+                      onClick={handleToggleFollowArtist}
+                      disabled={loadingFollow}
+                      className={`text-xs font-bold border rounded-full px-4 py-1 transition ${
+                        isFollowingArtist 
+                          ? 'border-white text-white hover:border-zinc-400 hover:text-zinc-400' 
+                          : 'border-zinc-400 text-white hover:border-white hover:scale-105'
+                      }`}
+                    >
+                      {loadingFollow ? '...' : (isFollowingArtist ? 'Đang theo dõi' : 'Theo dõi')}
+                    </button>
+                  )}
                 </div>
 
                 {/* Bio */}

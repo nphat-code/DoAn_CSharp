@@ -14,5 +14,6 @@ public class MediaItemDto
     public string? ArtistName { get; set; }
     public string? ArtistBio { get; set; }
     public string? ArtistAvatarUrl { get; set; }
+    public Guid? ArtistId { get; set; }
     public string? AlbumTitle { get; set; }
 }

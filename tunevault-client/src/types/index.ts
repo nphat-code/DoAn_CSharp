@@ -20,6 +20,7 @@ export interface MediaItemDto {
   artistName?: string;
   artistBio?: string;
   artistAvatarUrl?: string;
+  artistId?: string;
   albumTitle?: string;
 }
 

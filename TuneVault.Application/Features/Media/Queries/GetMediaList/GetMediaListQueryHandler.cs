@@ -24,6 +24,7 @@ public class GetMediaListQueryHandler(IMediaItemRepository repository) : IReques
             ArtistName = m.Artist?.Name ?? m.Album?.Artist?.Name,
             ArtistBio = m.Artist?.Bio ?? m.Album?.Artist?.Bio,
             ArtistAvatarUrl = m.Artist?.AvatarUrl ?? m.Album?.Artist?.AvatarUrl,
+            ArtistId = m.Artist?.Id ?? m.Album?.Artist?.Id ?? m.ArtistId,
             AlbumTitle = m.Album?.Title
         });
     }

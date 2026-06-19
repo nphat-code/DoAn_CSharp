@@ -1,0 +1,18 @@
+using MediatR;
+using TuneVault.Application.Interfaces;
+using TuneVault.Application.Security;
+
+namespace TuneVault.Application.Features.Artists.Commands.FollowArtist;
+
+[Authorize]
+public record FollowArtistCommand(Guid ArtistId) : IRequest<bool>;
+
+public class FollowArtistCommandHandler(IArtistRepository artistRepository, ICurrentUserService currentUserService) 
+    : IRequestHandler<FollowArtistCommand, bool>
+{
+    public async Task<bool> Handle(FollowArtistCommand request, CancellationToken cancellationToken)
+    {
+        var userId = Guid.Parse(currentUserService.UserId!);
+        return await artistRepository.FollowArtistAsync(userId, request.ArtistId, cancellationToken);
+    }
+}

@@ -9,4 +9,7 @@ public interface IArtistRepository
     Task AddAsync(Artist artist, CancellationToken cancellationToken);
     Task<IEnumerable<Artist>> GetAllAsync(CancellationToken cancellationToken);
     Task DeleteAsync(Guid id, CancellationToken cancellationToken);
+    Task<bool> FollowArtistAsync(Guid userId, Guid artistId, CancellationToken cancellationToken);
+    Task<bool> UnfollowArtistAsync(Guid userId, Guid artistId, CancellationToken cancellationToken);
+    Task<bool> IsFollowingArtistAsync(Guid userId, Guid artistId, CancellationToken cancellationToken);
 }

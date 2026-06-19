@@ -50,4 +50,36 @@ public class ArtistRepository(IDbConnection dbConnection) : IArtistRepository
         var command = new CommandDefinition(sql, new { Id = id }, cancellationToken: cancellationToken);
         await dbConnection.ExecuteAsync(command);
     }
+
+    public async Task<bool> FollowArtistAsync(Guid userId, Guid artistId, CancellationToken cancellationToken)
+    {
+        var sql = @"
+            INSERT INTO ArtistFollows (UserId, ArtistId, FollowedAt)
+            VALUES (@UserId, @ArtistId, CURRENT_TIMESTAMP)
+            ON CONFLICT (UserId, ArtistId) DO NOTHING;";
+
+        var rowsAffected = await dbConnection.ExecuteAsync(new CommandDefinition(sql, new { UserId = userId, ArtistId = artistId }, cancellationToken: cancellationToken));
+        return rowsAffected > 0;
+    }
+
+    public async Task<bool> UnfollowArtistAsync(Guid userId, Guid artistId, CancellationToken cancellationToken)
+    {
+        var sql = @"
+            DELETE FROM ArtistFollows
+            WHERE UserId = @UserId AND ArtistId = @ArtistId;";
+
+        var rowsAffected = await dbConnection.ExecuteAsync(new CommandDefinition(sql, new { UserId = userId, ArtistId = artistId }, cancellationToken: cancellationToken));
+        return rowsAffected > 0;
+    }
+
+    public async Task<bool> IsFollowingArtistAsync(Guid userId, Guid artistId, CancellationToken cancellationToken)
+    {
+        var sql = @"
+            SELECT COUNT(1)
+            FROM ArtistFollows
+            WHERE UserId = @UserId AND ArtistId = @ArtistId;";
+
+        var count = await dbConnection.ExecuteScalarAsync<int>(new CommandDefinition(sql, new { UserId = userId, ArtistId = artistId }, cancellationToken: cancellationToken));
+        return count > 0;
+    }
 }

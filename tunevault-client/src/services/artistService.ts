@@ -26,5 +26,20 @@ export const artistService = {
   deleteArtist: async (id: string) => {
     const response = await apiClient.delete(`/artists/${id}`);
     return response.data;
+  },
+
+  followArtist: async (id: string): Promise<boolean> => {
+    const response = await apiClient.post<{success: boolean, data: boolean}>(`/artists/${id}/follow`);
+    return response.data.data;
+  },
+
+  unfollowArtist: async (id: string): Promise<boolean> => {
+    const response = await apiClient.delete<{success: boolean, data: boolean}>(`/artists/${id}/follow`);
+    return response.data.data;
+  },
+
+  getFollowStatus: async (id: string): Promise<boolean> => {
+    const response = await apiClient.get<{success: boolean, data: boolean}>(`/artists/${id}/follow-status`);
+    return response.data.data;
   }
 };
