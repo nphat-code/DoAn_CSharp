@@ -2,8 +2,9 @@ import { usePlayer } from '../context/PlayerContext';
 import { MoreHorizontal, X, Trash2, Maximize2 } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import { useNavigate } from 'react-router-dom';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { VideoCanvas } from './VideoCanvas';
+import { ShareMediaModal } from './ShareMediaModal';
 
 interface RightPanelProps {
   width?: number;
@@ -13,6 +14,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
   const { currentMedia, mediaRef, isFavorited, toggleFavorite } = usePlayer();
   const navigate = useNavigate();
   const bgLayerRef = useRef<HTMLDivElement>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   if (!currentMedia) {
     return (
@@ -133,10 +135,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                 <div className="flex items-center gap-4 shrink-0 pb-1">
                    {/* Share Button */}
                    <button 
-                      onClick={() => {
-                         navigator.clipboard.writeText(`${window.location.origin}/song/${currentMedia.id}`);
-                         alert("Đã sao chép đường liên kết đến Bài hát!");
-                      }}
+                      onClick={() => setShowShareModal(true)}
                       className="text-zinc-200 hover:text-white hover:scale-105 transition" 
                       title="Chia sẻ"
                    >
@@ -195,6 +194,16 @@ export const RightPanel = ({ width }: RightPanelProps) => {
           </div>
        </div>
        </div>
+
+      {showShareModal && currentMedia && (
+        <ShareMediaModal
+          mediaId={currentMedia.id}
+          mediaType="Bài hát"
+          mediaTitle={currentMedia.title}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
+
     </div>
   );
 };
