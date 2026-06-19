@@ -86,6 +86,22 @@ export const TopBar = () => {
     }
   };
 
+  const formatRelativeTime = (dateStr: string) => {
+    // Đảm bảo chuỗi ngày tháng được hiểu là UTC (thêm 'Z' nếu backend trả về thiếu)
+    const normalizedDate = dateStr.endsWith('Z') ? dateStr : `${dateStr}Z`;
+    const date = new Date(normalizedDate);
+    const now = new Date();
+    
+    // Tính toán khoảng thời gian (giây), tránh số âm nếu giờ server hơi lệch
+    const diffInSeconds = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000));
+
+    if (diffInSeconds < 60) return 'Vừa xong';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} phút trước`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} giờ trước`;
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} ngày trước`;
+    return date.toLocaleDateString('vi-VN');
+  };
+
   return (
     <header className="h-16 flex items-center justify-between -m-2 p-2">
       {/* Logo */}
@@ -319,7 +335,7 @@ export const TopBar = () => {
                           {notif.message}
                         </p>
                         <p className="text-xs text-zinc-500 mt-1">
-                          {new Date(notif.createdAt).toLocaleString('vi-VN')}
+                          {formatRelativeTime(notif.createdAt)}
                         </p>
                       </div>
                       {!notif.isRead && (

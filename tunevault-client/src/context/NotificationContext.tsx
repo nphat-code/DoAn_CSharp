@@ -68,20 +68,27 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const markAsRead = async (id: string) => {
+    // Optimistic update (Cập nhật UI ngay lập tức)
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
     try {
       await apiClient.put(`/notifications/${id}/read`);
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
     } catch (error) {
       console.error('Error marking notification as read:', error);
+      // Hoàn tác nếu lỗi
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: false } : n));
     }
   };
 
   const markAllAsRead = async () => {
+    // Optimistic update
+    const previous = [...notifications];
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     try {
       await apiClient.put(`/notifications/read-all`);
-      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
+      // Hoàn tác nếu lỗi
+      setNotifications(previous);
     }
   };
 
