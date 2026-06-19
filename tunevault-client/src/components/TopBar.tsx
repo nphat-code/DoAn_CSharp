@@ -87,9 +87,20 @@ export const TopBar = () => {
   };
 
   const formatRelativeTime = (dateStr: string) => {
+    if (!dateStr) return '';
+    // Đổi khoảng trắng thành 'T' để chuẩn format ISO 8601 (C# DateTime thường trả về dấu cách)
+    let normalizedDate = dateStr.replace(' ', 'T');
+    
     // Đảm bảo chuỗi ngày tháng được hiểu là UTC (thêm 'Z' nếu backend trả về thiếu)
-    const normalizedDate = dateStr.endsWith('Z') ? dateStr : `${dateStr}Z`;
+    if (!normalizedDate.endsWith('Z')) {
+      normalizedDate = `${normalizedDate}Z`;
+    }
+    
     const date = new Date(normalizedDate);
+    
+    // Nếu ngày không hợp lệ, trả về chuỗi gốc
+    if (isNaN(date.getTime())) return dateStr;
+
     const now = new Date();
     
     // Tính toán khoảng thời gian (giây), tránh số âm nếu giờ server hơi lệch
