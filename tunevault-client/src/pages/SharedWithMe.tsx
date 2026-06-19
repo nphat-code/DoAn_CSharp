@@ -2,14 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { shareService } from '../services/shareService';
 import type { MediaShareDto } from '../services/shareService';
 import { Play, Music, Users, MessageCircle } from 'lucide-react';
-import { usePlayer } from '../context/PlayerContext';
 import { useNavigate } from 'react-router-dom';
 
 export const SharedWithMe: React.FC = () => {
   const [shares, setShares] = useState<MediaShareDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'with-me' | 'by-me'>('with-me');
-  const { playMediaList } = usePlayer();
   const navigate = useNavigate();
 
   useEffect(() => {
