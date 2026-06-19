@@ -67,4 +67,12 @@ public class ArtistsController(IMediator mediator) : ControllerBase
         var result = await mediator.Send(new TuneVault.Application.Features.Artists.Queries.CheckFollowStatus.CheckFollowStatusQuery(id));
         return Ok(new { success = true, data = result });
     }
+
+    [HttpGet("followed")]
+    [Authorize]
+    public async Task<IActionResult> GetFollowedArtists()
+    {
+        var result = await mediator.Send(new TuneVault.Application.Features.Artists.Queries.GetFollowedArtists.GetFollowedArtistsQuery());
+        return Ok(new { success = true, data = result });
+    }
 }

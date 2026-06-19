@@ -82,4 +82,16 @@ public class ArtistRepository(IDbConnection dbConnection) : IArtistRepository
         var count = await dbConnection.ExecuteScalarAsync<int>(new CommandDefinition(sql, new { UserId = userId, ArtistId = artistId }, cancellationToken: cancellationToken));
         return count > 0;
     }
+
+    public async Task<IEnumerable<Artist>> GetFollowedArtistsAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var sql = @"
+            SELECT a.* 
+            FROM Artists a
+            INNER JOIN ArtistFollows af ON a.Id = af.ArtistId
+            WHERE af.UserId = @UserId
+            ORDER BY af.FollowedAt DESC;";
+            
+        return await dbConnection.QueryAsync<Artist>(new CommandDefinition(sql, new { UserId = userId }, cancellationToken: cancellationToken));
+    }
 }

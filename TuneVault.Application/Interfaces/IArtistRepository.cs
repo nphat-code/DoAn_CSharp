@@ -12,4 +12,5 @@ public interface IArtistRepository
     Task<bool> FollowArtistAsync(Guid userId, Guid artistId, CancellationToken cancellationToken);
     Task<bool> UnfollowArtistAsync(Guid userId, Guid artistId, CancellationToken cancellationToken);
     Task<bool> IsFollowingArtistAsync(Guid userId, Guid artistId, CancellationToken cancellationToken);
+    Task<IEnumerable<Artist>> GetFollowedArtistsAsync(Guid userId, CancellationToken cancellationToken);
 }

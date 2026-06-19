@@ -6,6 +6,7 @@ import { playlistService } from '../services/playlistService';
 import type { PlaylistDto } from '../services/playlistService';
 import { albumService } from '../services/albumService';
 import type { AlbumDto } from '../services/albumService';
+import { artistService } from '../services/artistService';
 
 interface SidebarProps {
   isExpanded?: boolean;
@@ -16,6 +17,7 @@ interface SidebarProps {
 export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarProps) => {
   const [albums, setAlbums] = useState<AlbumDto[]>([]);
   const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
+  const [artists, setArtists] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const isAuthenticated = !!localStorage.getItem('token');
   const navigate = useNavigate();
@@ -27,10 +29,11 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
         pList.push(albumService.getAllAlbums().catch(() => []));
         if (isAuthenticated) {
           pList.push(playlistService.getUserPlaylists().catch(() => []));
+          pList.push(artistService.getFollowedArtists().catch(() => []));
         }
         
         if (isAuthenticated) {
-            const [albumData, playData] = await Promise.all(pList);
+            const [albumData, playData, artistData] = await Promise.all(pList);
             const userStr = localStorage.getItem('user');
             const user = userStr ? JSON.parse(userStr) : null;
             const savedIds = user ? JSON.parse(localStorage.getItem(`savedAlbums_${user.id}`) || '[]') : [];
@@ -38,9 +41,11 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
             
             setAlbums(allAlbums.filter(a => savedIds.includes(a.id)));
             setPlaylists(playData as PlaylistDto[]);
+            setArtists((artistData || []) as any[]);
         } else {
             setAlbums([]);
             setPlaylists([]);
+            setArtists([]);
         }
       } catch (error) {
         console.error(error);
@@ -200,7 +205,27 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
                   </div>
                 </div>
               ))}
-              {albums.length === 0 && playlists.length === 0 && isAuthenticated && (
+              {/* Artists */}
+              {artists.map(artist => (
+                <div 
+                  key={artist.id}
+                  onClick={() => { /* navigate to artist page if exists */ }}
+                  className={`p-2 hover:bg-spotify-hover rounded-md cursor-pointer transition ${isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'flex items-center gap-3'}`}
+                >
+                  <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-full bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
+                    {artist.avatarUrl ? (
+                      <img src={artist.avatarUrl?.startsWith('http') || artist.avatarUrl?.startsWith('data:') ? artist.avatarUrl : `https://tunevault-api.onrender.com${artist.avatarUrl}`} alt={artist.name} className="w-full h-full object-cover shrink-0" />
+                    ) : (
+                      <Users size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
+                    )}
+                  </div>
+                  <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'hidden lg:flex'}`}>
+                    <span className="text-base text-white font-semibold truncate">{artist.name}</span>
+                    <span className="text-sm text-spotify-lighttext font-medium truncate">Nghệ sĩ</span>
+                  </div>
+                </div>
+              ))}
+              {albums.length === 0 && playlists.length === 0 && artists.length === 0 && isAuthenticated && (
                  <div className="p-4 text-center text-zinc-500 text-sm col-span-full">Thư viện trống.</div>
               )}
             </>
