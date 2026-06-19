@@ -58,7 +58,11 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
 
     const handleUpdate = () => fetchData();
     window.addEventListener('savedAlbumsUpdated', handleUpdate);
-    return () => window.removeEventListener('savedAlbumsUpdated', handleUpdate);
+    window.addEventListener('followedArtistsUpdated', handleUpdate);
+    return () => {
+      window.removeEventListener('savedAlbumsUpdated', handleUpdate);
+      window.removeEventListener('followedArtistsUpdated', handleUpdate);
+    };
   }, [isAuthenticated]);
 
   const [showCreateModal, setShowCreateModal] = useState(false);

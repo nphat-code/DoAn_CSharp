@@ -42,9 +42,11 @@ export const RightPanel = ({ width }: RightPanelProps) => {
       if (isFollowingArtist) {
         await artistService.unfollowArtist(currentMedia.artistId);
         setIsFollowingArtist(false);
+        window.dispatchEvent(new Event('followedArtistsUpdated'));
       } else {
         await artistService.followArtist(currentMedia.artistId);
         setIsFollowingArtist(true);
+        window.dispatchEvent(new Event('followedArtistsUpdated'));
         alert(`Đã theo dõi và thêm ${(currentMedia as any).artist?.name || currentMedia.artistName || 'nghệ sĩ'} vào thư viện!`);
       }
     } catch (error) {
