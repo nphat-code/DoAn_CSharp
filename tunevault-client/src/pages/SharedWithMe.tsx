@@ -30,21 +30,12 @@ export const SharedWithMe: React.FC = () => {
   }, [activeTab]);
 
   const handlePlay = (share: MediaShareDto) => {
-    if (share.mediaType.toLowerCase() === 'playlist' || share.mediaType.toLowerCase() === 'album') {
-      navigate(`/${share.mediaType.toLowerCase()}/${share.mediaItemId}`);
+    const type = share.mediaType.toLowerCase();
+    if (type === 'playlist' || type === 'album') {
+      navigate(`/${type}/${share.mediaItemId}`);
     } else {
-      // Simulate playing a single track
-      playMediaList([{
-        id: share.mediaItemId,
-        title: share.mediaTitle,
-        coverUrl: share.mediaCoverUrl || null,
-        duration: "0:00",
-        mediaUrl: "", // Need actual URL in real scenario
-        artistId: null,
-        artistName: share.mediaArtistName,
-        albumId: null,
-        albumTitle: null
-      } as any], 0);
+      // Điều hướng đến trang chi tiết bài hát thay vì phát trực tiếp vì thiếu mediaUrl
+      navigate(`/track/${share.mediaItemId}`);
     }
   };
 
