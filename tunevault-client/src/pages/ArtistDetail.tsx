@@ -23,8 +23,18 @@ export const ArtistDetail = () => {
   const [showArtistMenu, setShowArtistMenu] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
 
-  const { playMediaList, currentMedia, isPlaying, togglePlayPause, updateQueueContext, queue } = usePlayer();
+  const { playMediaList, currentMedia, isPlaying, togglePlayPause, updateQueueContext, queue, isFavorited, setIsFavorited } = usePlayer();
   const [likedTracks, setLikedTracks] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!currentMedia) return;
+    setLikedTracks(prev => {
+      const next = new Set(prev);
+      if (isFavorited) next.add(currentMedia.id);
+      else next.delete(currentMedia.id);
+      return next;
+    });
+  }, [isFavorited, currentMedia]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -147,6 +157,9 @@ export const ArtistDetail = () => {
         else next.delete(trackId);
         return next;
       });
+      if (currentMedia && currentMedia.id === trackId) {
+        setIsFavorited(res.isFavorited);
+      }
     } catch (error) {
       alert("Lỗi khi cập nhật");
     }
