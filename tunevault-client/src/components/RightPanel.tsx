@@ -200,7 +200,10 @@ export const RightPanel = ({ width }: RightPanelProps) => {
        {/* Rest of the content */}
        <div className="px-4 pb-4 flex flex-col gap-4 bg-zinc-900 flex-1">
           {/* Giới thiệu nghệ sĩ / Info box */}
-          <div className="bg-zinc-800/80 hover:bg-zinc-800 transition rounded-xl overflow-hidden relative cursor-pointer flex flex-col shadow-xl">
+          <div 
+            className="bg-zinc-800/80 hover:bg-zinc-800 transition rounded-xl overflow-hidden relative cursor-pointer flex flex-col shadow-xl"
+            onClick={() => currentMedia?.artistId && navigate(`/artist/${currentMedia.artistId}`)}
+          >
              {/* Large Cover Image */}
              <div className="h-48 w-full relative">
                <img src={getImageUrl(currentMedia.artistAvatarUrl)} className="w-full h-full object-cover" />

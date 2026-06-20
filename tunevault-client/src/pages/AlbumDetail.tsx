@@ -322,7 +322,16 @@ export const AlbumDetail = () => {
                   <User size={16} className="text-white opacity-50" />
                 )}
               </div>
-              <span className="text-white font-bold text-xs hover:underline cursor-pointer">{album.artistName || 'Nghệ sĩ'}</span>
+              <span 
+              className="text-white font-bold text-xs hover:underline cursor-pointer"
+              onClick={() => {
+                if (album.artistId) {
+                  navigate(`/artist/${album.artistId}`);
+                }
+              }}
+            >
+              {album.artistName || 'Nghệ sĩ'}
+            </span>
               <span className="text-zinc-300 text-[10px]">•</span>
               <span className="text-zinc-300 font-medium text-xs">{new Date(album.releaseDate).getFullYear()}</span>
               <span className="text-zinc-300 text-[10px]">•</span>
