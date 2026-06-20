@@ -18,6 +18,7 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
   const [albums, setAlbums] = useState<AlbumDto[]>([]);
   const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
   const [artists, setArtists] = useState<any[]>([]);
+  const [likedTracksCount, setLikedTracksCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const isAuthenticated = !!localStorage.getItem('token');
   const navigate = useNavigate();
@@ -42,6 +43,13 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
             setAlbums(allAlbums.filter(a => savedIds.includes(a.id)));
             setPlaylists(playData as PlaylistDto[]);
             setArtists((artistData || []) as any[]);
+            
+            try {
+              const favoritesData = await import('../services/mediaService').then(m => m.mediaService.getFavorites());
+              setLikedTracksCount(favoritesData.length);
+            } catch (err) {
+              setLikedTracksCount(0);
+            }
         } else {
             setAlbums([]);
             setPlaylists([]);
@@ -148,7 +156,7 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
                 </div>
                 <div className={`flex-col w-full ${isExpanded ? 'flex' : 'hidden lg:flex'}`}>
                   <span className="text-base text-white font-semibold truncate">Bài hát đã thích</span>
-                  <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • Tự động</span>
+                  <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • {likedTracksCount} bài hát</span>
                 </div>
               </div>
 
