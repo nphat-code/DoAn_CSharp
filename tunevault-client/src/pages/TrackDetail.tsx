@@ -143,7 +143,10 @@ export const TrackDetail = () => {
           
           <div className="flex items-center flex-wrap gap-2 text-xs sm:text-sm font-medium text-white/90">
             {/* Artist Avatar & Name */}
-            <div className="flex items-center gap-2 group cursor-pointer hover:underline">
+            <div 
+              className="flex items-center gap-2 group cursor-pointer hover:underline"
+              onClick={() => track.artistId && navigate(`/artist/${track.artistId}`)}
+            >
               <img 
                 src={artistAvatar} 
                 alt="Artist" 

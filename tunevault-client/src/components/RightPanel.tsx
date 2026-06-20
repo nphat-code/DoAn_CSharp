@@ -167,7 +167,15 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                 <div className="flex flex-col overflow-hidden mr-2">
                   <h2 className="text-[24px] leading-[28.8px] font-bold text-white mb-1 hover:underline cursor-pointer truncate drop-shadow-lg">{currentMedia.title}</h2>
                   <div className="flex items-center gap-1">
-                      <p className="text-zinc-200 font-medium hover:underline cursor-pointer text-[16px] leading-[22.4px] truncate drop-shadow-md">{(currentMedia as any).artist?.name || currentMedia.artistName || currentMedia.description || 'Unknown Artist'}</p>
+                      <p 
+                        className="text-zinc-200 font-medium hover:underline cursor-pointer text-[16px] leading-[22.4px] truncate drop-shadow-md"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (currentMedia?.artistId) navigate(`/artist/${currentMedia.artistId}`);
+                        }}
+                      >
+                        {(currentMedia as any).artist?.name || currentMedia.artistName || currentMedia.description || 'Unknown Artist'}
+                      </p>
                   </div>
                 </div>
                 

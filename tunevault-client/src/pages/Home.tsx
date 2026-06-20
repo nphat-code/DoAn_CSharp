@@ -142,7 +142,15 @@ export const Home = () => {
                     )}
                   </div>
                   <h3 className="font-bold text-white truncate text-base">{album.title}</h3>
-                  <p className="text-sm text-zinc-400 mt-1 truncate">{album.artistName || 'Nghệ sĩ'}</p>
+                  <p 
+                    className="text-sm text-zinc-400 mt-1 truncate hover:underline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (album.artistId) navigate(`/artist/${album.artistId}`);
+                    }}
+                  >
+                    {album.artistName || 'Nghệ sĩ'}
+                  </p>
                 </div>
               ))}
             </div>
@@ -201,8 +209,15 @@ export const Home = () => {
                   </button>
                 </div>
                 <h3 className="font-bold text-white truncate text-base">{track.title}</h3>
-                <p className="text-sm text-zinc-400 mt-1 truncate">{track.artistName || track.description || 'Nghệ sĩ'}</p>
-                
+                <p 
+                  className="text-sm text-zinc-400 mt-1 truncate hover:underline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (track.artistId) navigate(`/artist/${track.artistId}`);
+                  }}
+                >
+                  {track.artistName || track.description || 'Nghệ sĩ'}
+                </p>
                 {currentUser && currentUser.role === 'Admin' && (
                   <button 
                     onClick={async (e) => {

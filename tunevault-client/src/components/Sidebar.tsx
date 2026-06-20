@@ -213,7 +213,7 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
               {artists.map(artist => (
                 <div 
                   key={artist.id}
-                  onClick={() => { /* navigate to artist page if exists */ }}
+                  onClick={() => { navigate(`/artist/${artist.id}`); }}
                   className={`p-2 hover:bg-spotify-hover rounded-md cursor-pointer transition ${isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'flex items-center gap-3'}`}
                 >
                   <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-full bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
