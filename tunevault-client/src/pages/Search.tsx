@@ -3,14 +3,14 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { mediaService } from '../services/mediaService';
 import type { SearchResultDto } from '../types';
 import { usePlayer } from '../context/PlayerContext';
-import { Play } from 'lucide-react';
+import { Play, Pause } from 'lucide-react';
 
 export const Search = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const page = parseInt(searchParams.get('page') || '1', 10);
   
-  const { playMedia } = usePlayer();
+  const { playMedia, currentMedia, isPlaying, togglePlayPause } = usePlayer();
   const navigate = useNavigate();
   
   const [results, setResults] = useState<SearchResultDto | null>(null);
@@ -116,7 +116,13 @@ export const Search = () => {
                 {results.tracks.map(track => (
                   <div 
                     key={track.id}
-                    onClick={() => playMedia(track)}
+                    onClick={() => {
+                      if (currentMedia?.id === track.id) {
+                        togglePlayPause();
+                      } else {
+                        playMedia(track);
+                      }
+                    }}
                     className="p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative"
                   >
                     <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center group-hover:shadow-xl transition relative overflow-hidden">
@@ -127,8 +133,12 @@ export const Search = () => {
                            <span className="text-3xl font-black text-white/50">{track.title.charAt(0)}</span>
                         </div>
                       )}
-                      <button className="absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black opacity-0 group-hover:opacity-100 transition shadow-xl translate-y-2 group-hover:translate-y-0">
-                        <Play fill="black" size={24} className="ml-1" />
+                      <button className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black shadow-xl transition ${currentMedia?.id === track.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}>
+                        {currentMedia?.id === track.id && isPlaying ? (
+                          <Pause fill="black" size={24} />
+                        ) : (
+                          <Play fill="black" size={24} className="ml-1" />
+                        )}
                       </button>
                     </div>
                     <h3 className="font-bold text-white truncate text-base">{track.title}</h3>
