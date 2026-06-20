@@ -27,10 +27,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Tạo sẵn thư mục wwwroot để StaticFiles Middleware không bị tắt
-RUN mkdir -p /app/wwwroot/uploads/images
-RUN mkdir -p /app/wwwroot/uploads/audio
-RUN mkdir -p /app/wwwroot/uploads/videos
 
 # Expose port 8080 depending on the .NET version configuration
 EXPOSE 8080

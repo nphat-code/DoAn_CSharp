@@ -48,8 +48,6 @@ Render sẽ đóng vai trò làm máy chủ ảo để chạy code C# ASP.NET Co
    - `JwtSettings__Secret` : `[Một chuỗi khóa bảo mật dài ít nhất 32 ký tự, giống ở máy]`
    - `JwtSettings__Issuer` : `TuneVaultAPI`
    - `JwtSettings__Audience` : `TuneVaultClient`
-   - `AzureBlobStorage__ConnectionString` : `[Chuỗi kết nối Azure Storage của bạn]`
-   - `AzureBlobStorage__ContainerName` : `tunevault-media`
    - `Cloudinary__CloudName` : `dc6avrrgt`
    - `Cloudinary__ApiKey` : `[API Key của bạn]`
    - `Cloudinary__ApiSecret` : `[API Secret của bạn]`
