@@ -5,24 +5,24 @@ import { artistService, type ArtistDto } from '../services/artistService';
 import { mediaService } from '../services/mediaService';
 import type { MediaItemDto } from '../types';
 import { usePlayer } from '../context/PlayerContext';
-import { Play, MoreHorizontal, Check, Share2 } from 'lucide-react';
+import { Play, MoreHorizontal, Share2 } from 'lucide-react';
 import { ShareMediaModal } from '../components/ShareMediaModal';
 
 export const ArtistDetail = () => {
   const { id } = useParams<{ id: string }>();
-  
+
   const [artist, setArtist] = useState<ArtistDto | null>(null);
   const [tracks, setTracks] = useState<MediaItemDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [bgColor, setBgColor] = useState<string>('rgba(49, 46, 129, 0.4)');
-  
+
   const [isFollowing, setIsFollowing] = useState(false);
   const [loadingFollow, setLoadingFollow] = useState(false);
-  
+
   const [showAllTracks, setShowAllTracks] = useState(false);
   const [showArtistMenu, setShowArtistMenu] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
-  
+
   const { playMediaList, currentMedia, isPlaying, togglePlayPause, updateQueueContext, queue } = usePlayer();
   const [likedTracks, setLikedTracks] = useState<Set<string>>(new Set());
 
@@ -30,11 +30,11 @@ export const ArtistDetail = () => {
     const fetchData = async () => {
       try {
         if (!id) return;
-        
+
         // Fetch all artists and find the matching one
         const allArtists = await artistService.getAllArtists();
         const foundArtist = allArtists.find(a => a.id === id);
-        
+
         if (foundArtist) {
           setArtist(foundArtist);
         }
@@ -173,7 +173,7 @@ export const ArtistDetail = () => {
   return (
     <div className="flex flex-col h-full relative bg-black overflow-hidden">
       {/* Background Gradient Layer */}
-      <div 
+      <div
         ref={gradientRef}
         className="absolute top-0 left-0 w-full pointer-events-none z-0"
         style={{
@@ -183,43 +183,43 @@ export const ArtistDetail = () => {
       />
 
       {/* Scrollable Content Layer */}
-      <div 
+      <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto relative z-10 w-full scrollbar-hide"
         onScroll={handleScroll}
       >
         {/* Header - Image as background */}
-        <div 
+        <div
           className="relative px-6 pb-6 pt-16 flex items-end"
           style={{ height: 'clamp(340px, 40cqw, 400px)', minHeight: '340px' }}
         >
           {/* Header Background Image */}
           {artist.avatarUrl && (
-            <div 
+            <div
               className="absolute inset-0 z-0 bg-cover bg-center"
-              style={{ 
+              style={{
                 backgroundImage: `url(${getAvatarUrl(artist.avatarUrl)})`,
                 backgroundPosition: '50% 15%'
               }}
             >
-              <div className="absolute inset-0 bg-black/30" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
             </div>
           )}
 
           <div className="relative z-10 flex flex-col justify-end min-w-0 flex-1 w-full pb-1">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-sm">
-                <Check size={14} strokeWidth={3} />
-              </div>
-              <span className="text-white text-sm font-medium drop-shadow-md">Do Tunevault xác minh</span>
-            </div>
-            <h1 
+            <h1
               className="font-black text-white tracking-tighter leading-tight mb-4 line-clamp-2 drop-shadow-xl"
               style={{ fontSize: 'clamp(64px, 8cqw, 96px)', lineHeight: '1.1' }}
             >
               {artist.name}
             </h1>
+            <div className="flex items-center gap-2 mb-2">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-md">
+                <path d="M12 21.643l-2.606-1.127-2.805.344-.925-2.673-2.673-.925.344-2.805L2.208 12l1.127-2.606-.344-2.805 2.673-.925.925-2.673 2.805.344L12 2.208l2.606 1.127 2.805-.344.925 2.673 2.673.925-.344 2.805L21.792 12l-1.127 2.606.344 2.805-2.673.925-.925 2.673-2.805-.344L12 21.643z" fill="#3D91F4"></path>
+                <path d="M16.5 8.25l-5.5 5.5-2.5-2.5" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"></path>
+              </svg>
+              <span className="text-white text-sm font-medium drop-shadow-md">Do Tunevault xác minh</span>
+            </div>
             <div className="text-white font-medium text-base drop-shadow-md">
               {/* Fake monthly listeners count based on ID length to be consistent */}
               {Math.floor((artist.name.length * 12345) % 1000000 + 50000).toLocaleString('vi-VN')} người nghe hằng tháng
@@ -243,37 +243,36 @@ export const ArtistDetail = () => {
                 <Play size={24} className="text-black fill-black ml-1" />
               )}
             </button>
-            <button 
+            <button
               onClick={handleToggleFollow}
               disabled={loadingFollow}
-              className={`text-sm font-bold border rounded-full px-4 py-1.5 transition ${
-                isFollowing 
-                  ? 'border-white text-white hover:border-zinc-400 hover:text-zinc-400' 
+              className={`text-sm font-bold border rounded-full px-4 py-1.5 transition ${isFollowing
+                  ? 'border-white text-white hover:border-zinc-400 hover:text-zinc-400'
                   : 'border-zinc-400 text-white hover:border-white hover:scale-105'
-              }`}
+                }`}
             >
               {loadingFollow ? '...' : (isFollowing ? 'Đang theo dõi' : 'Theo dõi')}
             </button>
             <div className="relative">
-              <button 
-                onClick={() => setShowArtistMenu(!showArtistMenu)} 
-                className="text-zinc-400 hover:text-white transition" 
+              <button
+                onClick={() => setShowArtistMenu(!showArtistMenu)}
+                className="text-zinc-400 hover:text-white transition"
                 title="Khác"
               >
                 <MoreHorizontal size={32} />
               </button>
-              
+
               {showArtistMenu && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowArtistMenu(false)}></div>
                   <div className="absolute left-0 top-full mt-1 w-48 bg-[#282828] rounded shadow-xl py-1 z-50 border border-white/10">
-                    <button 
+                    <button
                       onClick={handleToggleFollow}
                       className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
                     >
                       {isFollowing ? 'Hủy theo dõi' : 'Theo dõi'}
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         setShowShareModal(true);
                         setShowArtistMenu(false);
@@ -291,29 +290,29 @@ export const ArtistDetail = () => {
           {/* Popular Tracks Section */}
           <div className="w-full px-6 mb-8">
             <h2 className="text-2xl font-bold text-white mb-4">Phổ biến</h2>
-            
+
             {tracks.length > 0 ? (
               <div className="flex flex-col gap-0 pb-4">
                 {displayTracks.map((track, index) => {
                   const isPlayingTrack = currentMedia?.id === track.id;
                   // Mock play count consistently
                   const mockPlays = Math.floor(((track.title.length * 345) % 1000000) + 100000);
-                  
+
                   return (
-                    <div 
-                      key={track.id} 
+                    <div
+                      key={track.id}
                       className="grid grid-cols-[32px_1fr_100px_minmax(80px,120px)] gap-4 px-4 py-2 hover:bg-white/10 rounded-md transition items-center group cursor-pointer"
                       onDoubleClick={() => handlePlayMedia(index)}
                     >
                       <div className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-spotify-lighttext'} text-base font-medium flex items-center justify-end pr-2 relative w-full`}>
                         <span className="group-hover:hidden">{index + 1}</span>
-                        <button className="hidden group-hover:block" onClick={(e) => { 
-                          e.stopPropagation(); 
+                        <button className="hidden group-hover:block" onClick={(e) => {
+                          e.stopPropagation();
                           if (isPlayingTrack) {
                             if (queue.length <= 1) updateQueueContext(tracks, currentMedia.id);
                             togglePlayPause();
                           } else {
-                            handlePlayMedia(index); 
+                            handlePlayMedia(index);
                           }
                         }}>
                           {isPlayingTrack && isPlaying ? (
@@ -345,7 +344,7 @@ export const ArtistDetail = () => {
                       </div>
 
                       <div className="flex items-center justify-end gap-4 pr-4">
-                        <button 
+                        <button
                           onClick={(e) => { e.stopPropagation(); handleToggleFavorite(track.id); }}
                           className={`${likedTracks.has(track.id) ? 'opacity-100 text-[#1ed760]' : 'opacity-0 group-hover:opacity-100 text-spotify-lighttext hover:text-white'} transition`}
                         >
@@ -364,9 +363,9 @@ export const ArtistDetail = () => {
             ) : (
               <div className="text-zinc-400">Nghệ sĩ này chưa có bài hát nào.</div>
             )}
-            
+
             {tracks.length > 5 && (
-              <button 
+              <button
                 onClick={() => setShowAllTracks(!showAllTracks)}
                 className="text-zinc-400 hover:text-white text-sm font-bold mt-4 ml-4"
               >

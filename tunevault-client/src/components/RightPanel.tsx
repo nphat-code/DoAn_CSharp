@@ -221,11 +221,12 @@ export const RightPanel = ({ width }: RightPanelProps) => {
              {/* Content Below Image */}
              <div className="p-4 flex flex-col gap-2 relative">
                 {/* Name & Tick */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <h4 className="font-bold text-white text-base hover:underline">{(currentMedia as any).artist?.name || currentMedia.artistName || currentMedia.description || 'Unknown Artist'}</h4>
-                  <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-sm" title="Verified Artist">
-                    <svg height="10" width="10" viewBox="0 0 24 24" fill="currentColor"><path d="m10.814.5a1.658 1.658 0 0 1 2.372 0l2.512 2.572 3.595-.043a1.658 1.658 0 0 1 1.678 1.678l-.043 3.595 2.572 2.512c.667.65.667 1.722 0 2.372l-2.572 2.512.043 3.595a1.658 1.658 0 0 1-1.678 1.678l-3.595-.043-2.512 2.572a1.658 1.658 0 0 1-2.372 0l-2.512-2.572-3.595.043a1.658 1.658 0 0 1-1.678-1.678l.043-3.595L.5 13.186a1.658 1.658 0 0 1 0-2.372l2.572-2.512-.043-3.595a1.658 1.658 0 0 1 1.678-1.678l3.595.043L10.814.5zm6.584 9.12a1 1 0 0 0-1.414-1.413l-6.011 6.01-1.894-1.893a1 1 0 0 0-1.414 1.414l3.308 3.308 7.425-7.425z"></path></svg>
-                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 21.643l-2.606-1.127-2.805.344-.925-2.673-2.673-.925.344-2.805L2.208 12l1.127-2.606-.344-2.805 2.673-.925.925-2.673 2.805.344L12 2.208l2.606 1.127 2.805-.344.925 2.673 2.673.925-.344 2.805L21.792 12l-1.127 2.606.344 2.805-2.673.925-.925 2.673-2.805-.344L12 21.643z" fill="#3D91F4"></path>
+                    <path d="M16.5 8.25l-5.5 5.5-2.5-2.5" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                  </svg>
                 </div>
 
                 {/* Listeners & Follow Button */}
