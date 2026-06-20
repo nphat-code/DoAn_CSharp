@@ -143,7 +143,7 @@ export const Home = () => {
                   </div>
                   <h3 className="font-bold text-white truncate text-base">{album.title}</h3>
                   <p 
-                    className="text-sm text-zinc-400 mt-1 truncate hover:underline"
+                    className="text-sm text-zinc-400 mt-1 truncate hover:underline hover:text-white cursor-pointer relative z-10"
                     onClick={(e) => {
                       e.stopPropagation();
                       if (album.artistId) navigate(`/artist/${album.artistId}`);
@@ -210,7 +210,7 @@ export const Home = () => {
                 </div>
                 <h3 className="font-bold text-white truncate text-base">{track.title}</h3>
                 <p 
-                  className="text-sm text-zinc-400 mt-1 truncate hover:underline"
+                  className="text-sm text-zinc-400 mt-1 truncate hover:underline hover:text-white cursor-pointer relative z-10"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (track.artistId) navigate(`/artist/${track.artistId}`);

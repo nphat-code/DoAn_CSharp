@@ -3,8 +3,10 @@ import { Play, Pause, SkipBack, SkipForward, Volume2, Heart, Plus, Check, Music,
 import { useEffect, useState, useRef } from 'react';
 import { playlistService } from '../services/playlistService';
 import type { PlaylistDto } from '../services/playlistService';
+import { useNavigate } from 'react-router-dom';
 
 export const PlayerBar = () => {
+  const navigate = useNavigate();
   const { currentMedia, isPlaying, togglePlayPause, playNext, playPrevious, volume, setVolume, mediaRef, isFavorited, toggleFavorite } = usePlayer();
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -185,7 +187,16 @@ export const PlayerBar = () => {
         <div className="ml-4 flex items-center gap-4">
           <div>
             <div className="text-sm font-semibold text-white hover:underline cursor-pointer">{currentMedia.title}</div>
-            <div className="text-xs text-spotify-lighttext hover:underline cursor-pointer hover:text-white">{currentMedia.artistName || currentMedia.description || 'Unknown Artist'}</div>
+            <div 
+              className="text-xs text-spotify-lighttext hover:underline cursor-pointer hover:text-white"
+              onClick={() => {
+                if (currentMedia.artistId) {
+                  navigate(`/artist/${currentMedia.artistId}`);
+                }
+              }}
+            >
+              {currentMedia.artistName || currentMedia.description || 'Unknown Artist'}
+            </div>
           </div>
           
           <div className="relative" ref={menuRef}>

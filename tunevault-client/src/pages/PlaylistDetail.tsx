@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { FastAverageColor } from 'fast-average-color';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { playlistService } from '../services/playlistService';
 import type { PlaylistDetailDto } from '../services/playlistService';
 import { usePlayer } from '../context/PlayerContext';
@@ -11,6 +11,7 @@ import { ShareMediaModal } from '../components/ShareMediaModal';
 
 export const PlaylistDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [playlist, setPlaylist] = useState<PlaylistDetailDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [bgColor, setBgColor] = useState<string>('rgba(49, 46, 129, 0.4)');
@@ -380,7 +381,15 @@ export const PlaylistDetail = () => {
                   </div>
                   <div className="flex flex-col overflow-hidden">
                     <span className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-white'} font-semibold text-base truncate`}>{track.title}</span>
-                    <span className="text-[#b3b3b3] text-sm truncate hover:underline">{track.artistName || track.description || "Nghệ sĩ"}</span>
+                    <span 
+                      className="text-[#b3b3b3] text-sm truncate hover:underline hover:text-white cursor-pointer inline-block w-fit"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (track.artistId) navigate(`/artist/${track.artistId}`);
+                      }}
+                    >
+                      {track.artistName || track.description || "Nghệ sĩ"}
+                    </span>
                   </div>
                 </div>
                 <div className="text-sm text-[#b3b3b3] truncate hover:text-white transition hidden md:block">{track.albumTitle || "Đĩa đơn"}</div>
@@ -463,7 +472,15 @@ export const PlaylistDetail = () => {
                    </div>
                    <div className="flex flex-col">
                      <span className="text-white font-semibold">{track.title}</span>
-                     <span className="text-zinc-400 text-sm">{track.artistName || track.description || "Nghệ sĩ"}</span>
+                     <span 
+                       className="text-zinc-400 text-sm hover:underline hover:text-white cursor-pointer inline-block w-fit"
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         if (track.artistId) navigate(`/artist/${track.artistId}`);
+                       }}
+                     >
+                       {track.artistName || track.description || "Nghệ sĩ"}
+                     </span>
                    </div>
                  </div>
                  <button 

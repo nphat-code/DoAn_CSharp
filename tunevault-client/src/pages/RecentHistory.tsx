@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Play, Clock, Music } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { mediaService } from '../services/mediaService';
 import { usePlayer } from '../context/PlayerContext';
 import type { MediaItemDto } from '../types';
@@ -16,6 +17,7 @@ export const RecentHistory = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const { playMedia } = usePlayer();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -92,7 +94,15 @@ export const RecentHistory = () => {
                 
                 <div className="flex-1 min-w-0">
                   <h3 className="text-white font-medium text-base truncate group-hover:text-green-500 transition">{track.title}</h3>
-                  <p className="text-zinc-400 text-sm truncate">{(track as any).artist?.name || track.artistName || track.description || 'Không rõ ca sĩ'}</p>
+                  <p 
+                    className="text-zinc-400 text-sm truncate hover:underline hover:text-white cursor-pointer inline-block w-fit relative z-10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (track.artistId) navigate(`/artist/${track.artistId}`);
+                    }}
+                  >
+                    {(track as any).artist?.name || track.artistName || track.description || 'Không rõ ca sĩ'}
+                  </p>
                 </div>
                 
                 <div className="text-sm text-zinc-400 hidden sm:block whitespace-nowrap px-4">

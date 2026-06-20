@@ -260,7 +260,15 @@ export const Favorites = () => {
                   </div>
                   <div className="flex flex-col overflow-hidden">
                     <span className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-white'} font-semibold text-base truncate`}>{track.title}</span>
-                    <span className="text-[#b3b3b3] text-sm truncate hover:underline">{track.artistName || track.description || "Nghệ sĩ"}</span>
+                    <span 
+                      className="text-[#b3b3b3] text-sm truncate hover:underline hover:text-white cursor-pointer inline-block w-fit"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (track.artistId) navigate(`/artist/${track.artistId}`);
+                      }}
+                    >
+                      {track.artistName || track.description || "Nghệ sĩ"}
+                    </span>
                   </div>
                 </div>
                 <div className="text-sm text-[#b3b3b3] truncate hover:text-white transition hidden md:block">

@@ -482,7 +482,18 @@ export const AlbumDetail = () => {
                     </div>
                     <div className="flex flex-col overflow-hidden justify-center">
                       <span className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-white'} font-medium text-base truncate`}>{track.title}</span>
-                      <span className="text-spotify-lighttext text-sm truncate hover:underline hover:text-white inline-block w-fit">{track.artistName || album.artistName}</span>
+                      <span 
+                        className="text-spotify-lighttext text-sm truncate hover:underline hover:text-white inline-block w-fit cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const targetArtistId = track.artistId || album.artistId;
+                          if (targetArtistId) {
+                            navigate(`/artist/${targetArtistId}`);
+                          }
+                        }}
+                      >
+                        {track.artistName || album.artistName}
+                      </span>
                     </div>
 
                     <div className="flex items-center justify-end gap-4 pr-4">

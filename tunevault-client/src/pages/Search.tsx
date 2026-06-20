@@ -132,7 +132,15 @@ export const Search = () => {
                       </button>
                     </div>
                     <h3 className="font-bold text-white truncate text-base">{track.title}</h3>
-                    <p className="text-sm text-zinc-400 mt-1 truncate">{track.artistName || track.description || 'Nghệ sĩ'}</p>
+                    <p 
+                      className="text-sm text-zinc-400 mt-1 truncate hover:underline hover:text-white cursor-pointer inline-block w-fit relative z-10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (track.artistId) navigate(`/artist/${track.artistId}`);
+                      }}
+                    >
+                      {track.artistName || track.description || 'Nghệ sĩ'}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -147,6 +155,7 @@ export const Search = () => {
                 {results.artists.map(artist => (
                   <div 
                     key={artist.id}
+                    onClick={() => navigate(`/artist/${artist.id}`)}
                     className="p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative"
                   >
                     <div className="w-full aspect-square bg-zinc-700 rounded-full mb-4 shadow-lg flex items-center justify-center relative overflow-hidden">
@@ -215,7 +224,17 @@ export const Search = () => {
                       )}
                     </div>
                     <h3 className="font-bold text-white truncate text-base">{album.title}</h3>
-                    <p className="text-sm text-zinc-400 mt-1 truncate">{album.artistName || 'Nghệ sĩ'}</p>
+                    <p 
+                      className="text-sm text-zinc-400 mt-1 truncate hover:underline hover:text-white cursor-pointer inline-block w-fit relative z-10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if ((album as any).artistId) {
+                          navigate(`/artist/${(album as any).artistId}`);
+                        }
+                      }}
+                    >
+                      {album.artistName || 'Nghệ sĩ'}
+                    </p>
                   </div>
                 ))}
               </div>

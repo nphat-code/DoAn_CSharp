@@ -18,7 +18,7 @@ export const Profile = () => {
   const [usernameInput, setUsernameInput] = useState('');
   const [bioInput, setBioInput] = useState('');
   const [topTracks, setTopTracks] = useState<MediaItemDto[]>([]);
-  const [topArtists, setTopArtists] = useState<{ name: string, avatarUrl: string }[]>([]);
+  const [topArtists, setTopArtists] = useState<{ name: string, avatarUrl: string, id?: string }[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { playMedia } = usePlayer();
@@ -45,10 +45,10 @@ export const Profile = () => {
       const artistsMap = new Map();
       allMedia.forEach(m => {
         if (m.artistName && !artistsMap.has(m.artistName)) {
-          artistsMap.set(m.artistName, m.artistAvatarUrl || "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62");
+          artistsMap.set(m.artistName, { avatarUrl: m.artistAvatarUrl || "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62", id: m.artistId });
         }
       });
-      setTopArtists(Array.from(artistsMap.entries()).map(([name, avatarUrl]) => ({ name, avatarUrl })).slice(0, 4));
+      setTopArtists(Array.from(artistsMap.entries()).map(([name, data]) => ({ name, avatarUrl: data.avatarUrl, id: data.id })).slice(0, 4));
     } catch (error) {
       console.error(error);
     } finally {
@@ -214,6 +214,7 @@ export const Profile = () => {
               {topArtists.map((artist, idx) => (
                 <div
                   key={idx}
+                  onClick={() => { if (artist.id) navigate(`/artist/${artist.id}`); }}
                   className="p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
                 >
                   <div className="relative w-full aspect-square mb-3 shadow-lg rounded-full bg-zinc-800 shrink-0">
@@ -263,7 +264,15 @@ export const Profile = () => {
                   />
                   <div className="flex-1 min-w-0">
                     <h4 className="text-white font-medium truncate group-hover:underline">{track.title}</h4>
-                    <p className="text-sm text-zinc-400 truncate hover:underline inline-block">{track.artistName || 'Unknown Artist'}</p>
+                    <p 
+                      className="text-sm text-zinc-400 truncate hover:underline hover:text-white cursor-pointer inline-block w-fit relative z-10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (track.artistId) navigate(`/artist/${track.artistId}`);
+                      }}
+                    >
+                      {track.artistName || 'Unknown Artist'}
+                    </p>
                   </div>
                   <div className="hidden md:block flex-1 text-sm text-zinc-400 truncate hover:underline">
                     {/* Fake album name if we don't have one */}
