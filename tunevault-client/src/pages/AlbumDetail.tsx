@@ -435,7 +435,11 @@ export const AlbumDetail = () => {
             <div className="grid grid-cols-[32px_1fr_minmax(80px,120px)] gap-4 px-6 py-2 border-b border-white/10 text-sm font-medium text-spotify-lighttext mb-4 sticky top-0 bg-transparent z-10 items-center">
               <div className="text-right pr-2">#</div>
               <div>Tiêu đề</div>
-              <div className="flex justify-end pr-8"><Clock size={16} /></div>
+              <div className="flex items-center justify-end gap-4 pr-4">
+                <div className="w-4"></div>
+                <div className="w-12 text-right flex justify-end"><Clock size={16} /></div>
+                <div className="w-[18px]"></div>
+              </div>
             </div>
 
             {/* Tracks */}

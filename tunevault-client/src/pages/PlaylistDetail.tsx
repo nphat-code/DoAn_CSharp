@@ -322,7 +322,11 @@ export const PlaylistDetail = () => {
             <div className="text-right pr-2">#</div>
             <div>Tiêu đề</div>
             <div className="hidden md:block">Album</div>
-            <div className="flex justify-end pr-8"><Clock size={16} /></div>
+            <div className="flex items-center justify-end gap-4 pr-4">
+              <div className="w-4"></div>
+              <div className="w-12 text-right flex justify-end"><Clock size={16} /></div>
+              <div className="w-[18px]"></div>
+            </div>
           </div>
 
           {/* Tracks */}
