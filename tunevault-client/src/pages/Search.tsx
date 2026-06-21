@@ -120,7 +120,10 @@ export const Search = () => {
     } else if (type === 'artist') {
       try {
         const allMedia = await mediaService.getAllMedia();
-        const artistTracks = allMedia.filter(m => m.artistId === item.id);
+        const artistTracks = allMedia.filter(m => m.artistId === item.id).map(t => ({
+          ...t,
+          artistId: item.id
+        }));
         if (artistTracks.length > 0) {
           playMediaList(artistTracks, 0);
         } else {
@@ -133,7 +136,13 @@ export const Search = () => {
       try {
         const albumDetail = await albumService.getAlbumById(item.id);
         if (albumDetail.tracks && albumDetail.tracks.length > 0) {
-          playMediaList(albumDetail.tracks, 0);
+          const albumTracks = albumDetail.tracks.map(t => ({
+            ...t,
+            albumId: item.id,
+            coverUrl: t.coverUrl || albumDetail.coverUrl,
+            artistName: t.artistName || albumDetail.artistName
+          }));
+          playMediaList(albumTracks, 0);
         } else {
           alert("Album này chưa có bài hát nào.");
         }
@@ -144,7 +153,11 @@ export const Search = () => {
       try {
         const playlistDetail = await playlistService.getPlaylistDetails(item.id);
         if (playlistDetail.tracks && playlistDetail.tracks.length > 0) {
-          playMediaList(playlistDetail.tracks, 0);
+          const playlistTracks = playlistDetail.tracks.map(t => ({
+            ...t,
+            playlistId: item.id
+          }));
+          playMediaList(playlistTracks, 0);
         } else {
           alert("Danh sách phát này chưa có bài hát nào.");
         }
@@ -471,19 +484,43 @@ export const Search = () => {
       onClick = () => navigate(`/user/${id}`);
     }
 
+    const isPlayingRow = 
+      (type === 'artist' && currentMedia?.artistId === id) || 
+      (type === 'album' && currentMedia?.albumId === id) ||
+      (type === 'playlist' && (currentMedia as any)?.playlistId === id);
+
     return (
       <div 
         key={`${type}-${id}`}
         onClick={onClick}
         className="p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative flex flex-col"
       >
-        <div className={`w-full aspect-square bg-zinc-700 mb-4 shadow-lg flex items-center justify-center relative overflow-hidden ${isCircular ? 'rounded-full' : 'rounded-md'}`}>
+        <div className={`w-full aspect-square bg-zinc-700 mb-4 shadow-lg flex items-center justify-center relative overflow-hidden group-hover:shadow-xl transition ${isCircular ? 'rounded-full' : 'rounded-md'}`}>
           {imageUrl ? (
             <img src={getImageUrl(imageUrl)} className="w-full h-full object-cover" alt={title} />
           ) : (
             <div className="w-full h-full flex items-center justify-center font-bold text-4xl text-white/50">
               {title?.charAt(0)}
             </div>
+          )}
+          {type !== 'profile' && (
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                if (isPlayingRow) {
+                  togglePlayPause();
+                } else {
+                  handlePlayDirectly(item, type);
+                }
+              }}
+              className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${isPlayingRow ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}
+            >
+              {isPlayingRow && isPlaying ? (
+                <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+              ) : (
+                <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+              )}
+            </button>
           )}
         </div>
         <h3 className="font-bold text-white truncate text-base">{title}</h3>
