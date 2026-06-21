@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { mediaService } from '../services/mediaService';
+import { albumService } from '../services/albumService';
+import { playlistService } from '../services/playlistService';
 import type { SearchResultDto } from '../types';
 import { usePlayer } from '../context/PlayerContext';
 import { Play, Pause } from 'lucide-react';
@@ -10,7 +12,7 @@ export const Search = () => {
   const query = searchParams.get('q') || '';
   const page = parseInt(searchParams.get('page') || '1', 10);
   
-  const { playMedia, currentMedia, isPlaying, togglePlayPause } = usePlayer();
+  const { playMedia, playMediaList, currentMedia, isPlaying, togglePlayPause } = usePlayer();
   const navigate = useNavigate();
   
   const [results, setResults] = useState<SearchResultDto | null>(null);
@@ -46,10 +48,148 @@ export const Search = () => {
     }
   };
 
+  const handlePlayDirectly = async (item: any, type: string) => {
+    if (type === 'track') {
+      if (currentMedia?.id === item.id) {
+        togglePlayPause();
+      } else {
+        playMedia(item);
+      }
+    } else if (type === 'artist') {
+      try {
+        const allMedia = await mediaService.getAllMedia();
+        const artistTracks = allMedia.filter(m => m.artistId === item.id);
+        if (artistTracks.length > 0) {
+          playMediaList(artistTracks, 0);
+        } else {
+          alert("Nghệ sĩ này chưa có bài hát nào.");
+        }
+      } catch (e) {
+        console.error("Failed to play artist tracks", e);
+      }
+    } else if (type === 'album') {
+      try {
+        const albumDetail = await albumService.getAlbumById(item.id);
+        if (albumDetail.tracks && albumDetail.tracks.length > 0) {
+          playMediaList(albumDetail.tracks, 0);
+        } else {
+          alert("Album này chưa có bài hát nào.");
+        }
+      } catch (e) {
+        console.error("Failed to play album tracks", e);
+      }
+    } else if (type === 'playlist') {
+      try {
+        const playlistDetail = await playlistService.getPlaylistDetails(item.id);
+        if (playlistDetail.tracks && playlistDetail.tracks.length > 0) {
+          playMediaList(playlistDetail.tracks, 0);
+        } else {
+          alert("Danh sách phát này chưa có bài hát nào.");
+        }
+      } catch (e) {
+        console.error("Failed to play playlist tracks", e);
+      }
+    }
+  };
+
+  const getImageUrl = (url?: string) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : `https://tunevault-api.onrender.com${url}`;
+  };
+
+  const renderRow = (item: any, type: 'track' | 'artist' | 'album' | 'playlist' | 'profile') => {
+    let id, title, subtitle, imageUrl, isCircular, onClick, isPlayingRow;
+    
+    if (type === 'track') {
+      id = item.id;
+      title = item.title;
+      subtitle = `Bài hát • ${item.artistName || 'Nghệ sĩ'}`;
+      imageUrl = item.coverUrl;
+      isCircular = false;
+      onClick = () => navigate(`/track/${id}`); // Original was to play directly but user requested row click = go to page
+      isPlayingRow = currentMedia?.id === id;
+    } else if (type === 'artist') {
+      id = item.id;
+      title = item.name;
+      subtitle = "Nghệ sĩ";
+      imageUrl = item.avatarUrl;
+      isCircular = true;
+      onClick = () => navigate(`/artist/${id}`);
+      isPlayingRow = currentMedia?.artistId === id;
+    } else if (type === 'album') {
+      id = item.id;
+      title = item.title;
+      subtitle = `Album • ${item.artistName || 'Nghệ sĩ'}`;
+      imageUrl = item.coverUrl;
+      isCircular = false;
+      onClick = () => navigate(`/album/${id}`);
+      isPlayingRow = false;
+    } else if (type === 'playlist') {
+      id = item.id;
+      title = item.name;
+      subtitle = "Danh sách phát";
+      imageUrl = item.coverUrl;
+      isCircular = false;
+      onClick = () => navigate(`/playlist/${id}`);
+      isPlayingRow = false;
+    } else if (type === 'profile') {
+      id = item.id;
+      title = item.username;
+      subtitle = "Hồ sơ";
+      imageUrl = item.avatarUrl;
+      isCircular = true;
+      onClick = () => navigate(`/user/${id}`);
+      isPlayingRow = false;
+    }
+
+    return (
+      <div 
+        key={`${type}-${id}`}
+        onClick={onClick}
+        className="flex items-center gap-4 p-2 rounded-md hover:bg-zinc-800/50 transition cursor-pointer group w-full"
+      >
+        <div className={`w-12 h-12 flex-shrink-0 bg-zinc-700 overflow-hidden ${isCircular ? 'rounded-full' : 'rounded-md'}`}>
+          {imageUrl ? (
+            <img src={getImageUrl(imageUrl)} className="w-full h-full object-cover" alt={title} />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-zinc-600 font-bold text-lg text-white/50">
+               {title?.charAt(0)}
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col flex-1 min-w-0 justify-center">
+          <span className={`font-medium truncate ${isPlayingRow ? 'text-[#1ed760]' : 'text-white'}`}>{title}</span>
+          <span className="text-sm text-zinc-400 truncate">{subtitle}</span>
+        </div>
+        {type !== 'profile' && (
+          <div className="flex-shrink-0 pr-4">
+             <button 
+               onClick={(e) => { e.stopPropagation(); handlePlayDirectly(item, type); }}
+               className={`w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-black hover:scale-105 transition shadow-md ${isPlayingRow && isPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+             >
+                {isPlayingRow && isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
+             </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const getTopResult = () => {
+    if (!results) return null;
+    if (results.artists && results.artists.length > 0) return { type: 'artist' as const, item: results.artists[0] };
+    if (results.tracks && results.tracks.length > 0) return { type: 'track' as const, item: results.tracks[0] };
+    if (results.albums && results.albums.length > 0) return { type: 'album' as const, item: results.albums[0] };
+    if (results.playlists && results.playlists.length > 0) return { type: 'playlist' as const, item: results.playlists[0] };
+    if (results.users && results.users.length > 0) return { type: 'profile' as const, item: results.users[0] };
+    return null;
+  };
+
   const hasResults = results && (results.tracks?.length > 0 || results.artists?.length > 0 || results.albums?.length > 0 || results.playlists?.length > 0 || results.users?.length > 0);
+  const topResult = query ? getTopResult() : null;
 
   return (
-    <div className="p-6 pb-8 text-white">
+    <div className="p-6 pb-8 text-white max-w-5xl mx-auto">
       {query ? (
         <h1 className="text-2xl font-bold mb-6">Kết quả cho "{query}"</h1>
       ) : (
@@ -64,7 +204,7 @@ export const Search = () => {
            {query && <p>Vui lòng đảm bảo bạn đã viết đúng chính tả hoặc sử dụng ít từ khóa hơn.</p>}
         </div>
       ) : (
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-8">
           
           {/* Tabs */}
           {query && hasResults && (
@@ -108,51 +248,22 @@ export const Search = () => {
             </div>
           )}
 
+          {/* Top Result Section */}
+          {activeTab === 'all' && topResult && (
+            <section>
+              <h2 className="text-xl font-bold mb-4">Kết quả phù hợp nhất</h2>
+              <div className="bg-zinc-800/20 p-2 rounded-lg">
+                {renderRow(topResult.item, topResult.type)}
+              </div>
+            </section>
+          )}
+
           {/* Tracks Section */}
           {(activeTab === 'all' || activeTab === 'songs') && results.tracks && results.tracks.length > 0 && (
             <section>
               <h2 className="text-xl font-bold mb-4">Bài hát</h2>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-6">
-                {results.tracks.map(track => (
-                  <div 
-                    key={track.id}
-                    onClick={() => {
-                      if (currentMedia?.id === track.id) {
-                        togglePlayPause();
-                      } else {
-                        playMedia(track);
-                      }
-                    }}
-                    className="p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative"
-                  >
-                    <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center group-hover:shadow-xl transition relative overflow-hidden">
-                      {track.coverUrl ? (
-                        <img src={track.coverUrl?.startsWith('http') ? track.coverUrl : `https://tunevault-api.onrender.com${track.coverUrl}`} alt={track.title} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                           <span className="text-3xl font-black text-white/50">{track.title.charAt(0)}</span>
-                        </div>
-                      )}
-                      <button className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black shadow-xl transition ${currentMedia?.id === track.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}>
-                        {currentMedia?.id === track.id && isPlaying ? (
-                          <Pause fill="black" size={24} />
-                        ) : (
-                          <Play fill="black" size={24} className="ml-1" />
-                        )}
-                      </button>
-                    </div>
-                    <h3 className="font-bold text-white truncate text-base">{track.title}</h3>
-                    <p 
-                      className="text-sm text-zinc-400 mt-1 truncate hover:underline hover:text-white cursor-pointer inline-block w-fit relative z-10"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (track.artistId) navigate(`/artist/${track.artistId}`);
-                      }}
-                    >
-                      {track.artistName || track.description || 'Nghệ sĩ'}
-                    </p>
-                  </div>
-                ))}
+              <div className="flex flex-col gap-1">
+                {results.tracks.map(track => renderRow(track, 'track'))}
               </div>
             </section>
           )}
@@ -161,54 +272,8 @@ export const Search = () => {
           {(activeTab === 'all' || activeTab === 'artists') && results.artists && results.artists.length > 0 && (
             <section>
               <h2 className="text-xl font-bold mb-4">Nghệ sĩ</h2>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-6">
-                {results.artists.map(artist => (
-                  <div 
-                    key={artist.id}
-                    onClick={() => navigate(`/artist/${artist.id}`)}
-                    className="p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative"
-                  >
-                    <div className="w-full aspect-square bg-zinc-700 rounded-full mb-4 shadow-lg flex items-center justify-center relative overflow-hidden">
-                      {artist.avatarUrl ? (
-                        <img src={artist.avatarUrl?.startsWith('http') ? artist.avatarUrl : `https://tunevault-api.onrender.com${artist.avatarUrl}`} alt={artist.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-zinc-700 to-zinc-900 flex items-center justify-center">
-                           <span className="text-4xl font-black text-white/50">{artist.name.charAt(0)}</span>
-                        </div>
-                      )}
-                    </div>
-                    <h3 className="font-bold text-white truncate text-base text-center">{artist.name}</h3>
-                    <p className="text-sm text-zinc-400 mt-1 truncate text-center">Nghệ sĩ</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Users Section */}
-          {(activeTab === 'all' || activeTab === 'profiles') && results.users && results.users.length > 0 && (
-            <section>
-              <h2 className="text-xl font-bold mb-4">Hồ sơ người dùng</h2>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-6">
-                {results.users.map(user => (
-                  <div 
-                    key={user.id}
-                    onClick={() => navigate(`/user/${user.id}`)}
-                    className="p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative"
-                  >
-                    <div className="w-full aspect-square bg-zinc-700 rounded-full mb-4 shadow-lg flex items-center justify-center relative overflow-hidden">
-                      {user.avatarUrl ? (
-                        <img src={user.avatarUrl?.startsWith('http') ? user.avatarUrl : `https://tunevault-api.onrender.com${user.avatarUrl}`} alt={user.username} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                           <span className="text-4xl font-black text-white/50">{user.username.charAt(0).toUpperCase()}</span>
-                        </div>
-                      )}
-                    </div>
-                    <h3 className="font-bold text-white truncate text-base text-center">{user.username}</h3>
-                    <p className="text-sm text-zinc-400 mt-1 truncate text-center">Người dùng</p>
-                  </div>
-                ))}
+              <div className="flex flex-col gap-1">
+                {results.artists.map(artist => renderRow(artist, 'artist'))}
               </div>
             </section>
           )}
@@ -217,36 +282,8 @@ export const Search = () => {
           {(activeTab === 'all' || activeTab === 'albums') && results.albums && results.albums.length > 0 && (
             <section>
               <h2 className="text-xl font-bold mb-4">Album</h2>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-6">
-                {results.albums.map(album => (
-                  <div 
-                    key={album.id}
-                    onClick={() => navigate(`/album/${album.id}`)}
-                    className="p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative"
-                  >
-                    <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center relative overflow-hidden">
-                      {album.coverUrl ? (
-                        <img src={album.coverUrl?.startsWith('http') ? album.coverUrl : `https://tunevault-api.onrender.com${album.coverUrl}`} alt={album.title} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                           <span className="text-3xl font-black text-white/50">{album.title.charAt(0)}</span>
-                        </div>
-                      )}
-                    </div>
-                    <h3 className="font-bold text-white truncate text-base">{album.title}</h3>
-                    <p 
-                      className="text-sm text-zinc-400 mt-1 truncate hover:underline hover:text-white cursor-pointer inline-block w-fit relative z-10"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if ((album as any).artistId) {
-                          navigate(`/artist/${(album as any).artistId}`);
-                        }
-                      }}
-                    >
-                      {album.artistName || 'Nghệ sĩ'}
-                    </p>
-                  </div>
-                ))}
+              <div className="flex flex-col gap-1">
+                {results.albums.map(album => renderRow(album, 'album'))}
               </div>
             </section>
           )}
@@ -255,33 +292,25 @@ export const Search = () => {
           {(activeTab === 'all' || activeTab === 'playlists') && results.playlists && results.playlists.length > 0 && (
             <section>
               <h2 className="text-xl font-bold mb-4">Danh sách phát</h2>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-6">
-                {results.playlists.map(playlist => (
-                  <div 
-                    key={playlist.id}
-                    onClick={() => navigate(`/playlist/${playlist.id}`)}
-                    className="p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative"
-                  >
-                    <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center relative overflow-hidden">
-                      {playlist.coverUrl ? (
-                        <img src={playlist.coverUrl.startsWith('http') ? playlist.coverUrl : playlist.coverUrl?.startsWith('http') ? playlist.coverUrl : `https://tunevault-api.onrender.com${playlist.coverUrl}`} alt={playlist.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
-                           <span className="text-3xl font-black text-white/50">{playlist.name.charAt(0)}</span>
-                        </div>
-                      )}
-                    </div>
-                    <h3 className="font-bold text-white truncate text-base">{playlist.name}</h3>
-                    <p className="text-sm text-zinc-400 mt-1 truncate">Danh sách phát</p>
-                  </div>
-                ))}
+              <div className="flex flex-col gap-1">
+                {results.playlists.map(playlist => renderRow(playlist, 'playlist'))}
+              </div>
+            </section>
+          )}
+
+          {/* Users Section */}
+          {(activeTab === 'all' || activeTab === 'profiles') && results.users && results.users.length > 0 && (
+            <section>
+              <h2 className="text-xl font-bold mb-4">Hồ sơ người dùng</h2>
+              <div className="flex flex-col gap-1">
+                {results.users.map(user => renderRow(user, 'profile'))}
               </div>
             </section>
           )}
 
           {/* Pagination */}
           {results.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-4 mt-8">
+            <div className="flex items-center justify-center gap-4 mt-8 pt-4 border-t border-zinc-800">
               <button 
                 disabled={results.currentPage <= 1}
                 onClick={() => handlePageChange(results.currentPage - 1)}
@@ -307,3 +336,4 @@ export const Search = () => {
     </div>
   );
 };
+
