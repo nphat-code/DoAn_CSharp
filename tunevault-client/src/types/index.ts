@@ -21,6 +21,7 @@ export interface MediaItemDto {
   artistBio?: string;
   artistAvatarUrl?: string;
   artistId?: string;
+  albumId?: string;
   albumTitle?: string;
 }
 

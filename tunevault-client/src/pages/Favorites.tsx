@@ -27,7 +27,7 @@ export const Favorites = () => {
   const { playMediaList, currentMedia, isFavorited, setIsFavorited, isPlaying, togglePlayPause, queue, updateQueueContext } = usePlayer();
   const navigate = useNavigate();
   const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
-  const [allAlbums, setAllAlbums] = useState<any[]>([]);
+
   const [openTrackDropdown, setOpenTrackDropdown] = useState<{ id: string, openUpwards: boolean } | null>(null);
   const [showPlaylistMenu, setShowPlaylistMenu] = useState<string | null>(null);
 
@@ -59,9 +59,7 @@ export const Favorites = () => {
     fetchFavorites();
     if (localStorage.getItem('token')) {
       playlistService.getUserPlaylists().then(setPlaylists).catch(() => {});
-      import('../services/albumService').then(m => {
-        m.albumService.getAllAlbums().then(setAllAlbums).catch(() => {});
-      });
+
     }
   }, []);
 
@@ -369,23 +367,19 @@ export const Favorites = () => {
                             Chuyển tới nghệ sĩ
                           </button>
                           
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if ((track as any).albumId) {
-                                navigate(`/album/${(track as any).albumId}`);
-                              } else if (track.albumTitle) {
-                                const matchedAlbum = allAlbums.find(a => a.title === track.albumTitle);
-                                if (matchedAlbum) navigate(`/album/${matchedAlbum.id}`);
-                                else navigate(`/track/${track.id}`);
-                              } else {
-                                navigate(`/track/${track.id}`);
-                              }
-                            }}
-                            className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
-                          >
-                            Chuyển đến Album
-                          </button>
+                          {(track.albumId || track.albumTitle) && (
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (track.albumId) {
+                                  navigate(`/album/${track.albumId}`);
+                                }
+                              }}
+                              className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                            >
+                              Chuyển đến Album
+                            </button>
+                          )}
 
                           <button 
                             onClick={(e) => handleShareTrack(e, track.id, track.title)}
