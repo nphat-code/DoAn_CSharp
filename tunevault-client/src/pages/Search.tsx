@@ -206,7 +206,7 @@ export const Search = () => {
       imageUrl = item.coverUrl;
       isCircular = false;
       onClick = () => navigate(`/album/${id}`);
-      isPlayingRow = false;
+      isPlayingRow = currentMedia?.albumId === id;
     } else if (type === 'playlist') {
       id = item.id;
       title = item.name;
@@ -214,7 +214,7 @@ export const Search = () => {
       imageUrl = item.coverUrl;
       isCircular = false;
       onClick = () => navigate(`/playlist/${id}`);
-      isPlayingRow = false;
+      isPlayingRow = (currentMedia as any)?.playlistId === id;
     } else if (type === 'profile') {
       id = item.id;
       title = item.username;
@@ -227,7 +227,6 @@ export const Search = () => {
 
     const sizeClass = isTopResult ? "w-20 h-20" : "w-12 h-12";
     const titleClass = isTopResult ? "text-lg font-bold" : "text-base font-medium";
-    const playSize = isTopResult ? 24 : 20;
     const playBtnClass = isTopResult ? "w-12 h-12" : "w-10 h-10";
 
     return (
@@ -265,10 +264,21 @@ export const Search = () => {
         {type !== 'profile' && isTopResult && (
           <div className="flex-shrink-0 pr-4">
             <button
-              onClick={(e) => { e.stopPropagation(); handlePlayDirectly(item, type); }}
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                if (isPlayingRow) {
+                  togglePlayPause();
+                } else {
+                  handlePlayDirectly(item, type); 
+                }
+              }}
               className={`${playBtnClass} rounded-full bg-green-500 flex items-center justify-center text-black hover:scale-110 hover:bg-green-400 hover:shadow-2xl transition-all duration-200 shadow-md opacity-100`}
             >
-              {isPlayingRow && isPlaying ? <Pause size={playSize} fill="currentColor" /> : <Play size={playSize} fill="currentColor" className="ml-1" />}
+              {isPlayingRow && isPlaying ? (
+                <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+              ) : (
+                <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+              )}
             </button>
           </div>
         )}
@@ -493,9 +503,9 @@ export const Search = () => {
       <div 
         key={`${type}-${id}`}
         onClick={onClick}
-        className="p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative flex flex-col"
+        className="p-3 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative flex flex-col"
       >
-        <div className="w-full aspect-square mb-4 relative">
+        <div className="w-full aspect-square mb-3 relative">
           <div className={`w-full h-full bg-zinc-700 shadow-lg flex items-center justify-center relative overflow-hidden group-hover:shadow-xl transition ${isCircular ? 'rounded-full' : 'rounded-md'}`}>
             {imageUrl ? (
               <img src={getImageUrl(imageUrl)} className="w-full h-full object-cover" alt={title} />
