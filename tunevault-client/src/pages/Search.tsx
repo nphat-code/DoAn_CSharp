@@ -153,6 +153,7 @@ export const Search = () => {
     let imageUrl: string | undefined;
     let isCircular: boolean = false;
     let onClick: () => void = () => { };
+    let onDoubleClick: (() => void) | undefined = undefined;
     let isPlayingRow: boolean = false;
 
     if (type === 'track') {
@@ -161,7 +162,8 @@ export const Search = () => {
       subtitle = `Bài hát • ${item.artistName || 'Nghệ sĩ'}`;
       imageUrl = item.coverUrl;
       isCircular = false;
-      onClick = () => navigate(`/track/${id}`); // Original was to play directly but user requested row click = go to page
+      onClick = () => {}; 
+      onDoubleClick = () => handlePlayDirectly(item, type);
       isPlayingRow = currentMedia?.id === id;
     } else if (type === 'artist') {
       id = item.id;
@@ -206,14 +208,27 @@ export const Search = () => {
       <div
         key={`${type}-${id}`}
         onClick={onClick}
+        onDoubleClick={onDoubleClick}
         className={`flex items-center gap-4 p-2 rounded-md transition cursor-pointer group w-full ${isTopResult ? 'bg-zinc-800/60 hover:bg-zinc-800 p-4 mb-2' : 'hover:bg-zinc-800/50'}`}
       >
-        <div className={`${sizeClass} flex-shrink-0 bg-zinc-700 overflow-hidden ${isCircular ? 'rounded-full' : 'rounded-md shadow-md'}`}>
+        <div className={`${sizeClass} flex-shrink-0 bg-zinc-700 overflow-hidden relative ${isCircular ? 'rounded-full' : 'rounded-md shadow-md'}`}>
           {imageUrl ? (
             <img src={getImageUrl(imageUrl)} className="w-full h-full object-cover" alt={title} />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-zinc-600 font-bold text-2xl text-white/50">
               {title?.charAt(0)}
+            </div>
+          )}
+          
+          {!isTopResult && type === 'track' && (
+            <div 
+              className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePlayDirectly(item, type);
+              }}
+            >
+               {isPlayingRow && isPlaying ? <Pause size={16} fill="currentColor" className="text-white" /> : <Play size={16} fill="currentColor" className="text-white ml-1" />}
             </div>
           )}
         </div>
