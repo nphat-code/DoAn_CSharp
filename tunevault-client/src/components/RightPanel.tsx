@@ -66,7 +66,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
 
     return (
       <div 
-        className="bg-black flex flex-col shrink-0 relative overflow-hidden rounded-lg border-l border-zinc-800 p-4"
+        className="bg-[#121212] flex flex-col shrink-0 relative overflow-hidden rounded-lg border-l border-zinc-800 p-4"
         style={{ width: width ? `${width}px` : '420px', minWidth: '280px' }}
       >
         <div className="flex items-center justify-between mb-6 shrink-0">
@@ -170,7 +170,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
 
   return (
     <div 
-      className="bg-black flex flex-col shrink-0 relative overflow-hidden rounded-lg border-l border-zinc-800"
+      className="bg-[#121212] flex flex-col shrink-0 relative overflow-hidden rounded-lg border-l border-zinc-800"
       style={{ width: width ? `${width}px` : '420px', minWidth: '280px' }}
     >
          
