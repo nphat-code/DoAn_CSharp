@@ -253,7 +253,7 @@ export const Search = () => {
           <div className="flex-shrink-0 pr-4">
             <button
               onClick={(e) => { e.stopPropagation(); handlePlayDirectly(item, type); }}
-              className={`${playBtnClass} rounded-full bg-green-500 flex items-center justify-center text-black hover:scale-105 transition shadow-md opacity-100`}
+              className={`${playBtnClass} rounded-full bg-green-500 flex items-center justify-center text-black hover:scale-110 hover:bg-green-400 hover:shadow-2xl transition-all duration-200 shadow-md opacity-100`}
             >
               {isPlayingRow && isPlaying ? <Pause size={playSize} fill="currentColor" /> : <Play size={playSize} fill="currentColor" className="ml-1" />}
             </button>

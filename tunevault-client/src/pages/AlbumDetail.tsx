@@ -347,7 +347,7 @@ export const AlbumDetail = () => {
           <div className="flex items-center gap-6 mb-6 px-6">
             <button
               onClick={handleMainPlayClick}
-              className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center hover:scale-105 transition hover:bg-green-400 shadow-xl"
+              className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center hover:scale-110 hover:bg-green-400 hover:shadow-2xl transition-all duration-200 shadow-xl"
             >
               {isAlbumPlaying ? (
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" className="text-black ml-0">
