@@ -681,7 +681,7 @@ export const Search = () => {
                           {isTrackFavorited ? (
                             <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
                           ) : (
-                            <Plus size={20} className="rounded-full border border-current p-0.5" />
+                            <Plus size={16} className="rounded-full border border-current p-[1px]" />
                           )}
                         </button>
                         <div className="text-sm text-[#b3b3b3] font-medium w-12 text-right">{formatDuration(track.duration)}</div>
@@ -700,7 +700,7 @@ export const Search = () => {
                             }}
                             className={`text-zinc-400 hover:text-white transition ${openDropdown?.id === track.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                           >
-                            <MoreHorizontal size={20} />
+                            <MoreHorizontal size={18} />
                           </button>
 
                           {openDropdown?.id === track.id && (
