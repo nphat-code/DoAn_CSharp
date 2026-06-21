@@ -251,7 +251,11 @@ export const Search = () => {
                 onClick={(e) => handleToggleFavorite(e, item.id)}
                 className={`text-zinc-400 hover:text-white transition ${favoritesIds.has(item.id) ? 'opacity-100 text-[#1ed760] hover:text-[#1fdf64]' : 'opacity-0 group-hover:opacity-100'}`}
               >
-                {favoritesIds.has(item.id) ? <Check size={20} /> : <Plus size={20} />}
+                {favoritesIds.has(item.id) ? (
+                  <svg role="img" height="20" width="20" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
+                ) : (
+                  <svg role="img" height="20" width="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                )}
               </button>
             )}
             {type === 'artist' && (
