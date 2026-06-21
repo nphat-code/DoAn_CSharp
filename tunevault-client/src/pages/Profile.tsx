@@ -21,7 +21,8 @@ export const Profile = () => {
   const [topArtists, setTopArtists] = useState<{ name: string, avatarUrl: string, id?: string }[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { playMedia } = usePlayer();
+  const [showAllArtists, setShowAllArtists] = useState(false);
+  const { playMedia, playMediaList, togglePlayPause, currentMedia, isPlaying } = usePlayer();
 
   useEffect(() => {
     loadProfileData();
@@ -48,7 +49,7 @@ export const Profile = () => {
           artistsMap.set(m.artistName, { avatarUrl: m.artistAvatarUrl || "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62", id: m.artistId });
         }
       });
-      setTopArtists(Array.from(artistsMap.entries()).map(([name, data]) => ({ name, avatarUrl: data.avatarUrl, id: data.id })).slice(0, 4));
+      setTopArtists(Array.from(artistsMap.entries()).map(([name, data]) => ({ name, avatarUrl: data.avatarUrl, id: data.id })));
     } catch (error) {
       console.error(error);
     } finally {
@@ -85,6 +86,31 @@ export const Profile = () => {
     } catch (error) {
       console.error("Lỗi khi cập nhật hồ sơ:", error);
       alert("Cập nhật hồ sơ thất bại!");
+    }
+  };
+
+  const handlePlayArtist = async (e: React.MouseEvent, artistId?: string) => {
+    e.stopPropagation();
+    if (!artistId) return;
+
+    if (currentMedia?.artistId === artistId) {
+      togglePlayPause();
+      return;
+    }
+
+    try {
+      const allMedia = await mediaService.getAllMedia();
+      const artistTracks = allMedia.filter(m => m.artistId === artistId).map(t => ({
+        ...t,
+        artistId: artistId
+      }));
+      if (artistTracks.length > 0) {
+        playMediaList(artistTracks, 0);
+      } else {
+        alert("Nghệ sĩ này chưa có bài hát nào.");
+      }
+    } catch (error) {
+      console.error("Failed to play artist tracks", error);
     }
   };
 
@@ -205,33 +231,54 @@ export const Profile = () => {
           </div>
         </div>
 
-        {/* Nghệ sĩ hàng đầu tháng này */}
         {topArtists.length > 0 && (
           <div className="mb-12">
-            <h2 className="text-2xl font-bold text-white mb-1 hover:underline cursor-pointer inline-block">Nghệ sĩ hàng đầu tháng này</h2>
-            <p className="text-sm text-zinc-400 mb-6">Chỉ hiển thị với bạn</p>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-y-3 -mx-6">
-              {topArtists.map((artist, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => { if (artist.id) navigate(`/artist/${artist.id}`); }}
-                  className="p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
+            <div className="flex justify-between items-end mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-1 hover:underline cursor-pointer inline-block">Nghệ sĩ hàng đầu tháng này</h2>
+                <p className="text-sm text-zinc-400">Chỉ hiển thị với bạn</p>
+              </div>
+              {topArtists.length > 3 && (
+                <button 
+                  onClick={() => setShowAllArtists(!showAllArtists)}
+                  className="text-zinc-400 text-sm font-bold hover:underline"
                 >
-                  <div className="relative w-full aspect-square mb-3 shadow-lg rounded-full bg-zinc-800 shrink-0">
-                    <img src={artist.avatarUrl.startsWith('http') || artist.avatarUrl.startsWith('data:') ? artist.avatarUrl : artist.avatarUrl?.startsWith('http') ? artist.avatarUrl : `https://tunevault-api.onrender.com${artist.avatarUrl}`} alt={artist.name} className="w-full h-full object-cover rounded-full" />
-                    {/* Play button overlay */}
-                    <div className="absolute right-2 bottom-2 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                      <button className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black hover:bg-green-400 hover:scale-105 shadow-xl">
-                        <Play size={24} fill="currentColor" className="ml-1" />
+                  {showAllArtists ? "Ẩn bớt" : "Hiện tất cả"}
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-y-3 -mx-6">
+              {topArtists.slice(0, showAllArtists ? undefined : 3).map((artist, idx) => {
+                const isPlayingRow = currentMedia?.artistId === artist.id;
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => { if (artist.id) navigate(`/artist/${artist.id}`); }}
+                    className="p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center"
+                  >
+                    <div className="relative w-full aspect-square mb-3">
+                      <div className="w-full h-full shadow-lg rounded-full bg-zinc-800 shrink-0 relative overflow-hidden">
+                        <img src={artist.avatarUrl.startsWith('http') || artist.avatarUrl.startsWith('data:') ? artist.avatarUrl : artist.avatarUrl?.startsWith('http') ? artist.avatarUrl : `https://tunevault-api.onrender.com${artist.avatarUrl}`} alt={artist.name} className="w-full h-full object-cover rounded-full" />
+                      </div>
+                      {/* Play button overlay */}
+                      <button 
+                        onClick={(e) => handlePlayArtist(e, artist.id)}
+                        className={`absolute right-2 bottom-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${isPlayingRow ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}
+                      >
+                        {isPlayingRow && isPlaying ? (
+                          <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+                        ) : (
+                          <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                        )}
                       </button>
                     </div>
+                    <div className="w-full">
+                      <h3 className="text-white font-bold truncate w-full text-left">{artist.name}</h3>
+                      <p className="text-sm text-zinc-400 truncate w-full text-left mt-1">Nghệ sĩ</p>
+                    </div>
                   </div>
-                  <div className="w-full">
-                    <h3 className="text-white font-bold truncate w-full text-left">{artist.name}</h3>
-                    <p className="text-sm text-zinc-400 truncate w-full text-left mt-1">Nghệ sĩ</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
