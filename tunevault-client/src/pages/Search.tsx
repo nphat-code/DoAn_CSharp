@@ -97,7 +97,7 @@ export const Search = () => {
     return url.startsWith('http') ? url : `https://tunevault-api.onrender.com${url}`;
   };
 
-  const renderRow = (item: any, type: 'track' | 'artist' | 'album' | 'playlist' | 'profile') => {
+  const renderRow = (item: any, type: 'track' | 'artist' | 'album' | 'playlist' | 'profile', isTopResult: boolean = false) => {
     let id: string = '';
     let title: string = '';
     let subtitle: string = '';
@@ -148,32 +148,37 @@ export const Search = () => {
       isPlayingRow = false;
     }
 
+    const sizeClass = isTopResult ? "w-24 h-24" : "w-12 h-12";
+    const titleClass = isTopResult ? "text-xl font-bold" : "text-base font-medium";
+    const playSize = isTopResult ? 24 : 20;
+    const playBtnClass = isTopResult ? "w-12 h-12" : "w-10 h-10";
+
     return (
       <div 
         key={`${type}-${id}`}
         onClick={onClick}
-        className="flex items-center gap-4 p-2 rounded-md hover:bg-zinc-800/50 transition cursor-pointer group w-full"
+        className={`flex items-center gap-4 p-2 rounded-md hover:bg-zinc-800/50 transition cursor-pointer group w-full ${isTopResult ? 'bg-zinc-800/20 p-4 mb-2' : ''}`}
       >
-        <div className={`w-12 h-12 flex-shrink-0 bg-zinc-700 overflow-hidden ${isCircular ? 'rounded-full' : 'rounded-md'}`}>
+        <div className={`${sizeClass} flex-shrink-0 bg-zinc-700 overflow-hidden ${isCircular ? 'rounded-full' : 'rounded-md shadow-md'}`}>
           {imageUrl ? (
             <img src={getImageUrl(imageUrl)} className="w-full h-full object-cover" alt={title} />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-zinc-600 font-bold text-lg text-white/50">
+            <div className="w-full h-full flex items-center justify-center bg-zinc-600 font-bold text-2xl text-white/50">
                {title?.charAt(0)}
             </div>
           )}
         </div>
         <div className="flex flex-col flex-1 min-w-0 justify-center">
-          <span className={`font-medium truncate ${isPlayingRow ? 'text-[#1ed760]' : 'text-white'}`}>{title}</span>
+          <span className={`${titleClass} truncate ${isPlayingRow ? 'text-[#1ed760]' : 'text-white'}`}>{title}</span>
           <span className="text-sm text-zinc-400 truncate">{subtitle}</span>
         </div>
         {type !== 'profile' && (
           <div className="flex-shrink-0 pr-4">
              <button 
                onClick={(e) => { e.stopPropagation(); handlePlayDirectly(item, type); }}
-               className={`w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-black hover:scale-105 transition shadow-md ${isPlayingRow && isPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+               className={`${playBtnClass} rounded-full bg-green-500 flex items-center justify-center text-black hover:scale-105 transition shadow-md ${isPlayingRow && isPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
              >
-                {isPlayingRow && isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
+                {isPlayingRow && isPlaying ? <Pause size={playSize} fill="currentColor" /> : <Play size={playSize} fill="currentColor" className="ml-1" />}
              </button>
           </div>
         )}
@@ -193,6 +198,21 @@ export const Search = () => {
 
   const hasResults = results && (results.tracks?.length > 0 || results.artists?.length > 0 || results.albums?.length > 0 || results.playlists?.length > 0 || results.users?.length > 0);
   const topResult = query ? getTopResult() : null;
+
+  const getAllList = () => {
+    if (!results) return [];
+    let list: { item: any, type: 'track' | 'artist' | 'album' | 'playlist' | 'profile' }[] = [];
+    if (results.tracks) list.push(...results.tracks.map(t => ({ item: t, type: 'track' as const })));
+    if (results.artists) list.push(...results.artists.map(a => ({ item: a, type: 'artist' as const })));
+    if (results.albums) list.push(...results.albums.map(a => ({ item: a, type: 'album' as const })));
+    if (results.playlists) list.push(...results.playlists.map(p => ({ item: p, type: 'playlist' as const })));
+    if (results.users) list.push(...results.users.map(u => ({ item: u, type: 'profile' as const })));
+    
+    if (topResult) {
+      list = list.filter(x => !(x.type === topResult.type && x.item.id === topResult.item.id));
+    }
+    return list;
+  };
 
   return (
     <div className="p-6 pb-8 text-white max-w-5xl mx-auto">
@@ -248,63 +268,18 @@ export const Search = () => {
             </div>
           )}
 
-          {/* Top Result Section */}
-          {activeTab === 'all' && topResult && (
-            <section>
-              <div className="bg-zinc-800/20 p-2 rounded-lg">
-                {renderRow(topResult.item, topResult.type)}
-              </div>
-            </section>
-          )}
-
-          {/* Tracks Section */}
-          {(activeTab === 'all' || activeTab === 'songs') && results.tracks && results.tracks.length > 0 && (
-            <section>
-              <div className="flex flex-col gap-1">
-                {results.tracks.filter(track => !(activeTab === 'all' && topResult?.type === 'track' && track.id === topResult.item.id)).map(track => renderRow(track, 'track'))}
-              </div>
-            </section>
-          )}
-
-          {/* Artists Section */}
-          {(activeTab === 'all' || activeTab === 'artists') && results.artists && results.artists.length > 0 && (
-            <section>
-              <h2 className="text-xl font-bold mb-4">Nghệ sĩ</h2>
-              <div className="flex flex-col gap-1">
-                {results.artists.map(artist => renderRow(artist, 'artist'))}
-              </div>
-            </section>
-          )}
-
-          {/* Albums Section */}
-          {(activeTab === 'all' || activeTab === 'albums') && results.albums && results.albums.length > 0 && (
-            <section>
-              <h2 className="text-xl font-bold mb-4">Album</h2>
-              <div className="flex flex-col gap-1">
-                {results.albums.map(album => renderRow(album, 'album'))}
-              </div>
-            </section>
-          )}
-
-          {/* Playlists Section */}
-          {(activeTab === 'all' || activeTab === 'playlists') && results.playlists && results.playlists.length > 0 && (
-            <section>
-              <h2 className="text-xl font-bold mb-4">Danh sách phát</h2>
-              <div className="flex flex-col gap-1">
-                {results.playlists.map(playlist => renderRow(playlist, 'playlist'))}
-              </div>
-            </section>
-          )}
-
-          {/* Users Section */}
-          {(activeTab === 'all' || activeTab === 'profiles') && results.users && results.users.length > 0 && (
-            <section>
-              <h2 className="text-xl font-bold mb-4">Hồ sơ người dùng</h2>
-              <div className="flex flex-col gap-1">
-                {results.users.map(user => renderRow(user, 'profile'))}
-              </div>
-            </section>
-          )}
+          {/* Unified Results List */}
+          <div className="flex flex-col gap-1">
+            {activeTab === 'all' && topResult && renderRow(topResult.item, topResult.type, true)}
+            
+            {activeTab === 'all' && getAllList().map(x => renderRow(x.item, x.type))}
+            
+            {activeTab === 'songs' && results.tracks?.map(track => renderRow(track, 'track'))}
+            {activeTab === 'artists' && results.artists?.map(artist => renderRow(artist, 'artist'))}
+            {activeTab === 'albums' && results.albums?.map(album => renderRow(album, 'album'))}
+            {activeTab === 'playlists' && results.playlists?.map(playlist => renderRow(playlist, 'playlist'))}
+            {activeTab === 'profiles' && results.users?.map(user => renderRow(user, 'profile'))}
+          </div>
 
           {/* Pagination */}
           {results.totalPages > 1 && (
