@@ -206,7 +206,7 @@ export const Search = () => {
       <div
         key={`${type}-${id}`}
         onClick={onClick}
-        className={`flex items-center gap-4 p-2 rounded-md hover:bg-zinc-800/50 transition cursor-pointer group w-full ${isTopResult ? 'bg-zinc-800/20 p-4 mb-2' : ''}`}
+        className={`flex items-center gap-4 p-2 rounded-md transition cursor-pointer group w-full ${isTopResult ? 'bg-zinc-800/60 hover:bg-zinc-800 p-4 mb-2' : 'hover:bg-zinc-800/50'}`}
       >
         <div className={`${sizeClass} flex-shrink-0 bg-zinc-700 overflow-hidden ${isCircular ? 'rounded-full' : 'rounded-md shadow-md'}`}>
           {imageUrl ? (
@@ -225,7 +225,7 @@ export const Search = () => {
           <div className="flex-shrink-0 pr-4">
             <button
               onClick={(e) => { e.stopPropagation(); handlePlayDirectly(item, type); }}
-              className={`${playBtnClass} rounded-full bg-green-500 flex items-center justify-center text-black hover:scale-105 transition shadow-md ${isPlayingRow && isPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+              className={`${playBtnClass} rounded-full bg-green-500 flex items-center justify-center text-black hover:scale-105 transition shadow-md opacity-100`}
             >
               {isPlayingRow && isPlaying ? <Pause size={playSize} fill="currentColor" /> : <Play size={playSize} fill="currentColor" className="ml-1" />}
             </button>
