@@ -25,15 +25,17 @@ public class SearchRepository(IDbConnection dbConnection) : ISearchRepository
         // Query Tracks
         string trackSql = string.IsNullOrWhiteSpace(query) 
             ? @"SELECT m.Id, m.Title, m.Description, m.FileUrl, m.MediaType, m.Duration, m.UploaderId, m.CreatedAt, m.CoverUrl,
-                       a.Name as ArtistName, a.Bio as ArtistBio, a.AvatarUrl as ArtistAvatarUrl
+                       m.ArtistId, m.AlbumId, a.Name as ArtistName, a.Bio as ArtistBio, a.AvatarUrl as ArtistAvatarUrl, al.Title as AlbumTitle
                 FROM MediaItems m
                 LEFT JOIN Artists a ON m.ArtistId = a.Id
+                LEFT JOIN Albums al ON m.AlbumId = al.Id
                 ORDER BY m.CreatedAt DESC
                 LIMIT @Limit OFFSET @Offset"
             : @"SELECT m.Id, m.Title, m.Description, m.FileUrl, m.MediaType, m.Duration, m.UploaderId, m.CreatedAt, m.CoverUrl,
-                       a.Name as ArtistName, a.Bio as ArtistBio, a.AvatarUrl as ArtistAvatarUrl
+                       m.ArtistId, m.AlbumId, a.Name as ArtistName, a.Bio as ArtistBio, a.AvatarUrl as ArtistAvatarUrl, al.Title as AlbumTitle
                 FROM MediaItems m
                 LEFT JOIN Artists a ON m.ArtistId = a.Id
+                LEFT JOIN Albums al ON m.AlbumId = al.Id
                 WHERE m.Title ILIKE @Query 
                    OR m.Description ILIKE @Query 
                    OR a.Name ILIKE @Query
