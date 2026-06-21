@@ -1,5 +1,5 @@
 import { usePlayer } from '../context/PlayerContext';
-import { MoreHorizontal, X, Trash2, Maximize2, Play, Share2, User, Disc, PlusCircle } from 'lucide-react';
+import { MoreHorizontal, X, Trash2, Maximize2, Play, Share2, User, Disc } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import { useNavigate } from 'react-router-dom';
 import { useRef, useState, useEffect } from 'react';
@@ -175,10 +175,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                           onMouseLeave={() => setShowPlaylistMenu(null)}
                         >
                           <button className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <PlusCircle size={16} />
-                              <span>Thêm vào danh sách phát</span>
-                            </div>
+                            <span>Thêm vào danh sách phát</span>
                             <svg role="img" height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 14l8-6-8-6v12z"></path></svg>
                           </button>
                           {showPlaylistMenu === `playing-${currentMedia.id}` && (
@@ -330,10 +327,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                               onMouseLeave={() => setShowPlaylistMenu(null)}
                             >
                               <button className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <PlusCircle size={16} />
-                                  <span>Thêm vào danh sách phát</span>
-                                </div>
+                                <span>Thêm vào danh sách phát</span>
                                 <svg role="img" height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 14l8-6-8-6v12z"></path></svg>
                               </button>
                               {showPlaylistMenu === `${track.id}-${idx}` && (

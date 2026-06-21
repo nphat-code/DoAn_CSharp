@@ -61,6 +61,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     try {
       const res = await mediaService.toggleFavorite(currentMedia.id);
       setIsFavorited(res.isFavorited);
+      window.dispatchEvent(new Event('favoritesUpdated'));
     } catch (err) {
       console.error(err);
       alert("Lỗi khi thêm vào bài hát đã thích");
