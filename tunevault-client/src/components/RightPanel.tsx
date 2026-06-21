@@ -51,7 +51,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
         return next;
       });
       window.dispatchEvent(new Event('favoritesUpdated'));
-      if (currentMedia && currentMedia.id === trackId && toggleFavorite) {
+      if (currentMedia && currentMedia.id === trackId) {
          // Optionally sync PlayerContext's toggleFavorite but the UI uses favoritesIds anyway
       }
     } catch (error) {
