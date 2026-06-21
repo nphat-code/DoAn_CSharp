@@ -495,14 +495,16 @@ export const Search = () => {
         onClick={onClick}
         className="p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative flex flex-col"
       >
-        <div className={`w-full aspect-square bg-zinc-700 mb-4 shadow-lg flex items-center justify-center relative overflow-hidden group-hover:shadow-xl transition ${isCircular ? 'rounded-full' : 'rounded-md'}`}>
-          {imageUrl ? (
-            <img src={getImageUrl(imageUrl)} className="w-full h-full object-cover" alt={title} />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center font-bold text-4xl text-white/50">
-              {title?.charAt(0)}
-            </div>
-          )}
+        <div className="w-full aspect-square mb-4 relative">
+          <div className={`w-full h-full bg-zinc-700 shadow-lg flex items-center justify-center relative overflow-hidden group-hover:shadow-xl transition ${isCircular ? 'rounded-full' : 'rounded-md'}`}>
+            {imageUrl ? (
+              <img src={getImageUrl(imageUrl)} className="w-full h-full object-cover" alt={title} />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center font-bold text-4xl text-white/50">
+                {title?.charAt(0)}
+              </div>
+            )}
+          </div>
           {type !== 'profile' && (
             <button 
               onClick={(e) => {
