@@ -5,21 +5,21 @@ import { albumService } from '../services/albumService';
 import { playlistService } from '../services/playlistService';
 import type { SearchResultDto } from '../types';
 import { usePlayer } from '../context/PlayerContext';
-import { Play, Pause, Plus, Check, MoreHorizontal, Share2 } from 'lucide-react';
+import { Play, Pause, MoreHorizontal, Share2 } from 'lucide-react';
 import { ShareMediaModal } from '../components/ShareMediaModal';
 
 export const Search = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const page = parseInt(searchParams.get('page') || '1', 10);
-  
+
   const { playMedia, playMediaList, currentMedia, isPlaying, togglePlayPause } = usePlayer();
   const navigate = useNavigate();
-  
+
   const [results, setResults] = useState<SearchResultDto | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'all' | 'songs' | 'artists' | 'albums' | 'playlists' | 'profiles'>('all');
-  
+
   const [favoritesIds, setFavoritesIds] = useState<Set<string>>(new Set());
   const [followedArtistIds, setFollowedArtistIds] = useState<Set<string>>(new Set());
   const [playlists, setPlaylists] = useState<any[]>([]);
@@ -30,9 +30,9 @@ export const Search = () => {
 
   useEffect(() => {
     if (localStorage.getItem('token')) {
-      mediaService.getFavorites().then(f => setFavoritesIds(new Set(f.map(t => t.id)))).catch(() => {});
-      import('../services/artistService').then(m => m.artistService.getFollowedArtists().then(a => setFollowedArtistIds(new Set(a.map(x => x.id))))).catch(() => {});
-      playlistService.getUserPlaylists().then(setPlaylists).catch(() => {});
+      mediaService.getFavorites().then(f => setFavoritesIds(new Set(f.map(t => t.id)))).catch(() => { });
+      import('../services/artistService').then(m => m.artistService.getFollowedArtists().then(a => setFollowedArtistIds(new Set(a.map(x => x.id))))).catch(() => { });
+      playlistService.getUserPlaylists().then(setPlaylists).catch(() => { });
     }
   }, []);
 
@@ -49,11 +49,11 @@ export const Search = () => {
         setLoading(false);
       }
     };
-    
+
     const debounceTimeout = setTimeout(() => {
       doSearch();
     }, 500);
-    
+
     return () => clearTimeout(debounceTimeout);
   }, [query, page]);
 
@@ -152,9 +152,9 @@ export const Search = () => {
     let subtitle: string = '';
     let imageUrl: string | undefined;
     let isCircular: boolean = false;
-    let onClick: () => void = () => {};
+    let onClick: () => void = () => { };
     let isPlayingRow: boolean = false;
-    
+
     if (type === 'track') {
       id = item.id;
       title = item.title;
@@ -203,7 +203,7 @@ export const Search = () => {
     const playBtnClass = isTopResult ? "w-12 h-12" : "w-10 h-10";
 
     return (
-      <div 
+      <div
         key={`${type}-${id}`}
         onClick={onClick}
         className={`flex items-center gap-4 p-2 rounded-md hover:bg-zinc-800/50 transition cursor-pointer group w-full ${isTopResult ? 'bg-zinc-800/20 p-4 mb-2' : ''}`}
@@ -213,7 +213,7 @@ export const Search = () => {
             <img src={getImageUrl(imageUrl)} className="w-full h-full object-cover" alt={title} />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-zinc-600 font-bold text-2xl text-white/50">
-               {title?.charAt(0)}
+              {title?.charAt(0)}
             </div>
           )}
         </div>
@@ -223,17 +223,17 @@ export const Search = () => {
         </div>
         {type !== 'profile' && isTopResult && (
           <div className="flex-shrink-0 pr-4">
-             <button 
-               onClick={(e) => { e.stopPropagation(); handlePlayDirectly(item, type); }}
-               className={`${playBtnClass} rounded-full bg-green-500 flex items-center justify-center text-black hover:scale-105 transition shadow-md ${isPlayingRow && isPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-             >
-                {isPlayingRow && isPlaying ? <Pause size={playSize} fill="currentColor" /> : <Play size={playSize} fill="currentColor" className="ml-1" />}
-             </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); handlePlayDirectly(item, type); }}
+              className={`${playBtnClass} rounded-full bg-green-500 flex items-center justify-center text-black hover:scale-105 transition shadow-md ${isPlayingRow && isPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+            >
+              {isPlayingRow && isPlaying ? <Pause size={playSize} fill="currentColor" /> : <Play size={playSize} fill="currentColor" className="ml-1" />}
+            </button>
           </div>
         )}
         {!isTopResult && (type === 'track' || type === 'artist') && (
           <div className="flex-shrink-0 pr-4 flex items-center gap-4 relative">
-            <button 
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 const rect = e.currentTarget.getBoundingClientRect();
@@ -245,9 +245,9 @@ export const Search = () => {
             >
               <MoreHorizontal size={20} />
             </button>
-            
+
             {type === 'track' && (
-              <button 
+              <button
                 onClick={(e) => handleToggleFavorite(e, item.id)}
                 className={`text-zinc-400 hover:text-white transition ${favoritesIds.has(item.id) ? 'opacity-100 text-[#1ed760] hover:text-[#1fdf64]' : 'opacity-0 group-hover:opacity-100'}`}
               >
@@ -259,7 +259,7 @@ export const Search = () => {
               </button>
             )}
             {type === 'artist' && (
-              <button 
+              <button
                 onClick={(e) => handleToggleFollow(e, item.id)}
                 className={`text-sm font-semibold px-4 py-1 rounded-full border transition ${followedArtistIds.has(item.id) ? 'border-zinc-500 text-white hover:border-white' : 'border-zinc-500 text-white hover:scale-105'}`}
               >
@@ -268,13 +268,13 @@ export const Search = () => {
             )}
 
             {openDropdown?.id === item.id && (
-              <div 
+              <div
                 className={`absolute right-12 w-56 bg-[#282828] rounded-md shadow-2xl py-1 z-50 text-sm font-medium ${openDropdown?.openUpwards ? 'bottom-full mb-2' : 'top-full mt-2'}`}
                 onClick={(e) => e.stopPropagation()}
               >
                 {type === 'track' && (
                   <>
-                    <div 
+                    <div
                       className="relative"
                       onMouseEnter={() => setShowPlaylistMenu(item.id)}
                       onMouseLeave={() => setShowPlaylistMenu(null)}
@@ -289,7 +289,7 @@ export const Search = () => {
                             <div className="px-4 py-3 text-zinc-400">Chưa có danh sách phát</div>
                           ) : (
                             playlists.map(p => (
-                              <button 
+                              <button
                                 key={p.id}
                                 className="w-full text-left px-4 py-3 text-white hover:bg-white/10 truncate"
                                 onClick={() => {
@@ -306,7 +306,7 @@ export const Search = () => {
                         </div>
                       )}
                     </div>
-                    <button 
+                    <button
                       onClick={(e) => { handleToggleFavorite(e, item.id); setOpenDropdown(null); }}
                       className="w-full text-left px-4 py-3 text-white hover:bg-white/10"
                     >
@@ -323,7 +323,7 @@ export const Search = () => {
                         Chuyển đến album
                       </button>
                     )}
-                    <button 
+                    <button
                       onClick={() => { setShareData({ id: item.id, type: 'Bài hát', title }); setShowShareModal(true); setOpenDropdown(null); }}
                       className="w-full text-left px-4 py-3 text-white hover:bg-white/10 flex items-center justify-between"
                     >
@@ -333,13 +333,13 @@ export const Search = () => {
                 )}
                 {type === 'artist' && (
                   <>
-                    <button 
+                    <button
                       onClick={(e) => { handleToggleFollow(e, item.id); setOpenDropdown(null); }}
                       className="w-full text-left px-4 py-3 text-white hover:bg-white/10"
                     >
                       {followedArtistIds.has(item.id) ? "Hủy theo dõi" : "Theo dõi"}
                     </button>
-                    <button 
+                    <button
                       onClick={() => { setShareData({ id: item.id, type: 'Nghệ sĩ', title }); setShowShareModal(true); setOpenDropdown(null); }}
                       className="w-full text-left px-4 py-3 text-white hover:bg-white/10 flex items-center justify-between"
                     >
@@ -358,7 +358,7 @@ export const Search = () => {
   const getTopResult = () => {
     if (!results) return null;
     const lowerQuery = query.toLowerCase();
-    
+
     // Prioritize exact matches
     if (results.artists?.some(a => a.name.toLowerCase() === lowerQuery)) {
       return { type: 'artist' as const, item: results.artists.find(a => a.name.toLowerCase() === lowerQuery) };
@@ -382,13 +382,13 @@ export const Search = () => {
   const getAllList = () => {
     if (!results) return [];
     let list: { item: any, type: 'track' | 'artist' | 'album' | 'playlist' | 'profile' }[] = [];
-    
+
     // Add artists first so they appear right after the top result if it's a track
     if (results.artists) list.push(...results.artists.map(a => ({ item: a, type: 'artist' as const })));
     if (results.tracks) list.push(...results.tracks.map(t => ({ item: t, type: 'track' as const })));
     if (results.playlists) list.push(...results.playlists.map(p => ({ item: p, type: 'playlist' as const })));
     if (results.users) list.push(...results.users.map(u => ({ item: u, type: 'profile' as const })));
-    
+
     if (topResult) {
       list = list.filter(x => !(x.type === topResult.type && x.item.id === topResult.item.id));
     }
@@ -401,46 +401,46 @@ export const Search = () => {
         <div className="text-zinc-500 font-medium">Đang tải...</div>
       ) : !hasResults ? (
         <div className="text-zinc-500 font-medium text-center mt-12">
-           <h2 className="text-xl font-bold text-white mb-2">Không tìm thấy kết quả nào</h2>
-           {query && <p>Vui lòng đảm bảo bạn đã viết đúng chính tả hoặc sử dụng ít từ khóa hơn.</p>}
+          <h2 className="text-xl font-bold text-white mb-2">Không tìm thấy kết quả nào</h2>
+          {query && <p>Vui lòng đảm bảo bạn đã viết đúng chính tả hoặc sử dụng ít từ khóa hơn.</p>}
         </div>
       ) : (
         <div className="flex flex-col gap-8">
-          
+
           {/* Tabs */}
           {query && hasResults && (
             <div className="flex flex-wrap gap-3 mb-2">
-              <button 
+              <button
                 onClick={() => setActiveTab('all')}
                 className={`px-4 py-1.5 rounded-full text-sm font-semibold transition ${activeTab === 'all' ? 'bg-white text-black' : 'bg-zinc-800 text-white hover:bg-zinc-700'}`}
               >
                 Tất cả
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('songs')}
                 className={`px-4 py-1.5 rounded-full text-sm font-semibold transition ${activeTab === 'songs' ? 'bg-white text-black' : 'bg-zinc-800 text-white hover:bg-zinc-700'}`}
               >
                 Bài hát
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('artists')}
                 className={`px-4 py-1.5 rounded-full text-sm font-semibold transition ${activeTab === 'artists' ? 'bg-white text-black' : 'bg-zinc-800 text-white hover:bg-zinc-700'}`}
               >
                 Nghệ sĩ
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('albums')}
                 className={`px-4 py-1.5 rounded-full text-sm font-semibold transition ${activeTab === 'albums' ? 'bg-white text-black' : 'bg-zinc-800 text-white hover:bg-zinc-700'}`}
               >
                 Album
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('profiles')}
                 className={`px-4 py-1.5 rounded-full text-sm font-semibold transition ${activeTab === 'profiles' ? 'bg-white text-black' : 'bg-zinc-800 text-white hover:bg-zinc-700'}`}
               >
                 Hồ sơ
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('playlists')}
                 className={`px-4 py-1.5 rounded-full text-sm font-semibold transition ${activeTab === 'playlists' ? 'bg-white text-black' : 'bg-zinc-800 text-white hover:bg-zinc-700'}`}
               >
@@ -452,9 +452,9 @@ export const Search = () => {
           {/* Unified Results List */}
           <div className="flex flex-col gap-1">
             {activeTab === 'all' && topResult && renderRow(topResult.item, topResult.type, true)}
-            
+
             {activeTab === 'all' && getAllList().map(x => renderRow(x.item, x.type))}
-            
+
             {activeTab === 'songs' && results.tracks?.map(track => renderRow(track, 'track'))}
             {activeTab === 'artists' && results.artists?.map(artist => renderRow(artist, 'artist'))}
             {activeTab === 'albums' && results.albums?.map(album => renderRow(album, 'album'))}
@@ -465,7 +465,7 @@ export const Search = () => {
           {/* Pagination */}
           {results.totalPages > 1 && (
             <div className="flex items-center justify-center gap-4 mt-8 pt-4 border-t border-zinc-800">
-              <button 
+              <button
                 disabled={results.currentPage <= 1}
                 onClick={() => handlePageChange(results.currentPage - 1)}
                 className="px-4 py-2 bg-zinc-800 rounded hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -475,7 +475,7 @@ export const Search = () => {
               <span className="text-sm text-zinc-400">
                 Trang {results.currentPage} / {results.totalPages}
               </span>
-              <button 
+              <button
                 disabled={results.currentPage >= results.totalPages}
                 onClick={() => handlePageChange(results.currentPage + 1)}
                 className="px-4 py-2 bg-zinc-800 rounded hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -488,7 +488,7 @@ export const Search = () => {
         </div>
       )}
       {showShareModal && shareData && (
-        <ShareMediaModal 
+        <ShareMediaModal
           onClose={() => setShowShareModal(false)}
           mediaId={shareData.id}
           mediaType={shareData.type}
