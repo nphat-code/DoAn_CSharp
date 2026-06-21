@@ -196,12 +196,6 @@ export const Search = () => {
 
   return (
     <div className="p-6 pb-8 text-white max-w-5xl mx-auto">
-      {query ? (
-        <h1 className="text-2xl font-bold mb-6">Kết quả cho "{query}"</h1>
-      ) : (
-        <h1 className="text-2xl font-bold mb-6">Khám phá & Xu hướng</h1>
-      )}
-      
       {loading ? (
         <div className="text-zinc-500 font-medium">Đang tải...</div>
       ) : !hasResults ? (
@@ -257,7 +251,6 @@ export const Search = () => {
           {/* Top Result Section */}
           {activeTab === 'all' && topResult && (
             <section>
-              <h2 className="text-xl font-bold mb-4">Kết quả phù hợp nhất</h2>
               <div className="bg-zinc-800/20 p-2 rounded-lg">
                 {renderRow(topResult.item, topResult.type)}
               </div>
@@ -267,9 +260,8 @@ export const Search = () => {
           {/* Tracks Section */}
           {(activeTab === 'all' || activeTab === 'songs') && results.tracks && results.tracks.length > 0 && (
             <section>
-              <h2 className="text-xl font-bold mb-4">Bài hát</h2>
               <div className="flex flex-col gap-1">
-                {results.tracks.map(track => renderRow(track, 'track'))}
+                {results.tracks.filter(track => !(activeTab === 'all' && topResult?.type === 'track' && track.id === topResult.item.id)).map(track => renderRow(track, 'track'))}
               </div>
             </section>
           )}
