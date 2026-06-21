@@ -67,9 +67,11 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
     const handleUpdate = () => fetchData();
     window.addEventListener('savedAlbumsUpdated', handleUpdate);
     window.addEventListener('followedArtistsUpdated', handleUpdate);
+    window.addEventListener('favoritesUpdated', handleUpdate);
     return () => {
       window.removeEventListener('savedAlbumsUpdated', handleUpdate);
       window.removeEventListener('followedArtistsUpdated', handleUpdate);
+      window.removeEventListener('favoritesUpdated', handleUpdate);
     };
   }, [isAuthenticated]);
 

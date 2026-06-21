@@ -59,8 +59,10 @@ export const Favorites = () => {
     fetchFavorites();
     if (localStorage.getItem('token')) {
       playlistService.getUserPlaylists().then(setPlaylists).catch(() => {});
-
     }
+    
+    window.addEventListener('favoritesUpdated', fetchFavorites);
+    return () => window.removeEventListener('favoritesUpdated', fetchFavorites);
   }, []);
 
   // Đồng bộ danh sách bài hát với thay đổi từ PlayerBar hoặc RightPanel
@@ -93,6 +95,7 @@ export const Favorites = () => {
       if (currentMedia && currentMedia.id === track.id) {
         setIsFavorited(res.isFavorited);
       }
+      window.dispatchEvent(new Event('favoritesUpdated'));
     } catch (error) {
       alert("Lỗi khi thay đổi bài hát yêu thích");
     }

@@ -53,6 +53,8 @@ export const TrackDetail = () => {
       }
     };
     fetchTrack();
+    window.addEventListener('favoritesUpdated', fetchTrack);
+    return () => window.removeEventListener('favoritesUpdated', fetchTrack);
   }, [id, navigate]);
 
   useEffect(() => {
@@ -98,6 +100,7 @@ export const TrackDetail = () => {
       if (isCurrentTrack) {
         setIsFavorited(res.isFavorited);
       }
+      window.dispatchEvent(new Event('favoritesUpdated'));
     } catch (error) {
       console.error("Lỗi toggle favorite:", error);
     }

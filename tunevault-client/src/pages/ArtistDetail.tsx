@@ -70,6 +70,8 @@ export const ArtistDetail = () => {
     };
 
     fetchData();
+    window.addEventListener('favoritesUpdated', fetchData);
+    return () => window.removeEventListener('favoritesUpdated', fetchData);
   }, [id]);
 
   useEffect(() => {
@@ -160,6 +162,7 @@ export const ArtistDetail = () => {
       if (currentMedia && currentMedia.id === trackId) {
         setIsFavorited(res.isFavorited);
       }
+      window.dispatchEvent(new Event('favoritesUpdated'));
     } catch (error) {
       alert("Lỗi khi cập nhật");
     }

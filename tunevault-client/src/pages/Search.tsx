@@ -42,11 +42,16 @@ export const Search = () => {
   const [showShareModal, setShowShareModal] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem('token')) {
-      mediaService.getFavorites().then(f => setFavoritesIds(new Set(f.map(t => t.id)))).catch(() => { });
-      import('../services/artistService').then(m => m.artistService.getFollowedArtists().then(a => setFollowedArtistIds(new Set(a.map(x => x.id))))).catch(() => { });
-      playlistService.getUserPlaylists().then(setPlaylists).catch(() => { });
-    }
+    const fetchFavs = () => {
+      if (localStorage.getItem('token')) {
+        mediaService.getFavorites().then(f => setFavoritesIds(new Set(f.map(t => t.id)))).catch(() => { });
+        import('../services/artistService').then(m => m.artistService.getFollowedArtists().then(a => setFollowedArtistIds(new Set(a.map(x => x.id))))).catch(() => { });
+        playlistService.getUserPlaylists().then(setPlaylists).catch(() => { });
+      }
+    };
+    fetchFavs();
+    window.addEventListener('favoritesUpdated', fetchFavs);
+    return () => window.removeEventListener('favoritesUpdated', fetchFavs);
   }, []);
 
   useEffect(() => {
@@ -80,6 +85,7 @@ export const Search = () => {
         else next.delete(trackId);
         return next;
       });
+      window.dispatchEvent(new Event('favoritesUpdated'));
     } catch (error) {
       console.error(error);
     }

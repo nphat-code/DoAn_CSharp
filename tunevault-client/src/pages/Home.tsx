@@ -48,7 +48,11 @@ export const Home = () => {
     // fetchAiData(); // Đã tắt AI theo yêu cầu
 
     window.addEventListener('mediaUpdated', fetchData);
-    return () => window.removeEventListener('mediaUpdated', fetchData);
+    window.addEventListener('favoritesUpdated', fetchData);
+    return () => {
+      window.removeEventListener('mediaUpdated', fetchData);
+      window.removeEventListener('favoritesUpdated', fetchData);
+    };
   }, []);
 
   const handleAddToLikedSongs = async (e: React.MouseEvent, trackId: string) => {
@@ -65,6 +69,7 @@ export const Home = () => {
       } else {
         alert("Đã xóa khỏi Bài hát đã thích!");
       }
+      window.dispatchEvent(new Event('favoritesUpdated'));
     } catch (error) {
       alert("Lỗi khi thay đổi bài hát yêu thích.");
     }

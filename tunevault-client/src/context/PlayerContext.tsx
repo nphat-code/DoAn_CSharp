@@ -54,6 +54,9 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
       }
     };
     checkFav();
+
+    window.addEventListener('favoritesUpdated', checkFav);
+    return () => window.removeEventListener('favoritesUpdated', checkFav);
   }, [currentMedia]);
 
   const toggleFavorite = async () => {

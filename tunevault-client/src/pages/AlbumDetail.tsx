@@ -82,7 +82,11 @@ export const AlbumDetail = () => {
   useEffect(() => {
     fetchDetails();
     window.addEventListener('mediaUpdated', fetchDetails);
-    return () => window.removeEventListener('mediaUpdated', fetchDetails);
+    window.addEventListener('favoritesUpdated', fetchDetails);
+    return () => {
+      window.removeEventListener('mediaUpdated', fetchDetails);
+      window.removeEventListener('favoritesUpdated', fetchDetails);
+    };
   }, [id]);
 
   useEffect(() => {
@@ -153,6 +157,7 @@ export const AlbumDetail = () => {
       if (currentMedia && currentMedia.id === trackId) {
         setIsFavorited(res.isFavorited);
       }
+      window.dispatchEvent(new Event('favoritesUpdated'));
     } catch (error) {
       alert("Lỗi khi cập nhật");
     }
