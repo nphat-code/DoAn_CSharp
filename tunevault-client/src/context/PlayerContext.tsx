@@ -79,8 +79,21 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     setCurrentIndex(startIndex);
     setCurrentMedia(mediaList[startIndex]);
     setIsPlaying(true);
+    
+    // Auto-append 15 random tracks to show in the queue UI
     try {
       const m = await import('../services/mediaService');
+      const allMedia = await m.mediaService.getAllMedia();
+      if (allMedia.length > 0) {
+        const shuffled = [...allMedia].sort(() => 0.5 - Math.random());
+        const extraTracks = shuffled.slice(0, 15);
+        setQueue(prev => {
+          if (prev.length >= mediaList.length && prev[0].id === mediaList[0].id) {
+            return [...prev, ...extraTracks];
+          }
+          return prev;
+        });
+      }
       await m.mediaService.recordPlayHistory(mediaList[startIndex].id);
     } catch (error) {
       console.error(error);
@@ -94,9 +107,24 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const playNext = async () => {
     if (queue.length > 0 && currentIndex < queue.length - 1) {
       const nextIndex = currentIndex + 1;
+      
       setCurrentIndex(nextIndex);
       setCurrentMedia(queue[nextIndex]);
       setIsPlaying(true);
+      
+      // Auto-fetch more if getting close to the end
+      if (nextIndex >= queue.length - 3) {
+        try {
+          const m = await import('../services/mediaService');
+          const allMedia = await m.mediaService.getAllMedia();
+          if (allMedia.length > 0) {
+            const shuffled = [...allMedia].sort(() => 0.5 - Math.random());
+            const extraTracks = shuffled.slice(0, 15);
+            setQueue(prev => [...prev, ...extraTracks]);
+          }
+        } catch (e) {}
+      }
+
       try {
         const m = await import('../services/mediaService');
         await m.mediaService.recordPlayHistory(queue[nextIndex].id);
@@ -104,17 +132,19 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
         console.error(error);
       }
     } else {
-      // End of queue -> Auto play random track!
+      // End of queue -> Fetch and play 15 random tracks
       try {
         const m = await import('../services/mediaService');
         const allMedia = await m.mediaService.getAllMedia();
         if (allMedia.length > 0) {
-          const randomTrack = allMedia[Math.floor(Math.random() * allMedia.length)];
-          setQueue(prev => [...prev, randomTrack]);
+          const shuffled = [...allMedia].sort(() => 0.5 - Math.random());
+          const extraTracks = shuffled.slice(0, 15);
+          
+          setQueue(prev => [...prev, ...extraTracks]);
           setCurrentIndex(prev => prev + 1);
-          setCurrentMedia(randomTrack);
+          setCurrentMedia(extraTracks[0]);
           setIsPlaying(true);
-          await m.mediaService.recordPlayHistory(randomTrack.id);
+          await m.mediaService.recordPlayHistory(extraTracks[0].id);
         } else {
           setIsPlaying(false);
         }
