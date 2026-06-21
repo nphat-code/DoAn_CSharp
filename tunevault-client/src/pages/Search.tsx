@@ -197,8 +197,8 @@ export const Search = () => {
       isPlayingRow = false;
     }
 
-    const sizeClass = isTopResult ? "w-24 h-24" : "w-12 h-12";
-    const titleClass = isTopResult ? "text-xl font-bold" : "text-base font-medium";
+    const sizeClass = isTopResult ? "w-20 h-20" : "w-12 h-12";
+    const titleClass = isTopResult ? "text-lg font-bold" : "text-base font-medium";
     const playSize = isTopResult ? 24 : 20;
     const playBtnClass = isTopResult ? "w-12 h-12" : "w-10 h-10";
 
@@ -355,6 +355,63 @@ export const Search = () => {
     );
   };
 
+  const renderCard = (item: any, type: 'artist' | 'album' | 'playlist' | 'profile') => {
+    let id: string = '';
+    let title: string = '';
+    let subtitle: string = '';
+    let imageUrl: string | undefined;
+    let isCircular: boolean = false;
+    let onClick: () => void = () => { };
+
+    if (type === 'artist') {
+      id = item.id;
+      title = item.name;
+      subtitle = "Nghệ sĩ";
+      imageUrl = item.avatarUrl;
+      isCircular = true;
+      onClick = () => navigate(`/artist/${id}`);
+    } else if (type === 'album') {
+      id = item.id;
+      title = item.title;
+      subtitle = item.artistName || "Album";
+      imageUrl = item.coverUrl;
+      onClick = () => navigate(`/album/${id}`);
+    } else if (type === 'playlist') {
+      id = item.id;
+      title = item.name;
+      subtitle = `Bởi ${item.userName || 'Người dùng'}`;
+      imageUrl = item.coverUrl;
+      onClick = () => navigate(`/playlist/${id}`);
+    } else if (type === 'profile') {
+      id = item.id;
+      title = item.username;
+      subtitle = "Hồ sơ";
+      imageUrl = item.avatarUrl;
+      isCircular = true;
+      onClick = () => navigate(`/user/${id}`);
+    }
+
+    return (
+      <div 
+        key={`${type}-${id}`}
+        onClick={onClick}
+        className="p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative flex flex-col"
+      >
+        <div className={`w-full aspect-square bg-zinc-700 mb-4 shadow-lg flex items-center justify-center relative overflow-hidden ${isCircular ? 'rounded-full' : 'rounded-md'}`}>
+          {imageUrl ? (
+            <img src={getImageUrl(imageUrl)} className="w-full h-full object-cover" alt={title} />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center font-bold text-4xl text-white/50">
+              {title?.charAt(0)}
+            </div>
+          )}
+        </div>
+        <h3 className="font-bold text-white truncate text-base">{title}</h3>
+        <p className="text-sm text-zinc-400 mt-1 truncate">{subtitle}</p>
+      </div>
+    );
+  };
+
   const getTopResult = () => {
     if (!results) return null;
     const lowerQuery = query.toLowerCase();
@@ -450,17 +507,23 @@ export const Search = () => {
           )}
 
           {/* Unified Results List */}
-          <div className="flex flex-col gap-1">
-            {activeTab === 'all' && topResult && renderRow(topResult.item, topResult.type, true)}
+          {activeTab === 'all' || activeTab === 'songs' ? (
+            <div className="flex flex-col gap-1">
+              {activeTab === 'all' && topResult && renderRow(topResult.item, topResult.type, true)}
+              {activeTab === 'all' && getAllList().map(x => renderRow(x.item, x.type))}
+              {activeTab === 'songs' && results.tracks?.map(track => renderRow(track, 'track'))}
+            </div>
+          ) : null}
 
-            {activeTab === 'all' && getAllList().map(x => renderRow(x.item, x.type))}
-
-            {activeTab === 'songs' && results.tracks?.map(track => renderRow(track, 'track'))}
-            {activeTab === 'artists' && results.artists?.map(artist => renderRow(artist, 'artist'))}
-            {activeTab === 'albums' && results.albums?.map(album => renderRow(album, 'album'))}
-            {activeTab === 'playlists' && results.playlists?.map(playlist => renderRow(playlist, 'playlist'))}
-            {activeTab === 'profiles' && results.users?.map(user => renderRow(user, 'profile'))}
-          </div>
+          {/* Grid Results List */}
+          {activeTab !== 'all' && activeTab !== 'songs' ? (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-6">
+              {activeTab === 'artists' && results.artists?.map(artist => renderCard(artist, 'artist'))}
+              {activeTab === 'albums' && results.albums?.map(album => renderCard(album, 'album'))}
+              {activeTab === 'playlists' && results.playlists?.map(playlist => renderCard(playlist, 'playlist'))}
+              {activeTab === 'profiles' && results.users?.map(user => renderCard(user, 'profile'))}
+            </div>
+          ) : null}
 
           {/* Pagination */}
           {results.totalPages > 1 && (
