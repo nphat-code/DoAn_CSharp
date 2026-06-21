@@ -265,7 +265,7 @@ export const Search = () => {
 
             {openDropdown?.id === item.id && (
               <div 
-                className={`absolute right-12 w-56 bg-[#282828] rounded-md shadow-2xl py-1 z-50 text-sm font-medium ${openDropdown.openUpwards ? 'bottom-full mb-2' : 'top-full mt-2'}`}
+                className={`absolute right-12 w-56 bg-[#282828] rounded-md shadow-2xl py-1 z-50 text-sm font-medium ${openDropdown?.openUpwards ? 'bottom-full mb-2' : 'top-full mt-2'}`}
                 onClick={(e) => e.stopPropagation()}
               >
                 {type === 'track' && (
@@ -280,7 +280,7 @@ export const Search = () => {
                         <span>▶</span>
                       </button>
                       {showPlaylistMenu === item.id && (
-                        <div className={`absolute right-full w-48 bg-[#282828] rounded-md shadow-2xl py-1 z-50 ${openDropdown.openUpwards ? 'bottom-0' : 'top-0'} mr-1`}>
+                        <div className={`absolute right-full w-48 bg-[#282828] rounded-md shadow-2xl py-1 z-50 ${openDropdown?.openUpwards ? 'bottom-0' : 'top-0'} mr-1`}>
                           {playlists.length === 0 ? (
                             <div className="px-4 py-3 text-zinc-400">Chưa có danh sách phát</div>
                           ) : (
