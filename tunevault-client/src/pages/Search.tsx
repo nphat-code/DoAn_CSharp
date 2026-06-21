@@ -115,9 +115,9 @@ export const Search = () => {
       if (currentMedia?.id === item.id) {
         togglePlayPause();
       } else {
-        if (searchResults?.tracks && searchResults.tracks.length > 0) {
-          const index = searchResults.tracks.findIndex((t: any) => t.id === item.id);
-          playMediaList(searchResults.tracks, index !== -1 ? index : 0);
+        if (results?.tracks && results.tracks.length > 0) {
+          const index = results.tracks.findIndex((t: any) => t.id === item.id);
+          playMediaList(results.tracks, index !== -1 ? index : 0);
         } else {
           playMedia(item);
         }
