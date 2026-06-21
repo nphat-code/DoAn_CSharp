@@ -5,7 +5,8 @@ import { albumService } from '../services/albumService';
 import { playlistService } from '../services/playlistService';
 import type { SearchResultDto } from '../types';
 import { usePlayer } from '../context/PlayerContext';
-import { Play, Pause } from 'lucide-react';
+import { Play, Pause, Heart, MoreHorizontal, Share2 } from 'lucide-react';
+import { ShareMediaModal } from '../components/ShareMediaModal';
 
 export const Search = () => {
   const [searchParams] = useSearchParams();
@@ -18,6 +19,22 @@ export const Search = () => {
   const [results, setResults] = useState<SearchResultDto | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'all' | 'songs' | 'artists' | 'albums' | 'playlists' | 'profiles'>('all');
+  
+  const [favoritesIds, setFavoritesIds] = useState<Set<string>>(new Set());
+  const [followedArtistIds, setFollowedArtistIds] = useState<Set<string>>(new Set());
+  const [playlists, setPlaylists] = useState<any[]>([]);
+  const [openDropdown, setOpenDropdown] = useState<{ id: string, type: string, openUpwards: boolean } | null>(null);
+  const [showPlaylistMenu, setShowPlaylistMenu] = useState<string | null>(null);
+  const [shareData, setShareData] = useState<{ id: string, type: string, title: string } | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      mediaService.getFavorites().then(f => setFavoritesIds(new Set(f.map(t => t.id)))).catch(() => {});
+      import('../services/artistService').then(m => m.artistService.getFollowedArtists().then(a => setFollowedArtistIds(new Set(a.map(x => x.id))))).catch(() => {});
+      playlistService.getUserPlaylists().then(setPlaylists).catch(() => {});
+    }
+  }, []);
 
   useEffect(() => {
     const doSearch = async () => {
@@ -39,6 +56,38 @@ export const Search = () => {
     
     return () => clearTimeout(debounceTimeout);
   }, [query, page]);
+
+  const handleToggleFavorite = async (e: React.MouseEvent, trackId: string) => {
+    e.stopPropagation();
+    try {
+      const res = await mediaService.toggleFavorite(trackId);
+      setFavoritesIds(prev => {
+        const next = new Set(prev);
+        if (res.isFavorited) next.add(trackId);
+        else next.delete(trackId);
+        return next;
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleToggleFollow = async (e: React.MouseEvent, artistId: string) => {
+    e.stopPropagation();
+    try {
+      const { artistService } = await import('../services/artistService');
+      const isFollowing = followedArtistIds.has(artistId);
+      if (isFollowing) {
+        await artistService.unfollowArtist(artistId);
+        setFollowedArtistIds(prev => { const next = new Set(prev); next.delete(artistId); return next; });
+      } else {
+        await artistService.followArtist(artistId);
+        setFollowedArtistIds(prev => { const next = new Set(prev); next.add(artistId); return next; });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handlePageChange = (newPage: number) => {
     if (query) {
@@ -172,7 +221,7 @@ export const Search = () => {
           <span className={`${titleClass} truncate ${isPlayingRow ? 'text-[#1ed760]' : 'text-white'}`}>{title}</span>
           <span className="text-sm text-zinc-400 truncate">{subtitle}</span>
         </div>
-        {type !== 'profile' && (
+        {type !== 'profile' && isTopResult && (
           <div className="flex-shrink-0 pr-4">
              <button 
                onClick={(e) => { e.stopPropagation(); handlePlayDirectly(item, type); }}
@@ -180,6 +229,122 @@ export const Search = () => {
              >
                 {isPlayingRow && isPlaying ? <Pause size={playSize} fill="currentColor" /> : <Play size={playSize} fill="currentColor" className="ml-1" />}
              </button>
+          </div>
+        )}
+        {!isTopResult && (type === 'track' || type === 'artist') && (
+          <div className="flex-shrink-0 pr-4 flex items-center gap-4 relative">
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                const rect = e.currentTarget.getBoundingClientRect();
+                const openUpwards = window.innerHeight - rect.bottom < 250;
+                if (openDropdown?.id === item.id) setOpenDropdown(null);
+                else setOpenDropdown({ id: item.id, type, openUpwards });
+              }}
+              className="text-zinc-400 hover:text-white opacity-0 group-hover:opacity-100 transition"
+            >
+              <MoreHorizontal size={20} />
+            </button>
+            
+            {type === 'track' && (
+              <button 
+                onClick={(e) => handleToggleFavorite(e, item.id)}
+                className={`text-zinc-400 hover:text-white transition ${favoritesIds.has(item.id) ? 'opacity-100 text-[#1ed760] hover:text-[#1fdf64]' : 'opacity-0 group-hover:opacity-100'}`}
+              >
+                <Heart size={20} className={favoritesIds.has(item.id) ? "fill-[#1ed760] text-[#1ed760]" : ""} />
+              </button>
+            )}
+            {type === 'artist' && (
+              <button 
+                onClick={(e) => handleToggleFollow(e, item.id)}
+                className={`text-sm font-semibold px-4 py-1 rounded-full border transition ${followedArtistIds.has(item.id) ? 'border-zinc-500 text-white hover:border-white' : 'border-zinc-500 text-white hover:scale-105'} opacity-0 group-hover:opacity-100`}
+              >
+                {followedArtistIds.has(item.id) ? "Đang theo dõi" : "Theo dõi"}
+              </button>
+            )}
+
+            {openDropdown?.id === item.id && (
+              <div 
+                className={`absolute right-12 w-56 bg-[#282828] rounded-md shadow-2xl py-1 z-50 text-sm font-medium ${openDropdown.openUpwards ? 'bottom-full mb-2' : 'top-full mt-2'}`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {type === 'track' && (
+                  <>
+                    <div 
+                      className="relative"
+                      onMouseEnter={() => setShowPlaylistMenu(item.id)}
+                      onMouseLeave={() => setShowPlaylistMenu(null)}
+                    >
+                      <button className="w-full text-left px-4 py-3 text-white hover:bg-white/10 flex justify-between items-center">
+                        Thêm vào danh sách phát
+                        <span>▶</span>
+                      </button>
+                      {showPlaylistMenu === item.id && (
+                        <div className={`absolute right-full w-48 bg-[#282828] rounded-md shadow-2xl py-1 z-50 ${openDropdown.openUpwards ? 'bottom-0' : 'top-0'} mr-1`}>
+                          {playlists.length === 0 ? (
+                            <div className="px-4 py-3 text-zinc-400">Chưa có danh sách phát</div>
+                          ) : (
+                            playlists.map(p => (
+                              <button 
+                                key={p.id}
+                                className="w-full text-left px-4 py-3 text-white hover:bg-white/10 truncate"
+                                onClick={() => {
+                                  playlistService.addTrackToPlaylist(p.id, item.id)
+                                    .then(() => alert("Đã thêm vào danh sách phát"))
+                                    .catch(() => alert("Lỗi khi thêm"))
+                                    .finally(() => { setOpenDropdown(null); setShowPlaylistMenu(null); });
+                                }}
+                              >
+                                {p.title || p.name}
+                              </button>
+                            ))
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <button 
+                      onClick={(e) => { handleToggleFavorite(e, item.id); setOpenDropdown(null); }}
+                      className="w-full text-left px-4 py-3 text-white hover:bg-white/10"
+                    >
+                      {favoritesIds.has(item.id) ? "Xóa khỏi Bài hát đã thích" : "Lưu vào Bài hát đã thích"}
+                    </button>
+                    <hr className="border-white/10 my-1 mx-2" />
+                    {item.artistId && (
+                      <button onClick={() => { navigate(`/artist/${item.artistId}`); setOpenDropdown(null); }} className="w-full text-left px-4 py-3 text-white hover:bg-white/10">
+                        Chuyển tới nghệ sĩ
+                      </button>
+                    )}
+                    {item.albumId && (
+                      <button onClick={() => { navigate(`/album/${item.albumId}`); setOpenDropdown(null); }} className="w-full text-left px-4 py-3 text-white hover:bg-white/10">
+                        Chuyển đến album
+                      </button>
+                    )}
+                    <button 
+                      onClick={() => { setShareData({ id: item.id, type: 'Bài hát', title }); setShowShareModal(true); setOpenDropdown(null); }}
+                      className="w-full text-left px-4 py-3 text-white hover:bg-white/10 flex items-center justify-between"
+                    >
+                      Chia sẻ <Share2 size={16} />
+                    </button>
+                  </>
+                )}
+                {type === 'artist' && (
+                  <>
+                    <button 
+                      onClick={(e) => { handleToggleFollow(e, item.id); setOpenDropdown(null); }}
+                      className="w-full text-left px-4 py-3 text-white hover:bg-white/10"
+                    >
+                      {followedArtistIds.has(item.id) ? "Hủy theo dõi" : "Theo dõi"}
+                    </button>
+                    <button 
+                      onClick={() => { setShareData({ id: item.id, type: 'Nghệ sĩ', title }); setShowShareModal(true); setOpenDropdown(null); }}
+                      className="w-full text-left px-4 py-3 text-white hover:bg-white/10 flex items-center justify-between"
+                    >
+                      Chia sẻ <Share2 size={16} />
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -217,7 +382,6 @@ export const Search = () => {
     // Add artists first so they appear right after the top result if it's a track
     if (results.artists) list.push(...results.artists.map(a => ({ item: a, type: 'artist' as const })));
     if (results.tracks) list.push(...results.tracks.map(t => ({ item: t, type: 'track' as const })));
-    if (results.albums) list.push(...results.albums.map(a => ({ item: a, type: 'album' as const })));
     if (results.playlists) list.push(...results.playlists.map(p => ({ item: p, type: 'playlist' as const })));
     if (results.users) list.push(...results.users.map(u => ({ item: u, type: 'profile' as const })));
     
@@ -228,7 +392,7 @@ export const Search = () => {
   };
 
   return (
-    <div className="p-6 pb-8 text-white max-w-5xl mx-auto">
+    <div className="p-6 pb-8 text-white max-w-5xl mx-auto" onClick={() => { if (openDropdown) setOpenDropdown(null); }}>
       {loading ? (
         <div className="text-zinc-500 font-medium">Đang tải...</div>
       ) : !hasResults ? (
@@ -318,6 +482,14 @@ export const Search = () => {
           )}
 
         </div>
+      )}
+      {showShareModal && shareData && (
+        <ShareMediaModal 
+          onClose={() => setShowShareModal(false)}
+          mediaId={shareData.id}
+          mediaType={shareData.type}
+          mediaTitle={shareData.title}
+        />
       )}
     </div>
   );
