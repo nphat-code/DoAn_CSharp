@@ -107,9 +107,132 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                     <Play size={16} fill="currentColor" className="text-white ml-1" />
                   </div>
                 </div>
-                <div className="flex flex-col min-w-0">
+                <div className="flex flex-col min-w-0 flex-1">
                   <span className="text-[#1ed760] font-medium truncate text-sm">{currentMedia.title}</span>
                   <span className="text-zinc-400 text-sm truncate">{(currentMedia as any).artist?.name || currentMedia.artistName || currentMedia.description || 'Nghệ sĩ'}</span>
+                </div>
+
+                <div className="flex-shrink-0 flex items-center gap-2 relative">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const openUpwards = window.innerHeight - rect.bottom < 250;
+                      if (openDropdown?.id === `playing-${currentMedia.id}`) setOpenDropdown(null);
+                      else setOpenDropdown({ id: `playing-${currentMedia.id}`, openUpwards });
+                    }}
+                    className="text-zinc-400 hover:text-white opacity-0 group-hover:opacity-100 transition"
+                  >
+                    <MoreHorizontal size={20} />
+                  </button>
+
+                  {openDropdown?.id === `playing-${currentMedia.id}` && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpenDropdown(null); }}></div>
+                      <div
+                        className={`absolute right-8 w-max min-w-[200px] bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 ${openDropdown?.openUpwards ? 'bottom-full mb-1' : 'top-full mt-1'}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div
+                          className="relative"
+                          onMouseEnter={() => setShowPlaylistMenu(`playing-${currentMedia.id}`)}
+                          onMouseLeave={() => setShowPlaylistMenu(null)}
+                        >
+                          <button className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center justify-between">
+                            <span>Thêm vào danh sách phát</span>
+                            <svg role="img" height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 14l8-6-8-6v12z"></path></svg>
+                          </button>
+                          {showPlaylistMenu === `playing-${currentMedia.id}` && (
+                            <div className={`absolute ${openDropdown?.openUpwards ? 'bottom-full mb-1' : 'top-full mt-1'} left-0 w-full bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 max-h-64 overflow-y-auto custom-scrollbar`}>
+                              {playlists.length === 0 ? (
+                                <div className="px-4 py-2 text-sm text-zinc-500">Chưa có danh sách phát</div>
+                              ) : (
+                                playlists.map(p => (
+                                  <button
+                                    key={p.id}
+                                    onClick={async () => {
+                                      try {
+                                        const m = await import('../services/playlistService');
+                                        await m.playlistService.addTrackToPlaylist(p.id, currentMedia.id);
+                                        alert("Đã thêm vào " + p.name);
+                                      } catch(err) {
+                                        alert("Lỗi khi thêm. Có thể bài hát đã có trong danh sách.");
+                                      }
+                                      setOpenDropdown(null);
+                                    }}
+                                    className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white truncate"
+                                  >
+                                    {p.name}
+                                  </button>
+                                ))
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        <button 
+                          onClick={async () => {
+                            try {
+                              await mediaService.toggleFavorite(currentMedia.id);
+                              alert("Đã thêm vào / xóa khỏi bài hát đã thích.");
+                            } catch (err) {
+                              alert("Lỗi khi thay đổi trạng thái yêu thích.");
+                            }
+                            setOpenDropdown(null);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                        >
+                          Thêm vào bài hát đã thích
+                        </button>
+                        
+                        <div className="h-px bg-white/10 my-1 mx-2"></div>
+
+                        {(currentMedia.artistId || (currentMedia as any).artist?.id) && (
+                          <button 
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              const id = currentMedia.artistId || (currentMedia as any).artist?.id;
+                              if (id) {
+                                setOpenDropdown(null); 
+                                navigate(`/artist/${id}`); 
+                              }
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                          >
+                            Chuyển tới Nghệ sĩ
+                          </button>
+                        )}
+                        {(currentMedia.albumId || (currentMedia as any).album?.id) && (
+                          <button 
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              const id = currentMedia.albumId || (currentMedia as any).album?.id;
+                              if (id) {
+                                setOpenDropdown(null); 
+                                navigate(`/album/${id}`); 
+                              }
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                          >
+                            Chuyển đến Album
+                          </button>
+                        )}
+                        
+                        <div className="h-px bg-white/10 my-1 mx-2"></div>
+
+                        <button 
+                          onClick={() => {
+                            setShareData({ id: currentMedia.id, title: currentMedia.title });
+                            setShowShareModal(true);
+                            setOpenDropdown(null);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                        >
+                          Chia sẻ
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             ) : (
@@ -214,20 +337,34 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                             
                             <div className="h-px bg-white/10 my-1 mx-2"></div>
 
-                            {track.artistId && (
+                            {(track.artistId || (track as any).artist?.id) && (
                               <button 
-                                onClick={() => { setOpenDropdown(null); navigate(`/artist/${track.artistId}`); }}
+                                onClick={(e) => { 
+                                  e.stopPropagation(); 
+                                  const id = track.artistId || (track as any).artist?.id;
+                                  if (id) {
+                                    setOpenDropdown(null); 
+                                    navigate(`/artist/${id}`); 
+                                  }
+                                }}
                                 className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
                               >
-                                Đi tới nghệ sĩ
+                                Chuyển tới Nghệ sĩ
                               </button>
                             )}
-                            {track.albumId && (
+                            {(track.albumId || (track as any).album?.id) && (
                               <button 
-                                onClick={() => { setOpenDropdown(null); navigate(`/album/${track.albumId}`); }}
+                                onClick={(e) => { 
+                                  e.stopPropagation(); 
+                                  const id = track.albumId || (track as any).album?.id;
+                                  if (id) {
+                                    setOpenDropdown(null); 
+                                    navigate(`/album/${id}`); 
+                                  }
+                                }}
                                 className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
                               >
-                                Đi tới album
+                                Chuyển đến Album
                               </button>
                             )}
                             
