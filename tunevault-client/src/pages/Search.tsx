@@ -5,7 +5,7 @@ import { albumService } from '../services/albumService';
 import { playlistService } from '../services/playlistService';
 import type { SearchResultDto } from '../types';
 import { usePlayer } from '../context/PlayerContext';
-import { Play, Pause, Heart, MoreHorizontal, Share2 } from 'lucide-react';
+import { Play, Pause, Plus, Check, MoreHorizontal, Share2 } from 'lucide-react';
 import { ShareMediaModal } from '../components/ShareMediaModal';
 
 export const Search = () => {
@@ -251,13 +251,13 @@ export const Search = () => {
                 onClick={(e) => handleToggleFavorite(e, item.id)}
                 className={`text-zinc-400 hover:text-white transition ${favoritesIds.has(item.id) ? 'opacity-100 text-[#1ed760] hover:text-[#1fdf64]' : 'opacity-0 group-hover:opacity-100'}`}
               >
-                <Heart size={20} className={favoritesIds.has(item.id) ? "fill-[#1ed760] text-[#1ed760]" : ""} />
+                {favoritesIds.has(item.id) ? <Check size={20} /> : <Plus size={20} />}
               </button>
             )}
             {type === 'artist' && (
               <button 
                 onClick={(e) => handleToggleFollow(e, item.id)}
-                className={`text-sm font-semibold px-4 py-1 rounded-full border transition ${followedArtistIds.has(item.id) ? 'border-zinc-500 text-white hover:border-white' : 'border-zinc-500 text-white hover:scale-105'} opacity-0 group-hover:opacity-100`}
+                className={`text-sm font-semibold px-4 py-1 rounded-full border transition ${followedArtistIds.has(item.id) ? 'border-zinc-500 text-white hover:border-white' : 'border-zinc-500 text-white hover:scale-105'}`}
               >
                 {followedArtistIds.has(item.id) ? "Đang theo dõi" : "Theo dõi"}
               </button>
