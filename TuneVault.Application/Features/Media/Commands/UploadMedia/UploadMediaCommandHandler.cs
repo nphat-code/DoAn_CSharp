@@ -111,7 +111,8 @@ public class UploadMediaCommandHandler(
             ArtistName = request.Description, // artistName corresponds to Description here
             ArtistBio = artistBio,
             ArtistAvatarUrl = artistAvatarUrl,
-            ArtistId = artistId
+            ArtistId = artistId,
+            AlbumId = mediaItem.AlbumId
         };
     }
 }

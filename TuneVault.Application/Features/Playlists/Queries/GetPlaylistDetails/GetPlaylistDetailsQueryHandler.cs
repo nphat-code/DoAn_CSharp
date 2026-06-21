@@ -38,6 +38,7 @@ public class GetPlaylistDetailsQueryHandler(IPlaylistRepository playlistReposito
                 ArtistBio = t.Artist?.Bio ?? t.Album?.Artist?.Bio,
                 ArtistAvatarUrl = t.Artist?.AvatarUrl ?? t.Album?.Artist?.AvatarUrl,
                 ArtistId = t.Artist?.Id ?? t.Album?.Artist?.Id ?? t.ArtistId,
+                AlbumId = t.AlbumId,
                 AlbumTitle = t.Album?.Title
             }).ToList()
         };

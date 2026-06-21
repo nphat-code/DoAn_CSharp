@@ -30,6 +30,7 @@ public class GetAlbumByIdQueryHandler(IAlbumRepository albumRepository)
             ArtistBio = t.Artist?.Bio ?? album.Artist?.Bio,
             ArtistAvatarUrl = t.Artist?.AvatarUrl ?? album.Artist?.AvatarUrl,
             ArtistId = t.Artist?.Id ?? album.Artist?.Id ?? t.ArtistId,
+            AlbumId = t.AlbumId ?? album.Id,
             AlbumTitle = album.Title
         }).ToList();
 
