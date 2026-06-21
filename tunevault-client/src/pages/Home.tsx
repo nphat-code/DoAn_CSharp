@@ -9,7 +9,7 @@ import { Plus, Trash2, Disc } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const Home = () => {
-  const { playMedia, currentMedia, isPlaying, togglePlayPause } = usePlayer();
+  const { playMedia, currentMedia, isPlaying, togglePlayPause, playMediaList } = usePlayer();
   const navigate = useNavigate();
   const [tracks, setTracks] = useState<MediaItemDto[]>([]);
   const [albums, setAlbums] = useState<AlbumDto[]>([]);
@@ -69,6 +69,28 @@ export const Home = () => {
       alert("Lỗi khi thay đổi bài hát yêu thích.");
     }
   };
+
+  const handlePlayAlbum = async (e: React.MouseEvent, albumId: string) => {
+    e.stopPropagation();
+    
+    if (currentMedia?.albumId === albumId) {
+      togglePlayPause();
+      return;
+    }
+
+    try {
+      const albumDetail = await albumService.getAlbumById(albumId);
+      if (albumDetail.tracks && albumDetail.tracks.length > 0) {
+        await playMediaList(albumDetail.tracks, 0);
+      } else {
+        alert("Album này chưa có bài hát nào.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi phát album:", error);
+      alert("Lỗi khi phát album.");
+    }
+  };
+
 
   return (
     <div className="p-6 pb-8">
@@ -132,7 +154,7 @@ export const Home = () => {
                   onClick={() => navigate(`/album/${album.id}`)}
                   className={`p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative flex flex-col ${activeTab === 'all' ? 'min-w-[180px] w-[180px] flex-shrink-0' : ''}`}
                 >
-                  <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center relative overflow-hidden">
+                  <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center relative overflow-hidden group-hover:shadow-xl transition">
                     {album.coverUrl ? (
                       <img src={album.coverUrl?.startsWith('http') ? album.coverUrl : `https://tunevault-api.onrender.com${album.coverUrl}`} alt={album.title} className="w-full h-full object-cover" />
                     ) : (
@@ -140,6 +162,16 @@ export const Home = () => {
                          <Disc size={64} className="text-white/30" />
                       </div>
                     )}
+                    <button 
+                      onClick={(e) => handlePlayAlbum(e, album.id)}
+                      className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition shadow-xl z-20 ${currentMedia?.albumId === album.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}
+                    >
+                      {currentMedia?.albumId === album.id && isPlaying ? (
+                        <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+                      ) : (
+                        <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                      )}
+                    </button>
                   </div>
                   <h3 className="font-bold text-white truncate text-base">{album.title}</h3>
                   <p 

@@ -12,69 +12,84 @@
 
 @layer utilities {
   .overflow-y-overlay {
-    overflow-y: auto; /* Fallback */
+    overflow-y: auto;
     overflow-y: overlay;
   }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
+  
   .scrollbar-hide {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-/* Custom scrollbar for webkit to match Spotify */
-::-webkit-scrollbar {
-  width: 12px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: transparent; /* Ẩn bình thường */
-  border-radius: 6px;
-  border: 3px solid transparent;
-  background-clip: padding-box;
-}
-*:hover::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.3); /* Hiện khi hover vùng */
-}
-::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.5);
-}
+@layer components {
+  /* ==========================================================================
+     Custom Scrollbar (Spotify-like)
+     ========================================================================== */
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
 
-/* Custom Spotify Seekbar */
-input[type=range].spotify-slider {
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
-  width: 100%;
-}
-input[type=range].spotify-slider::-webkit-slider-runnable-track {
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(to right, #ffffff var(--progress), #4d4d4d var(--progress));
-  border-radius: 2px;
-}
-.group:hover input[type=range].spotify-slider::-webkit-slider-runnable-track,
-input[type=range].spotify-slider:hover::-webkit-slider-runnable-track {
-  background: linear-gradient(to right, #1ed760 var(--progress), #4d4d4d var(--progress));
-}
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
-input[type=range].spotify-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 12px;
-  width: 12px;
-  border-radius: 50%;
-  background: #ffffff;
-  margin-top: -4px;
-  opacity: 0; /* Ẩn bình thường */
-  transition: opacity 0.1s;
-  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.5); /* Thêm shadow để dễ nhìn */
-}
-.group:hover input[type=range].spotify-slider::-webkit-slider-thumb,
-input[type=range].spotify-slider:hover::-webkit-slider-thumb {
-  opacity: 1; /* Hiện khi hover vùng group chứa nó hoặc hover trực tiếp */
+  ::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 6px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+
+  *:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+
+  /* ==========================================================================
+     Custom Slider (Spotify-like progress bar)
+     ========================================================================== */
+  input[type=range].spotify-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    width: 100%;
+  }
+
+  input[type=range].spotify-slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(to right, #ffffff var(--progress), #4d4d4d var(--progress));
+    border-radius: 2px;
+  }
+
+  .group:hover input[type=range].spotify-slider::-webkit-slider-runnable-track,
+  input[type=range].spotify-slider:hover::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #1ed760 var(--progress), #4d4d4d var(--progress));
+  }
+
+  input[type=range].spotify-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    background: #ffffff;
+    margin-top: -4px;
+    opacity: 0;
+    transition: opacity 0.1s;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.5);
+  }
+
+  .group:hover input[type=range].spotify-slider::-webkit-slider-thumb,
+  input[type=range].spotify-slider:hover::-webkit-slider-thumb {
+    opacity: 1;
+  }
 }
