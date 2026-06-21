@@ -1,5 +1,5 @@
 import { usePlayer } from '../context/PlayerContext';
-import { MoreHorizontal, X, Trash2, Maximize2, Play } from 'lucide-react';
+import { MoreHorizontal, X, Trash2, Maximize2, Play, Share2, User, Disc, PlusCircle } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import { useNavigate } from 'react-router-dom';
 import { useRef, useState, useEffect } from 'react';
@@ -23,6 +23,42 @@ export const RightPanel = ({ width }: RightPanelProps) => {
   const [openDropdown, setOpenDropdown] = useState<{ id: string, openUpwards: boolean } | null>(null);
   const [showPlaylistMenu, setShowPlaylistMenu] = useState<string | null>(null);
   const [playlists, setPlaylists] = useState<any[]>([]);
+  const [favoritesIds, setFavoritesIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const fetchFavs = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const res = await mediaService.getFavorites();
+          setFavoritesIds(new Set(res.map(f => f.id)));
+        }
+      } catch {}
+    };
+    fetchFavs();
+    window.addEventListener('favoritesUpdated', fetchFavs);
+    return () => window.removeEventListener('favoritesUpdated', fetchFavs);
+  }, []);
+
+  const handleQueueToggleFavorite = async (e: React.MouseEvent, trackId: string) => {
+    e.stopPropagation();
+    try {
+      const res = await mediaService.toggleFavorite(trackId);
+      setFavoritesIds(prev => {
+        const next = new Set(prev);
+        if (res.isFavorited) next.add(trackId);
+        else next.delete(trackId);
+        return next;
+      });
+      window.dispatchEvent(new Event('favoritesUpdated'));
+      if (currentMedia && currentMedia.id === trackId && toggleFavorite) {
+         // Optionally sync PlayerContext's toggleFavorite but the UI uses favoritesIds anyway
+      }
+    } catch (error) {
+      alert("Lỗi khi thay đổi trạng thái yêu thích.");
+    }
+    setOpenDropdown(null);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -139,7 +175,10 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                           onMouseLeave={() => setShowPlaylistMenu(null)}
                         >
                           <button className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center justify-between">
-                            <span>Thêm vào danh sách phát</span>
+                            <div className="flex items-center gap-2">
+                              <PlusCircle size={16} />
+                              <span>Thêm vào danh sách phát</span>
+                            </div>
                             <svg role="img" height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 14l8-6-8-6v12z"></path></svg>
                           </button>
                           {showPlaylistMenu === `playing-${currentMedia.id}` && (
@@ -171,18 +210,20 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                         </div>
 
                         <button 
-                          onClick={async () => {
-                            try {
-                              await mediaService.toggleFavorite(currentMedia.id);
-                              alert("Đã thêm vào / xóa khỏi bài hát đã thích.");
-                            } catch (err) {
-                              alert("Lỗi khi thay đổi trạng thái yêu thích.");
-                            }
-                            setOpenDropdown(null);
-                          }}
-                          className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                          onClick={(e) => handleQueueToggleFavorite(e, currentMedia.id)}
+                          className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
                         >
-                          Thêm vào bài hát đã thích
+                          {favoritesIds.has(currentMedia.id) || (isFavorited && favoritesIds.size === 0) ? (
+                            <>
+                              <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
+                              Xóa khỏi Bài hát đã thích
+                            </>
+                          ) : (
+                            <>
+                              <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                              Lưu vào Bài hát đã thích
+                            </>
+                          )}
                         </button>
                         
                         <div className="h-px bg-white/10 my-1 mx-2"></div>
@@ -197,9 +238,9 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                                 navigate(`/artist/${id}`); 
                               }
                             }}
-                            className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                            className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
                           >
-                            Chuyển tới Nghệ sĩ
+                            <User size={16} /> Chuyển tới Nghệ sĩ
                           </button>
                         )}
                         {(currentMedia.albumId || (currentMedia as any).album?.id) && (
@@ -212,9 +253,9 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                                 navigate(`/album/${id}`); 
                               }
                             }}
-                            className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                            className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
                           >
-                            Chuyển đến Album
+                            <Disc size={16} /> Chuyển đến Album
                           </button>
                         )}
                         
@@ -226,9 +267,9 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                             setShowShareModal(true);
                             setOpenDropdown(null);
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                          className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
                         >
-                          Chia sẻ
+                          <Share2 size={16} /> Chia sẻ
                         </button>
                       </div>
                     </>
@@ -289,7 +330,10 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                               onMouseLeave={() => setShowPlaylistMenu(null)}
                             >
                               <button className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center justify-between">
-                                <span>Thêm vào danh sách phát</span>
+                                <div className="flex items-center gap-2">
+                                  <PlusCircle size={16} />
+                                  <span>Thêm vào danh sách phát</span>
+                                </div>
                                 <svg role="img" height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 14l8-6-8-6v12z"></path></svg>
                               </button>
                               {showPlaylistMenu === `${track.id}-${idx}` && (
@@ -321,18 +365,20 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                             </div>
 
                             <button 
-                              onClick={async () => {
-                                try {
-                                  await mediaService.toggleFavorite(track.id);
-                                  alert("Đã thêm vào / xóa khỏi bài hát đã thích.");
-                                } catch (err) {
-                                  alert("Lỗi khi thay đổi trạng thái yêu thích.");
-                                }
-                                setOpenDropdown(null);
-                              }}
-                              className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                              onClick={(e) => handleQueueToggleFavorite(e, track.id)}
+                              className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
                             >
-                              Thêm vào bài hát đã thích
+                              {favoritesIds.has(track.id) ? (
+                                <>
+                                  <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
+                                  Xóa khỏi Bài hát đã thích
+                                </>
+                              ) : (
+                                <>
+                                  <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                                  Lưu vào Bài hát đã thích
+                                </>
+                              )}
                             </button>
                             
                             <div className="h-px bg-white/10 my-1 mx-2"></div>
@@ -347,9 +393,9 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                                     navigate(`/artist/${id}`); 
                                   }
                                 }}
-                                className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                                className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
                               >
-                                Chuyển tới Nghệ sĩ
+                                <User size={16} /> Chuyển tới Nghệ sĩ
                               </button>
                             )}
                             {(track.albumId || (track as any).album?.id) && (
@@ -362,9 +408,9 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                                     navigate(`/album/${id}`); 
                                   }
                                 }}
-                                className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                                className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
                               >
-                                Chuyển đến Album
+                                <Disc size={16} /> Chuyển đến Album
                               </button>
                             )}
                             
@@ -376,9 +422,9 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                                 setShowShareModal(true);
                                 setOpenDropdown(null);
                               }}
-                              className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                              className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
                             >
-                              Chia sẻ
+                              <Share2 size={16} /> Chia sẻ
                             </button>
                           </div>
                         </>
