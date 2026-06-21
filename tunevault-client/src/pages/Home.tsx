@@ -81,7 +81,13 @@ export const Home = () => {
     try {
       const albumDetail = await albumService.getAlbumById(albumId);
       if (albumDetail.tracks && albumDetail.tracks.length > 0) {
-        await playMediaList(albumDetail.tracks, 0);
+        const tracksToPlay = albumDetail.tracks.map(t => ({
+          ...t,
+          albumId: albumId,
+          coverUrl: t.coverUrl || albumDetail.coverUrl,
+          artistName: t.artistName || albumDetail.artistName
+        }));
+        await playMediaList(tracksToPlay, 0);
       } else {
         alert("Album này chưa có bài hát nào.");
       }
