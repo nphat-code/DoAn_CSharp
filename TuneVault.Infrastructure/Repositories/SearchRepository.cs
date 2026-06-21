@@ -34,8 +34,17 @@ public class SearchRepository(IDbConnection dbConnection) : ISearchRepository
                        a.Name as ArtistName, a.Bio as ArtistBio, a.AvatarUrl as ArtistAvatarUrl
                 FROM MediaItems m
                 LEFT JOIN Artists a ON m.ArtistId = a.Id
-                WHERE m.Title ILIKE @Query OR m.Description ILIKE @Query OR a.Name ILIKE @Query
-                ORDER BY m.CreatedAt DESC
+                WHERE m.Title ILIKE @Query 
+                   OR m.Description ILIKE @Query 
+                   OR a.Name ILIKE @Query
+                   OR m.ArtistId IN (SELECT ArtistId FROM MediaItems WHERE Title ILIKE @Query AND ArtistId IS NOT NULL)
+                ORDER BY 
+                    CASE 
+                        WHEN m.Title ILIKE @Query THEN 0
+                        WHEN a.Name ILIKE @Query THEN 1
+                        ELSE 2
+                    END,
+                    m.CreatedAt DESC
                 LIMIT @Limit OFFSET @Offset";
 
         var tracks = await dbConnection.QueryAsync<MediaItemDto>(trackSql, new { Query = queryTerm, Limit = limit, Offset = offset });
@@ -49,8 +58,12 @@ public class SearchRepository(IDbConnection dbConnection) : ISearchRepository
                 LIMIT @Limit OFFSET @Offset"
             : @"SELECT Id, Name, Bio, AvatarUrl, CreatedAt
                 FROM Artists
-                WHERE Name ILIKE @Query OR Bio ILIKE @Query
-                ORDER BY CreatedAt DESC
+                WHERE Name ILIKE @Query 
+                   OR Bio ILIKE @Query
+                   OR Id IN (SELECT ArtistId FROM MediaItems WHERE Title ILIKE @Query AND ArtistId IS NOT NULL)
+                ORDER BY 
+                    CASE WHEN Name ILIKE @Query THEN 0 ELSE 1 END,
+                    CreatedAt DESC
                 LIMIT @Limit OFFSET @Offset";
 
         var artists = await dbConnection.QueryAsync<ArtistDto>(artistSql, new { Query = queryTerm, Limit = limit, Offset = offset });
@@ -68,8 +81,12 @@ public class SearchRepository(IDbConnection dbConnection) : ISearchRepository
                        a.Name as ArtistName
                 FROM Albums al
                 LEFT JOIN Artists a ON al.ArtistId = a.Id
-                WHERE al.Title ILIKE @Query OR a.Name ILIKE @Query
-                ORDER BY al.CreatedAt DESC
+                WHERE al.Title ILIKE @Query 
+                   OR a.Name ILIKE @Query
+                   OR al.ArtistId IN (SELECT ArtistId FROM MediaItems WHERE Title ILIKE @Query AND ArtistId IS NOT NULL)
+                ORDER BY 
+                    CASE WHEN al.Title ILIKE @Query THEN 0 ELSE 1 END,
+                    al.CreatedAt DESC
                 LIMIT @Limit OFFSET @Offset";
 
         var albums = await dbConnection.QueryAsync<TuneVault.Application.Features.Albums.DTOs.AlbumDto>(albumSql, new { Query = queryTerm, Limit = limit, Offset = offset });

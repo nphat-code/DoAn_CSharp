@@ -188,6 +188,17 @@ export const Search = () => {
 
   const getTopResult = () => {
     if (!results) return null;
+    const lowerQuery = query.toLowerCase();
+    
+    // Prioritize exact matches
+    if (results.artists?.some(a => a.name.toLowerCase() === lowerQuery)) {
+      return { type: 'artist' as const, item: results.artists.find(a => a.name.toLowerCase() === lowerQuery) };
+    }
+    if (results.tracks?.some(t => t.title.toLowerCase() === lowerQuery)) {
+      return { type: 'track' as const, item: results.tracks.find(t => t.title.toLowerCase() === lowerQuery) };
+    }
+
+    // Fallback order
     if (results.artists && results.artists.length > 0) return { type: 'artist' as const, item: results.artists[0] };
     if (results.tracks && results.tracks.length > 0) return { type: 'track' as const, item: results.tracks[0] };
     if (results.albums && results.albums.length > 0) return { type: 'album' as const, item: results.albums[0] };
@@ -202,8 +213,10 @@ export const Search = () => {
   const getAllList = () => {
     if (!results) return [];
     let list: { item: any, type: 'track' | 'artist' | 'album' | 'playlist' | 'profile' }[] = [];
-    if (results.tracks) list.push(...results.tracks.map(t => ({ item: t, type: 'track' as const })));
+    
+    // Add artists first so they appear right after the top result if it's a track
     if (results.artists) list.push(...results.artists.map(a => ({ item: a, type: 'artist' as const })));
+    if (results.tracks) list.push(...results.tracks.map(t => ({ item: t, type: 'track' as const })));
     if (results.albums) list.push(...results.albums.map(a => ({ item: a, type: 'album' as const })));
     if (results.playlists) list.push(...results.playlists.map(p => ({ item: p, type: 'playlist' as const })));
     if (results.users) list.push(...results.users.map(u => ({ item: u, type: 'profile' as const })));
