@@ -170,7 +170,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                                 <svg role="img" height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 14l8-6-8-6v12z"></path></svg>
                               </button>
                               {showPlaylistMenu === `${track.id}-${idx}` && (
-                                <div className={`absolute ${openDropdown?.openUpwards ? 'bottom-0' : 'top-0'} right-full mr-1 w-48 bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 max-h-64 overflow-y-auto custom-scrollbar`}>
+                                <div className={`absolute ${openDropdown?.openUpwards ? 'bottom-full mb-1' : 'top-full mt-1'} left-0 w-full bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 max-h-64 overflow-y-auto custom-scrollbar`}>
                                   {playlists.length === 0 ? (
                                     <div className="px-4 py-2 text-sm text-zinc-500">Chưa có danh sách phát</div>
                                   ) : (
@@ -196,7 +196,24 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                                 </div>
                               )}
                             </div>
+
+                            <button 
+                              onClick={async () => {
+                                try {
+                                  await mediaService.toggleFavorite(track.id);
+                                  alert("Đã thêm vào / xóa khỏi bài hát đã thích.");
+                                } catch (err) {
+                                  alert("Lỗi khi thay đổi trạng thái yêu thích.");
+                                }
+                                setOpenDropdown(null);
+                              }}
+                              className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                            >
+                              Thêm vào bài hát đã thích
+                            </button>
                             
+                            <div className="h-px bg-white/10 my-1 mx-2"></div>
+
                             {track.artistId && (
                               <button 
                                 onClick={() => { setOpenDropdown(null); navigate(`/artist/${track.artistId}`); }}
@@ -213,6 +230,9 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                                 Đi tới album
                               </button>
                             )}
+                            
+                            <div className="h-px bg-white/10 my-1 mx-2"></div>
+
                             <button 
                               onClick={() => {
                                 setShareData({ id: track.id, title: track.title });
@@ -233,6 +253,15 @@ export const RightPanel = ({ width }: RightPanelProps) => {
             </div>
           )}
         </div>
+
+        {showShareModal && currentMedia && (
+          <ShareMediaModal
+            mediaId={shareData?.id || currentMedia.id}
+            mediaType="Bài hát"
+            mediaTitle={shareData?.title || currentMedia.title}
+            onClose={() => { setShowShareModal(false); setShareData(null); }}
+          />
+        )}
       </div>
     );
   }
