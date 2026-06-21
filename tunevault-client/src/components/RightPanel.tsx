@@ -1,5 +1,5 @@
 import { usePlayer } from '../context/PlayerContext';
-import { MoreHorizontal, X, Trash2, Maximize2 } from 'lucide-react';
+import { MoreHorizontal, X, Trash2, Maximize2, Play } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import { useNavigate } from 'react-router-dom';
 import { useRef, useState, useEffect } from 'react';
@@ -12,7 +12,7 @@ interface RightPanelProps {
 }
 
 export const RightPanel = ({ width }: RightPanelProps) => {
-  const { currentMedia, mediaRef, isFavorited, toggleFavorite } = usePlayer();
+  const { currentMedia, mediaRef, isFavorited, toggleFavorite, showQueue, setShowQueue, queue, currentIndex, playMediaList } = usePlayer();
   const navigate = useNavigate();
   const bgLayerRef = useRef<HTMLDivElement>(null);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -55,6 +55,85 @@ export const RightPanel = ({ width }: RightPanelProps) => {
     }
   };
 
+  const getImageUrl = (url: string | undefined | null) => {
+    if (!url) return "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62"; // Fallback Ed Sheeran image
+    if (url.startsWith('http')) return url;
+    return url?.startsWith('http') ? url : `https://tunevault-api.onrender.com${url}`;
+  };
+
+  if (showQueue) {
+    const nextTracks = currentIndex !== -1 ? queue.slice(currentIndex + 1) : [];
+
+    return (
+      <div 
+        className="bg-black flex flex-col shrink-0 relative overflow-hidden rounded-lg border-l border-zinc-800 p-4"
+        style={{ width: width ? `${width}px` : '420px', minWidth: '280px' }}
+      >
+        <div className="flex items-center justify-between mb-6 shrink-0">
+          <h2 className="text-xl font-bold text-white">Danh sách chờ</h2>
+          <button 
+            onClick={() => setShowQueue(false)}
+            className="text-zinc-400 hover:text-white transition rounded-full p-1 hover:bg-zinc-800"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="overflow-y-auto overflow-x-hidden scrollbar-hide flex-1">
+          {/* Đang phát */}
+          <div className="mb-8">
+            <h3 className="text-base font-bold text-white mb-3">Đang phát</h3>
+            {currentMedia ? (
+              <div 
+                className="flex items-center gap-3 p-2 rounded-md hover:bg-zinc-800/50 transition cursor-pointer group"
+              >
+                <div className="w-12 h-12 relative flex-shrink-0">
+                  <img src={getImageUrl(currentMedia.coverUrl)} alt="" className="w-full h-full object-cover rounded shadow-md" />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                    <Play size={16} fill="currentColor" className="text-white ml-1" />
+                  </div>
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[#1ed760] font-medium truncate text-sm">{currentMedia.title}</span>
+                  <span className="text-zinc-400 text-sm truncate">{(currentMedia as any).artist?.name || currentMedia.artistName || currentMedia.description || 'Nghệ sĩ'}</span>
+                </div>
+              </div>
+            ) : (
+              <p className="text-zinc-500 text-sm">Chưa có bài hát nào</p>
+            )}
+          </div>
+
+          {/* Tiếp theo */}
+          {nextTracks.length > 0 && (
+            <div>
+              <h3 className="text-base font-bold text-white mb-3">Tiếp theo</h3>
+              <div className="flex flex-col gap-1">
+                {nextTracks.map((track, idx) => (
+                  <div 
+                    key={`${track.id}-${idx}`} 
+                    className="flex items-center gap-3 p-2 rounded-md hover:bg-zinc-800/50 transition cursor-pointer group" 
+                    onClick={() => playMediaList(queue, currentIndex + 1 + idx)}
+                  >
+                    <div className="w-12 h-12 relative flex-shrink-0">
+                      <img src={getImageUrl(track.coverUrl)} alt="" className="w-full h-full object-cover rounded shadow-md" />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                        <Play size={16} fill="currentColor" className="text-white ml-1" />
+                      </div>
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-white font-medium truncate text-sm group-hover:underline">{track.title}</span>
+                      <span className="text-zinc-400 text-sm truncate">{(track as any).artist?.name || track.artistName || track.description || 'Nghệ sĩ'}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   if (!currentMedia) {
     return (
       <div 
@@ -88,12 +167,6 @@ export const RightPanel = ({ width }: RightPanelProps) => {
   const currentUserStr = localStorage.getItem('user');
   const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
   const isAdmin = currentUser && currentUser.role === 'Admin';
-
-  const getImageUrl = (url: string | undefined | null) => {
-    if (!url) return "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62"; // Fallback Ed Sheeran image
-    if (url.startsWith('http')) return url;
-    return url?.startsWith('http') ? url : `https://tunevault-api.onrender.com${url}`;
-  };
 
   return (
     <div 

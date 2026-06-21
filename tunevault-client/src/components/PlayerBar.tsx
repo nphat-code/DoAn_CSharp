@@ -1,5 +1,5 @@
 import { usePlayer } from '../context/PlayerContext';
-import { Play, Pause, SkipBack, SkipForward, Volume2, Heart, Plus, Check, Music, Library } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, Heart, Plus, Check, Music, Library, ListMusic } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { playlistService } from '../services/playlistService';
 import type { PlaylistDto } from '../services/playlistService';
@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 export const PlayerBar = () => {
   const navigate = useNavigate();
-  const { currentMedia, isPlaying, togglePlayPause, playNext, playPrevious, volume, setVolume, mediaRef, isFavorited, toggleFavorite } = usePlayer();
+  const { currentMedia, isPlaying, togglePlayPause, playNext, playPrevious, volume, setVolume, mediaRef, isFavorited, toggleFavorite, showQueue, setShowQueue } = usePlayer();
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -295,17 +295,26 @@ export const PlayerBar = () => {
       </div>
 
       {/* Volume */}
-      <div className="flex items-center justify-end w-1/3 gap-2">
-        <button className="text-spotify-lighttext hover:text-white transition">
-           <Volume2 size={20} />
+      <div className="flex items-center justify-end w-1/3 gap-4 pr-2">
+        <button 
+          onClick={() => setShowQueue(!showQueue)}
+          className={`hover:text-white transition ${showQueue ? 'text-[#1ed760]' : 'text-spotify-lighttext'}`}
+          title="Danh sách chờ"
+        >
+          <ListMusic size={20} />
         </button>
-        <div className="w-24 group flex items-center">
-          <input 
-            type="range" min="0" max="1" step="0.01" value={volume} 
-            onChange={(e) => setVolume(Number(e.target.value))}
-            className="spotify-slider"
-            style={{ '--progress': `${volume * 100}%` } as React.CSSProperties}
-          />
+        <div className="flex items-center gap-2">
+          <button className="text-spotify-lighttext hover:text-white transition">
+             <Volume2 size={20} />
+          </button>
+          <div className="w-24 group flex items-center">
+            <input 
+              type="range" min="0" max="1" step="0.01" value={volume} 
+              onChange={(e) => setVolume(Number(e.target.value))}
+              className="spotify-slider"
+              style={{ '--progress': `${volume * 100}%` } as React.CSSProperties}
+            />
+          </div>
         </div>
       </div>
     </div>

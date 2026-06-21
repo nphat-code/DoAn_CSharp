@@ -21,6 +21,9 @@ interface PlayerContextType {
   setIsFavorited: (val: boolean) => void;
   toggleFavorite: () => Promise<void>;
   queue: MediaItemDto[];
+  currentIndex: number;
+  showQueue: boolean;
+  setShowQueue: (show: boolean) => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -33,6 +36,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const [isFavorited, setIsFavorited] = useState(false);
   const [queue, setQueue] = useState<MediaItemDto[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
+  const [showQueue, setShowQueue] = useState(false);
 
   const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -154,7 +158,10 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
       currentMedia, isPlaying, playMedia, playMediaList, playNext, playPrevious, 
       togglePlayPause, updateQueueContext, volume, setVolume, mediaRef, 
       showLoginModal, setShowLoginModal, isFavorited, setIsFavorited, toggleFavorite,
-      queue 
+      queue,
+      currentIndex,
+      showQueue,
+      setShowQueue
     }}>
       {children}
     </PlayerContext.Provider>

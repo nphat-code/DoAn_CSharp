@@ -17,12 +17,12 @@
 *   [x] Bấm vào một kết quả để chắc chắn nó điều hướng đúng trang chi tiết.
 
 ## 3. Trải Nghiệm Phát Nhạc (Player)
-*   [ ] **Phát một bài:** Bấm nút Play xanh lá cây trên một Album hoặc Danh sách phát bất kỳ.
+*   [x] **Phát một bài:** Bấm nút Play xanh lá cây trên một Album hoặc Danh sách phát bất kỳ.
 *   [ ] **Thanh PlayerBar dưới cùng:**
-    *   [ ] Bấm Pause / Play xem nhạc có dừng và phát tiếp mượt mà không.
-    *   [ ] Bấm Chuyển bài (Next) và Quay lại (Prev) xem nhạc có đổi không.
-    *   [ ] Kéo chuột trên thanh tiến trình (Seek bar) để tua bài hát xem có chính xác không.
-    *   [ ] Điều chỉnh thanh Âm lượng to/nhỏ/tắt tiếng.
+    *   [x] Bấm Pause / Play xem nhạc có dừng và phát tiếp mượt mà không.
+    *   [x] Bấm Chuyển bài (Next) và Quay lại (Prev) xem nhạc có đổi không.
+    *   [x] Kéo chuột trên thanh tiến trình (Seek bar) để tua bài hát xem có chính xác không.
+    *   [x] Điều chỉnh thanh Âm lượng to/nhỏ/tắt tiếng.
 *   [ ] Mở bảng danh sách chờ (Queue) ở góc phải PlayerBar để xem bài hát nào sẽ phát tiếp theo.
 
 ## 4. Tương Tác Cá Nhân (Like, Follow, Thư Viện)
