@@ -98,7 +98,13 @@ export const Search = () => {
   };
 
   const renderRow = (item: any, type: 'track' | 'artist' | 'album' | 'playlist' | 'profile') => {
-    let id, title, subtitle, imageUrl, isCircular, onClick, isPlayingRow;
+    let id: string = '';
+    let title: string = '';
+    let subtitle: string = '';
+    let imageUrl: string | undefined;
+    let isCircular: boolean = false;
+    let onClick: () => void = () => {};
+    let isPlayingRow: boolean = false;
     
     if (type === 'track') {
       id = item.id;
