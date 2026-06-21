@@ -115,7 +115,12 @@ export const Search = () => {
       if (currentMedia?.id === item.id) {
         togglePlayPause();
       } else {
-        playMedia(item);
+        if (searchResults?.tracks && searchResults.tracks.length > 0) {
+          const index = searchResults.tracks.findIndex((t: any) => t.id === item.id);
+          playMediaList(searchResults.tracks, index !== -1 ? index : 0);
+        } else {
+          playMedia(item);
+        }
       }
     } else if (type === 'artist') {
       try {

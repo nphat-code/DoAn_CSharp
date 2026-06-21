@@ -9,7 +9,7 @@ import { Plus, Trash2, Disc } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const Home = () => {
-  const { playMedia, currentMedia, isPlaying, togglePlayPause, playMediaList } = usePlayer();
+  const { currentMedia, isPlaying, togglePlayPause, playMediaList } = usePlayer();
   const navigate = useNavigate();
   const [tracks, setTracks] = useState<MediaItemDto[]>([]);
   const [albums, setAlbums] = useState<AlbumDto[]>([]);
@@ -214,10 +214,10 @@ export const Home = () => {
           <div className="text-zinc-500 font-medium">Đang tải...</div>
         ) : tracks.length > 0 ? (
           <div className={activeTab === 'all' ? "flex overflow-x-auto gap-6 pb-4 custom-scrollbar" : "grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-6"}>
-            {tracks.slice(0, activeTab === 'all' ? 10 : undefined).map(track => (
+            {tracks.slice(0, activeTab === 'all' ? 10 : undefined).map((track, index, arr) => (
               <div 
                 key={track.id}
-                onClick={() => playMedia(track)}
+                onClick={() => playMediaList(arr, index)}
                 className={`p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative ${activeTab === 'all' ? 'min-w-[180px] w-[180px] flex-shrink-0' : ''}`}
               >
                 <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center group-hover:shadow-xl transition relative overflow-hidden">
@@ -234,7 +234,7 @@ export const Home = () => {
                       if (currentMedia?.id === track.id) {
                         togglePlayPause();
                       } else {
-                        playMedia(track);
+                        playMediaList(arr, index);
                       }
                     }}
                     className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.id === track.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}

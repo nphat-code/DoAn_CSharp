@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Play, Clock, Music } from 'lucide-react';
+import { Clock, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { mediaService } from '../services/mediaService';
 import { usePlayer } from '../context/PlayerContext';
@@ -16,7 +16,7 @@ interface HistoryItem {
 export const RecentHistory = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const { playMedia } = usePlayer();
+  const { playMediaList, currentMedia, togglePlayPause, isPlaying } = usePlayer();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -75,7 +75,7 @@ export const RecentHistory = () => {
               <div 
                 key={item.id || index}
                 className="group flex items-center gap-4 p-3 hover:bg-white/10 rounded-md transition cursor-pointer"
-                onClick={() => playMedia(track)}
+                onClick={() => playMediaList(history.map(h => h.mediaItem), index)}
               >
                 <div className="w-12 h-12 relative flex-shrink-0">
                   <div className="w-full h-full bg-zinc-800 rounded-md overflow-hidden">
@@ -87,8 +87,24 @@ export const RecentHistory = () => {
                       </div>
                     )}
                   </div>
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition rounded-md">
-                    <Play className="text-white fill-white" size={20} />
+                  <div className={`absolute inset-0 bg-black/40 flex items-center justify-center transition rounded-md ${currentMedia?.id === track.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (currentMedia?.id === track.id) {
+                          togglePlayPause();
+                        } else {
+                          playMediaList(history.map(h => h.mediaItem), index);
+                        }
+                      }}
+                      className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-black shadow-xl hover:scale-105 hover:bg-green-400"
+                    >
+                      {currentMedia?.id === track.id && isPlaying ? (
+                        <svg height="16" width="16" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+                      ) : (
+                        <svg height="16" width="16" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                      )}
+                    </button>
                   </div>
                 </div>
                 

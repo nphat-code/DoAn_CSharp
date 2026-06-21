@@ -22,7 +22,7 @@ export const Profile = () => {
   const menuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showAllArtists, setShowAllArtists] = useState(false);
-  const { playMedia, playMediaList, togglePlayPause, currentMedia, isPlaying } = usePlayer();
+  const { playMediaList, isPlaying, togglePlayPause, currentMedia } = usePlayer();
 
   useEffect(() => {
     loadProfileData();
@@ -298,7 +298,7 @@ export const Profile = () => {
                 <div
                   key={track.id}
                   className="flex items-center gap-4 px-4 py-2 hover:bg-white/10 rounded-md group cursor-pointer"
-                  onClick={() => playMedia(track)}
+                  onClick={() => playMediaList(topTracks, index)}
                 >
                   <div className="w-6 text-center text-zinc-400 group-hover:hidden">{index + 1}</div>
                   <div className="w-6 text-center text-white hidden group-hover:flex items-center justify-center">
