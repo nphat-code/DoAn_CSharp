@@ -9,8 +9,7 @@ import { mediaService } from '../services/mediaService';
 import { AddTrackToAlbumModal } from '../components/AddTrackToAlbumModal';
 import { ShareMediaModal } from '../components/ShareMediaModal';
 
-import { TrackDropdownMenu } from '../components/TrackDropdownMenu';
-import { formatDuration } from '../utils/format';
+import { TrackListRow } from '../components/TrackListRow';
 
 export const AlbumDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -436,81 +435,32 @@ export const AlbumDetail = () => {
             {/* Tracks */}
             <div className="flex flex-col gap-0 pb-10 px-2">
               {album.tracks && album.tracks.map((track, index) => {
-                const isPlayingTrack = currentMedia?.id === track.id;
-
+                const enrichedTrack = {
+                  ...track,
+                  coverUrl: track.coverUrl || album.coverUrl,
+                  artistName: track.artistName || album.artistName,
+                  artistAvatarUrl: track.artistAvatarUrl || album.artistImageUrl
+                };
+                const enrichedTracks = album.tracks.map(t => ({
+                  ...t,
+                  coverUrl: t.coverUrl || album.coverUrl,
+                  artistName: t.artistName || album.artistName,
+                  artistAvatarUrl: t.artistAvatarUrl || album.artistImageUrl
+                }));
                 return (
-                  <div
+                  <TrackListRow
                     key={track.id}
-                    className="grid grid-cols-[32px_1fr_minmax(80px,120px)] gap-4 px-4 py-2 hover:bg-white/10 rounded-md transition items-center group cursor-pointer"
-                    onDoubleClick={() => handlePlayMedia(index)}
-                  >
-                    <div className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-spotify-lighttext'} text-base font-medium flex items-center justify-end pr-2 relative w-full`}>
-                      <span className="group-hover:hidden">{index + 1}</span>
-                      <button className="hidden group-hover:block" onClick={(e) => {
-                        e.stopPropagation();
-                        if (isPlayingTrack) {
-                          if (queue.length <= 1) {
-                            updateQueueContext(album.tracks.map(t => ({
-                              ...t,
-                              coverUrl: t.coverUrl || album.coverUrl,
-                              artistName: t.artistName || album.artistName,
-                              artistAvatarUrl: t.artistAvatarUrl || album.artistImageUrl
-                            })), currentMedia.id);
-                          }
-                          togglePlayPause();
-                        } else {
-                          handlePlayMedia(index);
-                        }
-                      }}>
-                        {isPlayingTrack && isPlaying ? (
-                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="text-white">
-                            <path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path>
-                          </svg>
-                        ) : (
-                          <Play size={16} className="fill-white text-white" />
-                        )}
-                      </button>
-                    </div>
-                    <div className="flex flex-col overflow-hidden justify-center">
-                      <span className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-white'} font-medium text-base truncate`}>{track.title}</span>
-                      <span 
-                        className="text-spotify-lighttext text-sm truncate hover:underline hover:text-white inline-block w-fit cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const targetArtistId = track.artistId || album.artistId;
-                          if (targetArtistId) {
-                            navigate(`/artist/${targetArtistId}`);
-                          }
-                        }}
-                      >
-                        {track.artistName || album.artistName}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-end gap-4 pr-4">
-                      <button
-                          onClick={(e) => { e.stopPropagation(); handleToggleFavorite(track.id); }}
-                          className={`hover:scale-105 transition ${likedTracks.has(track.id) ? 'opacity-100 text-[#1ed760]' : 'opacity-0 group-hover:opacity-100 text-spotify-lighttext hover:text-white'}`}
-                        >
-                          {likedTracks.has(track.id) ? (
-                            <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
-                          ) : (
-                            <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
-                          )}
-                        </button>
-                      <div className="text-sm text-spotify-lighttext font-medium w-12 text-right">{formatDuration(track.duration)}</div>
-
-                      <TrackDropdownMenu
-                        track={track}
-                        isFavorited={likedTracks.has(track.id)}
-                        onToggleFavorite={handleToggleFavorite}
-                        onShare={handleShareTrack}
-                        showGoToAlbum={false}
-                        onRemoveFromAlbum={isAdmin ? handleRemoveTrack : undefined}
-                        className="opacity-0 group-hover:opacity-100 transition"
-                      />
-                    </div>
-                  </div>
+                    track={enrichedTrack}
+                    index={index}
+                    tracks={enrichedTracks}
+                    showCover={false}
+                    showAlbum={false}
+                    showGoToAlbum={false}
+                    isFavorited={likedTracks.has(track.id)}
+                    onToggleFavorite={() => handleToggleFavorite(track.id)}
+                    onShare={() => handleShareTrack(track.id, track.title)}
+                    onRemoveFromAlbum={isAdmin ? () => handleRemoveTrack(track.id) : undefined}
+                  />
                 );
               })}{(!album.tracks || album.tracks.length === 0) && (
                 <div className="text-zinc-500 font-medium py-4 px-2">Chưa có bài hát nào trong album này.</div>

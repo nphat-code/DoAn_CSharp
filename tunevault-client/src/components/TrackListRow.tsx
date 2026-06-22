@@ -13,6 +13,8 @@ interface TrackListRowProps {
   tracks: MediaItemDto[];
   showCover?: boolean;
   showAlbum?: boolean;
+  showGoToArtist?: boolean;
+  showGoToAlbum?: boolean;
   className?: string; // Tùy chỉnh grid cols, vd: 'grid-cols-[32px_1fr_minmax(80px,120px)]'
   
   isFavorited?: boolean;
@@ -28,6 +30,8 @@ export const TrackListRow: React.FC<TrackListRowProps> = ({
   tracks,
   showCover = true,
   showAlbum = true,
+  showGoToArtist = true,
+  showGoToAlbum = true,
   className,
   isFavorited = false,
   onToggleFavorite,
@@ -139,6 +143,8 @@ export const TrackListRow: React.FC<TrackListRowProps> = ({
           isFavorited={isFavorited}
           onToggleFavorite={onToggleFavorite}
           onShare={onShare}
+          showGoToArtist={showGoToArtist}
+          showGoToAlbum={showGoToAlbum}
           onRemoveFromPlaylist={onRemoveFromPlaylist}
           onRemoveFromAlbum={onRemoveFromAlbum}
           className="opacity-0 group-hover:opacity-100 transition"
