@@ -1,3 +1,4 @@
+import { getImageUrl } from '../utils/imageUrl';
 import { useEffect, useState, useRef } from 'react';
 import { FastAverageColor } from 'fast-average-color';
 import { useParams } from 'react-router-dom';
@@ -97,7 +98,7 @@ export const ArtistDetail = () => {
       const fac = new FastAverageColor();
       const img = new Image();
       img.crossOrigin = 'Anonymous';
-      const baseUrl = artist.avatarUrl.startsWith('http') ? artist.avatarUrl : `https://tunevault-api.onrender.com${artist.avatarUrl}`;
+      const baseUrl = getImageUrl(artist.avatarUrl);
       img.src = `${baseUrl}?c=${Date.now()}`;
       img.onload = () => {
         try {

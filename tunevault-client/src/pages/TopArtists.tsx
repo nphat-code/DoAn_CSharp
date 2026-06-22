@@ -1,3 +1,4 @@
+import { getImageUrl } from '../utils/imageUrl';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { mediaService } from '../services/mediaService';
@@ -75,7 +76,7 @@ export const TopArtists = () => {
             >
               <div className="relative w-full aspect-square mb-3">
                 <div className="w-full h-full shadow-lg rounded-full bg-zinc-800 shrink-0 relative overflow-hidden">
-                  <img src={artist.avatarUrl.startsWith('http') || artist.avatarUrl.startsWith('data:') ? artist.avatarUrl : artist.avatarUrl?.startsWith('http') ? artist.avatarUrl : `https://tunevault-api.onrender.com${artist.avatarUrl}`} alt={artist.name} className="w-full h-full object-cover rounded-full" />
+                  <img src={getImageUrl(artist.avatarUrl)} alt={artist.name} className="w-full h-full object-cover rounded-full" />
                 </div>
                 {/* Play button overlay */}
                 <button 

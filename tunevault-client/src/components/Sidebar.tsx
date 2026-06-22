@@ -1,3 +1,4 @@
+import { getImageUrl } from '../utils/imageUrl';
 import { Library, Plus, ArrowRight, Search, List, Heart, Users, Disc } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -191,7 +192,7 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
             >
               <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
                 {playlist.coverUrl ? (
-                  <img src={playlist.coverUrl.startsWith('http') || playlist.coverUrl.startsWith('data:') ? playlist.coverUrl : playlist.coverUrl?.startsWith('http') ? playlist.coverUrl : `https://tunevault-api.onrender.com${playlist.coverUrl}`} alt={playlist.name} className="w-full h-full object-cover shrink-0" />
+                  <img src={getImageUrl(playlist.coverUrl)} alt={playlist.name} className="w-full h-full object-cover shrink-0" />
                 ) : (
                   <Library size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
                 )}
@@ -216,7 +217,7 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
                 >
                   <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
                     {album.coverUrl ? (
-                      <img src={album.coverUrl?.startsWith('http') ? album.coverUrl : `https://tunevault-api.onrender.com${album.coverUrl}`} alt={album.title} className="w-full h-full object-cover shrink-0" />
+                      <img src={getImageUrl(album.coverUrl)} alt={album.title} className="w-full h-full object-cover shrink-0" />
                     ) : (
                       <Disc size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
                     )}
@@ -236,7 +237,7 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
                 >
                   <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-full bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
                     {artist.avatarUrl ? (
-                      <img src={artist.avatarUrl?.startsWith('http') || artist.avatarUrl?.startsWith('data:') ? artist.avatarUrl : `https://tunevault-api.onrender.com${artist.avatarUrl}`} alt={artist.name} className="w-full h-full object-cover shrink-0" />
+                      <img src={getImageUrl(artist.avatarUrl)} alt={artist.name} className="w-full h-full object-cover shrink-0" />
                     ) : (
                       <Users size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
                     )}

@@ -1,3 +1,4 @@
+import { getImageUrl } from '../utils/imageUrl';
 import { usePlayer } from '../context/PlayerContext';
 import { useNavigate } from 'react-router-dom';
 import { Minimize2, MoreHorizontal, User, Music } from 'lucide-react';
@@ -27,7 +28,7 @@ export const NowPlaying = () => {
             className="w-full h-full object-contain" 
           />
         ) : currentMedia.coverUrl ? (
-           <img src={currentMedia.coverUrl?.startsWith('http') ? currentMedia.coverUrl : `https://tunevault-api.onrender.com${currentMedia.coverUrl}`} alt="Cover" className="w-full h-full object-contain" />
+           <img src={getImageUrl(currentMedia.coverUrl)} alt="Cover" className="w-full h-full object-contain" />
         ) : (
            <img src="https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62" alt="Cover" className="w-full h-full object-contain" />
         )}

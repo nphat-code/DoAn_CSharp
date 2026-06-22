@@ -1,3 +1,4 @@
+import { getImageUrl } from '../utils/imageUrl';
 import { useState, useEffect } from 'react';
 import { Upload, X, Disc } from 'lucide-react';
 import { albumService } from '../services/albumService';
@@ -112,7 +113,7 @@ export const CreateAlbumModal = ({ onClose }: CreateAlbumModalProps) => {
                     }}
                   >
                     {artist.avatarUrl ? (
-                      <img src={artist.avatarUrl.startsWith('http') || artist.avatarUrl.startsWith('data:') ? artist.avatarUrl : `https://tunevault-api.onrender.com${artist.avatarUrl}`} alt={artist.name} className="w-6 h-6 rounded-full object-cover" />
+                      <img src={getImageUrl(artist.avatarUrl)} alt={artist.name} className="w-6 h-6 rounded-full object-cover" />
                     ) : (
                       <div className="w-6 h-6 rounded-full bg-zinc-600 flex items-center justify-center text-xs">
                         {artist.name.charAt(0).toUpperCase()}

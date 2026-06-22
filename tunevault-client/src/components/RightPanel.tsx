@@ -525,7 +525,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
              className="w-full h-full object-cover scale-[1.3] transform-gpu" 
            />
          ) : currentMedia.coverUrl ? (
-           <img src={currentMedia.coverUrl?.startsWith('http') ? currentMedia.coverUrl : `https://tunevault-api.onrender.com${currentMedia.coverUrl}`} alt="Cover" className="w-full h-full object-cover scale-[1.3] transform-gpu" />
+           <img src={getImageUrl(currentMedia.coverUrl)} alt="Cover" className="w-full h-full object-cover scale-[1.3] transform-gpu" />
          ) : (
            <img src="https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62" alt="Cover" className="w-full h-full object-cover scale-[1.3] transform-gpu" />
          )}

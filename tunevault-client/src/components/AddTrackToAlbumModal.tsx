@@ -1,3 +1,4 @@
+import { getImageUrl } from '../utils/imageUrl';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Search, Plus } from 'lucide-react';
@@ -100,7 +101,7 @@ export const AddTrackToAlbumModal = ({ onClose, onSuccess, albumId, existingTrac
                     <div className="flex items-center gap-3 overflow-hidden">
                       <div className="w-10 h-10 bg-zinc-700 rounded-sm flex-shrink-0">
                         {track.coverUrl && (
-                          <img src={track.coverUrl.startsWith('http') ? track.coverUrl : track.coverUrl?.startsWith('http') ? track.coverUrl : `https://tunevault-api.onrender.com${track.coverUrl}`} alt="" className="w-full h-full object-cover rounded-sm" />
+                          <img src={getImageUrl(track.coverUrl)} alt="" className="w-full h-full object-cover rounded-sm" />
                         )}
                       </div>
                       <div className="flex flex-col truncate">

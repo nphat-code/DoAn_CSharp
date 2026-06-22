@@ -1,3 +1,4 @@
+import { getImageUrl } from '../utils/imageUrl';
 import { useEffect, useState, useRef } from 'react';
 import { FastAverageColor } from 'fast-average-color';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -444,7 +445,7 @@ export const PlaylistDetail = () => {
                   <div className="flex items-center gap-3 overflow-hidden">
                     <div className="w-10 h-10 bg-zinc-800 rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
                       {track.coverUrl ? (
-                        <img src={track.coverUrl.startsWith('http') || track.coverUrl.startsWith('data:') ? track.coverUrl : track.coverUrl?.startsWith('http') ? track.coverUrl : `https://tunevault-api.onrender.com${track.coverUrl}`} alt={track.title} className="w-full h-full object-cover" />
+                        <img src={getImageUrl(track.coverUrl)} alt={track.title} className="w-full h-full object-cover" />
                       ) : (
                         <span className="text-white/50 text-xs">{track.title.charAt(0)}</span>
                       )}
@@ -530,7 +531,7 @@ export const PlaylistDetail = () => {
                     <div className="flex items-center gap-4 flex-1 overflow-hidden">
                       <div className="relative w-10 h-10 bg-zinc-800 rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
                         {track.coverUrl ? (
-                          <img src={track.coverUrl.startsWith('http') || track.coverUrl.startsWith('data:') ? track.coverUrl : track.coverUrl?.startsWith('http') ? track.coverUrl : `https://tunevault-api.onrender.com${track.coverUrl}`} alt={track.title} className="w-full h-full object-cover group-hover:opacity-50 transition" />
+                          <img src={getImageUrl(track.coverUrl)} alt={track.title} className="w-full h-full object-cover group-hover:opacity-50 transition" />
                         ) : (
                           <span className="text-white/50 text-xs group-hover:opacity-0 transition">{track.title.charAt(0)}</span>
                         )}

@@ -1,3 +1,4 @@
+import { getImageUrl } from '../utils/imageUrl';
 import { usePlayer } from '../context/PlayerContext';
 import { Play, Pause, SkipBack, SkipForward, Volume2, Heart, Plus, Check, Music, Library, ListMusic } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
@@ -161,7 +162,7 @@ export const PlayerBar = () => {
           <video
             ref={mediaRef as React.RefObject<HTMLVideoElement>}
             src={optimizeCloudinaryUrl(currentMedia.fileUrl)}
-            poster={currentMedia.coverUrl ? (currentMedia.coverUrl.startsWith('http') ? currentMedia.coverUrl : currentMedia.coverUrl?.startsWith('http') ? currentMedia.coverUrl : `https://tunevault-api.onrender.com${currentMedia.coverUrl}`) : undefined}
+            poster={currentMedia.coverUrl ? (getImageUrl(currentMedia.coverUrl)) : undefined}
             playsInline
             preload="auto"
             className="w-full h-full object-cover scale-[1.3] transform-gpu"
@@ -178,7 +179,7 @@ export const PlayerBar = () => {
       {/* Song Info */}
       <div className="flex items-center w-1/3">
         {currentMedia.coverUrl ? (
-          <img src={currentMedia.coverUrl.startsWith('http') ? currentMedia.coverUrl : currentMedia.coverUrl?.startsWith('http') ? currentMedia.coverUrl : `https://tunevault-api.onrender.com${currentMedia.coverUrl}`} alt={currentMedia.title} className="w-14 h-14 rounded-md object-cover flex-shrink-0 shadow-lg" />
+          <img src={getImageUrl(currentMedia.coverUrl)} alt={currentMedia.title} className="w-14 h-14 rounded-md object-cover flex-shrink-0 shadow-lg" />
         ) : (
           <div className="w-14 h-14 bg-spotify-hover2 rounded-md flex-shrink-0 flex items-center justify-center shadow-lg">
              <Music size={24} className="text-zinc-500" />

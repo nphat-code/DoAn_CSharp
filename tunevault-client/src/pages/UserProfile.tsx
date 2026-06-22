@@ -1,3 +1,4 @@
+import { getImageUrl } from '../utils/imageUrl';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { profileService, type ProfileDto } from '../services/profileService';
@@ -113,7 +114,7 @@ export const UserProfile = () => {
         >
           {profile.avatarUrl ? (
             <img 
-              src={profile.avatarUrl.startsWith('http') ? profile.avatarUrl : `https://tunevault-api.onrender.com${profile.avatarUrl}`} 
+              src={getImageUrl(profile.avatarUrl)} 
               alt={profile.username} 
               className="w-full h-full object-cover" 
             />
@@ -208,7 +209,7 @@ export const UserProfile = () => {
                 >
                   <div className="relative w-full aspect-square mb-4 shadow-lg rounded-md bg-zinc-800 shrink-0">
                     {playlist.coverUrl ? (
-                      <img src={playlist.coverUrl.startsWith('http') || playlist.coverUrl.startsWith('data:') ? playlist.coverUrl : playlist.coverUrl?.startsWith('http') ? playlist.coverUrl : `https://tunevault-api.onrender.com${playlist.coverUrl}`} alt={playlist.name} className="w-full h-full object-cover rounded-md" />
+                      <img src={getImageUrl(playlist.coverUrl)} alt={playlist.name} className="w-full h-full object-cover rounded-md" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-zinc-800 rounded-md">
                         <span className="text-4xl text-zinc-500">🎵</span>
@@ -252,7 +253,7 @@ export const UserProfile = () => {
                 >
                   <div className="relative w-full aspect-square mb-3 shadow-lg rounded-full bg-zinc-800 shrink-0">
                     {f.avatarUrl ? (
-                      <img src={f.avatarUrl.startsWith('http') || f.avatarUrl.startsWith('data:') ? f.avatarUrl : `https://tunevault-api.onrender.com${f.avatarUrl}`} alt={f.username} className="w-full h-full object-cover rounded-full" />
+                      <img src={getImageUrl(f.avatarUrl)} alt={f.username} className="w-full h-full object-cover rounded-full" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <span className="text-4xl text-zinc-500">{f.username.charAt(0).toUpperCase()}</span>
@@ -286,7 +287,7 @@ export const UserProfile = () => {
                 >
                   <div className="relative w-full aspect-square mb-3 shadow-lg rounded-full bg-zinc-800 shrink-0">
                     {f.avatarUrl ? (
-                      <img src={f.avatarUrl.startsWith('http') || f.avatarUrl.startsWith('data:') ? f.avatarUrl : `https://tunevault-api.onrender.com${f.avatarUrl}`} alt={f.username} className="w-full h-full object-cover rounded-full" />
+                      <img src={getImageUrl(f.avatarUrl)} alt={f.username} className="w-full h-full object-cover rounded-full" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <span className="text-4xl text-zinc-500">{f.username.charAt(0).toUpperCase()}</span>

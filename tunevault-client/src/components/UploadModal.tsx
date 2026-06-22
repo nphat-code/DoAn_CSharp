@@ -1,3 +1,4 @@
+import { getImageUrl } from '../utils/imageUrl';
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, UploadCloud, Music } from 'lucide-react';
@@ -219,7 +220,7 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
                         }}
                       >
                         {artist.avatarUrl ? (
-                          <img src={artist.avatarUrl.startsWith('http') || artist.avatarUrl.startsWith('data:') ? artist.avatarUrl : `https://tunevault-api.onrender.com${artist.avatarUrl}`} alt={artist.name} className="w-6 h-6 rounded-full object-cover" />
+                          <img src={getImageUrl(artist.avatarUrl)} alt={artist.name} className="w-6 h-6 rounded-full object-cover" />
                         ) : (
                           <div className="w-6 h-6 rounded-full bg-zinc-600 flex items-center justify-center text-xs">
                             {artist.name.charAt(0).toUpperCase()}
@@ -269,7 +270,7 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
                         }}
                       >
                         {album.coverUrl ? (
-                          <img src={album.coverUrl.startsWith('http') || album.coverUrl.startsWith('data:') ? album.coverUrl : `https://tunevault-api.onrender.com${album.coverUrl}`} alt={album.title} className="w-6 h-6 rounded-md object-cover" />
+                          <img src={getImageUrl(album.coverUrl)} alt={album.title} className="w-6 h-6 rounded-md object-cover" />
                         ) : (
                           <div className="w-6 h-6 rounded-md bg-zinc-600 flex items-center justify-center text-xs">
                             <Music size={12} />

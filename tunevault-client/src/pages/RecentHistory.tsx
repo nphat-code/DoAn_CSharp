@@ -1,3 +1,4 @@
+import { getImageUrl } from '../utils/imageUrl';
 import { useState, useEffect } from 'react';
 import { Clock, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -80,7 +81,7 @@ export const RecentHistory = () => {
                 <div className="w-12 h-12 relative flex-shrink-0">
                   <div className="w-full h-full bg-zinc-800 rounded-md overflow-hidden">
                     {track.coverUrl ? (
-                      <img src={track.coverUrl.startsWith('http') ? track.coverUrl : track.coverUrl?.startsWith('http') ? track.coverUrl : `https://tunevault-api.onrender.com${track.coverUrl}`} alt={track.title} className="w-full h-full object-cover" />
+                      <img src={getImageUrl(track.coverUrl)} alt={track.title} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-zinc-700">
                         <Music size={20} className="text-zinc-400" />
