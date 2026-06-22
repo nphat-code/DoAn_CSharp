@@ -10,4 +10,5 @@ public interface IMediaItemRepository
     Task AddAsync(MediaItem mediaItem, CancellationToken cancellationToken);
     Task UpdateAsync(MediaItem mediaItem, CancellationToken cancellationToken);
     Task DeleteAsync(Guid id, CancellationToken cancellationToken);
+    Task<IEnumerable<MediaItem>> GetByUploaderIdAsync(Guid uploaderId, CancellationToken cancellationToken);
 }

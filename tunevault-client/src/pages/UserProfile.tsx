@@ -141,6 +141,31 @@ export const UserProfile = () => {
           <button className="hover:text-white transition-colors">
             <MoreHorizontal size={32} />
           </button>
+
+          {(() => {
+            const userStr = localStorage.getItem('user');
+            const currentUser = userStr ? JSON.parse(userStr) : null;
+            if (currentUser && currentUser.role === 'Admin') {
+              return (
+                <button 
+                  onClick={async () => {
+                    if (confirm('Admin: Bạn có chắc chắn muốn xóa vĩnh viễn người dùng này cùng toàn bộ dữ liệu của họ?')) {
+                      try {
+                        await profileService.deleteProfile(id);
+                        window.location.href = '/'; // Quay về trang chủ
+                      } catch (error) {
+                        alert('Có lỗi xảy ra khi xóa người dùng!');
+                      }
+                    }
+                  }}
+                  className="px-6 py-2 rounded-full font-bold text-sm tracking-wider transition-all shadow-sm bg-red-500/20 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white hover:scale-105"
+                >
+                  Xóa người dùng
+                </button>
+              );
+            }
+            return null;
+          })()}
         </div>
 
         {/* Playlists Section */}

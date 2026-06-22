@@ -75,4 +75,28 @@ public class ProfileController(IMediator mediator) : ControllerBase
         var result = await mediator.Send(new TuneVault.Application.Features.Profile.Queries.SearchUsers.SearchUsersQuery(q));
         return Ok(result);
     }
+
+    // DELETE /api/profile
+    [HttpDelete]
+    public async Task<IActionResult> DeleteProfile()
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdString, out var userId))
+            return Unauthorized("Không thể xác thực danh tính người dùng.");
+
+        var success = await mediator.Send(new TuneVault.Application.Features.Profile.Commands.DeleteUser.DeleteUserCommand(userId));
+        return Ok(new { success });
+    }
+
+    // DELETE /api/profile/{id}
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUserAsAdmin(Guid id)
+    {
+        var role = User.FindFirstValue(ClaimTypes.Role);
+        if (role != "Admin")
+            return Forbid("Chỉ có quản trị viên mới có quyền xóa người dùng khác.");
+
+        var success = await mediator.Send(new TuneVault.Application.Features.Profile.Commands.DeleteUser.DeleteUserCommand(id));
+        return Ok(new { success });
+    }
 }

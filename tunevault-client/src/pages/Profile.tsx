@@ -270,6 +270,24 @@ export const Profile = () => {
                   <LinkIcon size={18} />
                   <span>Sao chép đường liên kết đến hồ sơ</span>
                 </button>
+                <button
+                  onClick={async () => {
+                    if (confirm('Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản của mình? Mọi dữ liệu như Playlist, Nhạc đã tải lên, Lịch sử nghe... sẽ bị xóa sạch và không thể khôi phục!')) {
+                      try {
+                        await profileService.deleteProfile();
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        window.location.href = '/login';
+                      } catch (error) {
+                        alert('Có lỗi xảy ra khi xóa tài khoản!');
+                      }
+                    }
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-500/10 transition-colors text-left"
+                >
+                  <X size={18} />
+                  <span>Xóa tài khoản</span>
+                </button>
               </div>
             )}
           </div>

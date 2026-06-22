@@ -38,5 +38,11 @@ export const profileService = {
   searchUsers: async (query: string): Promise<ProfileDto[]> => {
     const response = await apiClient.get<ProfileDto[]>(`/profile/search?q=${encodeURIComponent(query)}`);
     return response.data;
+  },
+
+  deleteProfile: async (id?: string): Promise<boolean> => {
+    const url = id ? `/profile/${id}` : '/profile';
+    const response = await apiClient.delete<{success: boolean}>(url);
+    return response.data.success;
   }
 };

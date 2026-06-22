@@ -11,4 +11,5 @@ public interface IUserRepository
     Task UpdateAvatarAsync(Guid userId, string? avatarUrl, CancellationToken cancellationToken);
     Task UpdateProfileAsync(Guid userId, string username, string? avatarUrl, string? bio, CancellationToken cancellationToken);
     Task<IEnumerable<UserProfile>> SearchUsersAsync(string query, CancellationToken cancellationToken);
+    Task DeleteAsync(Guid userId, CancellationToken cancellationToken);
 }

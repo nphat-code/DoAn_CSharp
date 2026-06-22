@@ -77,6 +77,13 @@ public class MediaItemRepository(IDbConnection dbConnection) : IMediaItemReposit
         await dbConnection.ExecuteAsync(command);
     }
 
+    public async Task<IEnumerable<MediaItem>> GetByUploaderIdAsync(Guid uploaderId, CancellationToken cancellationToken)
+    {
+        var sql = "SELECT * FROM MediaItems WHERE UploaderId = @UploaderId";
+        var command = new CommandDefinition(sql, new { UploaderId = uploaderId }, cancellationToken: cancellationToken);
+        return await dbConnection.QueryAsync<MediaItem>(command);
+    }
+
     public async Task UpdateAsync(MediaItem mediaItem, CancellationToken cancellationToken)
     {
         var sql = @"

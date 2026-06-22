@@ -61,4 +61,11 @@ public class UserRepository(IDbConnection dbConnection) : IUserRepository
         var command = new CommandDefinition(sql, new { Query = $"%{query}%" }, cancellationToken: cancellationToken);
         return await dbConnection.QueryAsync<UserProfile>(command);
     }
+
+    public async Task DeleteAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var sql = "DELETE FROM UserProfiles WHERE Id = @Id";
+        var command = new CommandDefinition(sql, new { Id = userId }, cancellationToken: cancellationToken);
+        await dbConnection.ExecuteAsync(command);
+    }
 }
