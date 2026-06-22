@@ -68,10 +68,12 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
     window.addEventListener('savedAlbumsUpdated', handleUpdate);
     window.addEventListener('followedArtistsUpdated', handleUpdate);
     window.addEventListener('favoritesUpdated', handleUpdate);
+    window.addEventListener('playlistsUpdated', handleUpdate);
     return () => {
       window.removeEventListener('savedAlbumsUpdated', handleUpdate);
       window.removeEventListener('followedArtistsUpdated', handleUpdate);
       window.removeEventListener('favoritesUpdated', handleUpdate);
+      window.removeEventListener('playlistsUpdated', handleUpdate);
     };
   }, [isAuthenticated]);
 

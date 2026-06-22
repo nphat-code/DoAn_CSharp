@@ -172,6 +172,7 @@ export const PlaylistDetail = () => {
       await playlistService.updatePlaylist(id, editName, editDescription, editCover);
       setPlaylist({ ...playlist, name: editName, description: editDescription, coverUrl: editCover || undefined });
       setShowEditModal(false);
+      window.dispatchEvent(new Event('playlistsUpdated'));
     } catch (error) {
       alert("Lỗi khi cập nhật playlist.");
     }
