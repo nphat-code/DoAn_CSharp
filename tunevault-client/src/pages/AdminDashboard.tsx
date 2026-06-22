@@ -109,22 +109,22 @@ export const AdminDashboard = () => {
 
   return (
     <div className="flex flex-col min-h-full bg-zinc-900 p-8">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-        <div className="flex items-center gap-4">
-          <ShieldAlert size={40} className="text-red-500" />
-          <h1 className="text-4xl font-bold text-white tracking-tight">Quản trị Hệ thống</h1>
-        </div>
-        
-        <div className="relative w-full sm:w-80 shrink-0">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
-          <input 
-            type="text" 
-            placeholder="Tìm kiếm bài hát, album, nghệ sĩ..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-zinc-800/80 text-white rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/20 transition text-sm border border-zinc-700 focus:bg-zinc-800"
-          />
-        </div>
+      {/* Title */}
+      <div className="flex items-center gap-4 mb-6">
+        <ShieldAlert size={40} className="text-red-500" />
+        <h1 className="text-4xl font-bold text-white tracking-tight">Quản trị Hệ thống</h1>
+      </div>
+
+      {/* Search */}
+      <div className="relative w-full mb-6">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
+        <input 
+          type="text" 
+          placeholder="Tìm kiếm bài hát, album, nghệ sĩ..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full bg-zinc-800/80 text-white rounded-full py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/20 transition text-sm border border-zinc-700 focus:bg-zinc-800"
+        />
       </div>
 
       {/* Tabs */}
