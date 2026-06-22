@@ -189,7 +189,7 @@ export const PlaylistDetail = () => {
         }
       };
     } else {
-      setBgColor('rgba(49, 46, 129, 0.4)');
+      setBgColor('rgba(63, 63, 70, 0.8)');
     }
   }, [displayCover]);
 
@@ -253,7 +253,7 @@ export const PlaylistDetail = () => {
           <span className="text-sm font-bold text-white tracking-widest mb-1">Danh sách phát {playlist.isPublic ? "công khai" : "riêng tư"}</span>
           <h1 
             className="font-black text-white tracking-tighter leading-tight mb-2 line-clamp-2 cursor-pointer"
-            style={{ fontSize: 'clamp(48px, 6cqw, 72px)', lineHeight: '1.2' }}
+            style={{ fontSize: 'clamp(32px, 5cqw, 56px)', lineHeight: '1.2' }}
             onClick={() => {
               setEditName(playlist.name);
               setEditDescription(playlist.description || "");
