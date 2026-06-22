@@ -3,6 +3,7 @@ import { MoreHorizontal, X, Trash2, Maximize2, Play, Share2, User, Disc } from '
 import { mediaService } from '../services/mediaService';
 import { useNavigate } from 'react-router-dom';
 import { useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { VideoCanvas } from './VideoCanvas';
 import { ShareMediaModal } from './ShareMediaModal';
 import { artistService } from '../services/artistService';
@@ -20,7 +21,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
   const [isFollowingArtist, setIsFollowingArtist] = useState(false);
   const [loadingFollow, setLoadingFollow] = useState(false);
   
-  const [openDropdown, setOpenDropdown] = useState<{ id: string, openUpwards: boolean } | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<{ id: string, openUpwards: boolean, top?: number, bottom?: number, right?: number } | null>(null);
   const [showPlaylistMenu, setShowPlaylistMenu] = useState<string | null>(null);
   const [playlists, setPlaylists] = useState<any[]>([]);
   const [favoritesIds, setFavoritesIds] = useState<Set<string>>(new Set());
@@ -160,18 +161,29 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                       const rect = e.currentTarget.getBoundingClientRect();
                       const openUpwards = window.innerHeight - rect.bottom < 250;
                       if (openDropdown?.id === `playing-${currentMedia.id}`) setOpenDropdown(null);
-                      else setOpenDropdown({ id: `playing-${currentMedia.id}`, openUpwards });
+                      else setOpenDropdown({ 
+                        id: `playing-${currentMedia.id}`, 
+                        openUpwards,
+                        top: openUpwards ? undefined : rect.bottom + 4,
+                        bottom: openUpwards ? window.innerHeight - rect.top + 4 : undefined,
+                        right: window.innerWidth - rect.right
+                      });
                     }}
                     className="text-zinc-400 hover:text-white opacity-0 group-hover:opacity-100 transition"
                   >
                     <MoreHorizontal size={20} />
                   </button>
 
-                  {openDropdown?.id === `playing-${currentMedia.id}` && (
+                  {openDropdown?.id === `playing-${currentMedia.id}` && createPortal(
                     <>
                       <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpenDropdown(null); }}></div>
                       <div
-                        className={`absolute right-8 w-max min-w-[200px] bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 ${openDropdown?.openUpwards ? 'bottom-full mb-1' : 'top-full mt-1'}`}
+                        className="fixed w-max min-w-[200px] bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10"
+                        style={{
+                           top: openDropdown.top,
+                           bottom: openDropdown.bottom,
+                           right: openDropdown.right,
+                        }}
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div
@@ -184,7 +196,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                             <svg role="img" height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 14l8-6-8-6v12z"></path></svg>
                           </button>
                           {showPlaylistMenu === `playing-${currentMedia.id}` && (
-                            <div className={`absolute ${openDropdown?.openUpwards ? 'bottom-full mb-1' : 'top-full mt-1'} left-0 w-full bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 max-h-64 overflow-y-auto custom-scrollbar`}>
+                            <div className={`absolute ${openDropdown?.openUpwards ? 'bottom-full mb-1' : 'top-0'} right-full mr-1 w-full min-w-[150px] bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 max-h-64 overflow-y-auto custom-scrollbar`}>
                               {playlists.length === 0 ? (
                                 <div className="px-4 py-2 text-sm text-zinc-500">Chưa có danh sách phát</div>
                               ) : (
@@ -274,7 +286,8 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                           <Share2 size={16} /> Chia sẻ
                         </button>
                       </div>
-                    </>
+                    </>,
+                    document.body
                   )}
                 </div>
               </div>
@@ -312,18 +325,29 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                           const rect = e.currentTarget.getBoundingClientRect();
                           const openUpwards = window.innerHeight - rect.bottom < 250;
                           if (openDropdown?.id === `${track.id}-${idx}`) setOpenDropdown(null);
-                          else setOpenDropdown({ id: `${track.id}-${idx}`, openUpwards });
+                          else setOpenDropdown({ 
+                            id: `${track.id}-${idx}`, 
+                            openUpwards,
+                            top: openUpwards ? undefined : rect.bottom + 4,
+                            bottom: openUpwards ? window.innerHeight - rect.top + 4 : undefined,
+                            right: window.innerWidth - rect.right
+                          });
                         }}
                         className="text-zinc-400 hover:text-white opacity-0 group-hover:opacity-100 transition"
                       >
                         <MoreHorizontal size={20} />
                       </button>
 
-                      {openDropdown?.id === `${track.id}-${idx}` && (
+                      {openDropdown?.id === `${track.id}-${idx}` && createPortal(
                         <>
                           <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpenDropdown(null); }}></div>
                           <div
-                            className={`absolute right-8 w-max min-w-[200px] bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 ${openDropdown?.openUpwards ? 'bottom-full mb-1' : 'top-full mt-1'}`}
+                            className="fixed w-max min-w-[200px] bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10"
+                            style={{
+                              top: openDropdown.top,
+                              bottom: openDropdown.bottom,
+                              right: openDropdown.right,
+                            }}
                             onClick={(e) => e.stopPropagation()}
                           >
                             <div
@@ -336,7 +360,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                                 <svg role="img" height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 14l8-6-8-6v12z"></path></svg>
                               </button>
                               {showPlaylistMenu === `${track.id}-${idx}` && (
-                                <div className={`absolute ${openDropdown?.openUpwards ? 'bottom-full mb-1' : 'top-full mt-1'} left-0 w-full bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 max-h-64 overflow-y-auto custom-scrollbar`}>
+                                <div className={`absolute ${openDropdown?.openUpwards ? 'bottom-full mb-1' : 'top-0'} right-full mr-1 w-full min-w-[150px] bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 max-h-64 overflow-y-auto custom-scrollbar`}>
                                   {playlists.length === 0 ? (
                                     <div className="px-4 py-2 text-sm text-zinc-500">Chưa có danh sách phát</div>
                                   ) : (
@@ -426,7 +450,8 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                               <Share2 size={16} /> Chia sẻ
                             </button>
                           </div>
-                        </>
+                        </>,
+                        document.body
                       )}
                     </div>
                   </div>
@@ -547,7 +572,13 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                      const rect = e.currentTarget.getBoundingClientRect();
                      const openUpwards = window.innerHeight - rect.bottom < 250;
                      if (openDropdown?.id === currentMedia.id) setOpenDropdown(null);
-                     else setOpenDropdown({ id: currentMedia.id, openUpwards });
+                     else setOpenDropdown({ 
+                       id: currentMedia.id, 
+                       openUpwards,
+                       top: openUpwards ? undefined : rect.bottom + 4,
+                       bottom: openUpwards ? window.innerHeight - rect.top + 4 : undefined,
+                       right: window.innerWidth - rect.right
+                     });
                    }}
                    className="text-zinc-300 hover:text-white transition drop-shadow-md"
                  >
@@ -557,11 +588,16 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                     <Maximize2 size={20} />
                  </button>
 
-                 {openDropdown?.id === currentMedia.id && (
+                 {openDropdown?.id === currentMedia.id && createPortal(
                     <>
                       <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpenDropdown(null); }}></div>
                       <div
-                        className={`absolute right-8 w-max min-w-[200px] bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 ${openDropdown?.openUpwards ? 'bottom-full mb-1' : 'top-full mt-1'}`}
+                        className="fixed w-max min-w-[200px] bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10"
+                        style={{
+                          top: openDropdown.top,
+                          bottom: openDropdown.bottom,
+                          right: openDropdown.right,
+                        }}
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div
@@ -664,7 +700,8 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                           <Share2 size={16} /> Chia sẻ
                         </button>
                       </div>
-                    </>
+                    </>,
+                    document.body
                  )}
                </div>
              </div>
