@@ -9,7 +9,7 @@ import { usePlayer } from '../context/PlayerContext';
 export const UserProfile = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { playMediaList } = usePlayer();
+  const { playMediaList, currentMedia, isPlaying, togglePlayPause } = usePlayer();
   const [profile, setProfile] = useState<ProfileDto | null>(null);
   const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
   const [followers, setFollowers] = useState<ProfileDto[]>([]);
@@ -69,10 +69,20 @@ export const UserProfile = () => {
 
   const handlePlayPlaylist = async (e: React.MouseEvent, playlistId: string) => {
     e.stopPropagation();
+    
+    if ((currentMedia as any)?.playlistId === playlistId) {
+      togglePlayPause();
+      return;
+    }
+
     try {
       const details = await playlistService.getPlaylistDetails(playlistId);
       if (details.tracks && details.tracks.length > 0) {
-        playMediaList(details.tracks, 0);
+        const tracksToPlay = details.tracks.map(t => ({
+          ...t,
+          playlistId: playlistId
+        }));
+        playMediaList(tracksToPlay, 0);
       } else {
         alert("Danh sách phát này chưa có bài hát nào.");
       }
@@ -206,9 +216,13 @@ export const UserProfile = () => {
                     )}
                     <button 
                       onClick={(e) => handlePlayPlaylist(e, playlist.id)}
-                      className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0`}
+                      className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${(currentMedia as any)?.playlistId === playlist.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}
                     >
-                      <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                      {(currentMedia as any)?.playlistId === playlist.id && isPlaying ? (
+                        <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+                      ) : (
+                        <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                      )}
                     </button>
                   </div>
                   <div className="w-full">
