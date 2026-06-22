@@ -215,7 +215,9 @@ export const PlaylistDetail = () => {
       const img = new Image();
       img.crossOrigin = 'Anonymous';
       const baseUrl = getCoverUrl(displayCover);
-      img.src = `${baseUrl}?c=${Date.now()}`;
+      if (baseUrl) {
+        img.src = baseUrl.startsWith('data:') ? baseUrl : `${baseUrl}?c=${Date.now()}`;
+      }
       img.onload = () => {
         try {
           const color = fac.getColor(img);

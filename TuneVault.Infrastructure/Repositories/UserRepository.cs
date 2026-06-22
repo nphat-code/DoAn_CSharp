@@ -41,7 +41,7 @@ public class UserRepository(IDbConnection dbConnection) : IUserRepository
         return await dbConnection.QuerySingleOrDefaultAsync<UserProfile>(command);
     }
 
-    public async Task UpdateAvatarAsync(Guid userId, string avatarUrl, CancellationToken cancellationToken)
+    public async Task UpdateAvatarAsync(Guid userId, string? avatarUrl, CancellationToken cancellationToken)
     {
         var sql = "UPDATE UserProfiles SET AvatarUrl = @AvatarUrl, UpdatedAt = @UpdatedAt WHERE Id = @Id";
         var command = new CommandDefinition(sql, new { AvatarUrl = avatarUrl, UpdatedAt = DateTime.UtcNow, Id = userId }, cancellationToken: cancellationToken);

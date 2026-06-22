@@ -12,8 +12,15 @@ public class UpdateProfileAvatarCommandHandler(IUserRepository userRepository, I
             throw new Exception("User not found");
 
         var avatarUrlToSave = request.AvatarUrl;
+        var oldAvatarUrl = user.AvatarUrl;
+        var isChangingAvatar = false;
 
-        if (!string.IsNullOrEmpty(request.AvatarUrl) && request.AvatarUrl.StartsWith("data:image"))
+        if (request.AvatarUrl == "")
+        {
+            avatarUrlToSave = null;
+            isChangingAvatar = true;
+        }
+        else if (!string.IsNullOrEmpty(request.AvatarUrl) && request.AvatarUrl.StartsWith("data:image"))
         {
             var match = System.Text.RegularExpressions.Regex.Match(request.AvatarUrl, @"data:image/(?<type>.+?),(?<data>.+)");
             if (match.Success)
@@ -22,7 +29,24 @@ public class UpdateProfileAvatarCommandHandler(IUserRepository userRepository, I
                 var extension = match.Groups["type"].Value.Split(';')[0];
                 var bytes = Convert.FromBase64String(base64Data);
                 using var stream = new MemoryStream(bytes);
-                avatarUrlToSave = await fileStorageService.SaveFileAsync(stream, $"avatar_{request.UserId}.{extension}", "covers", cancellationToken);
+                avatarUrlToSave = await fileStorageService.SaveFileAsync(stream, $"avatar_{request.UserId}_{DateTime.UtcNow.Ticks}.{extension}", "avatars", cancellationToken);
+                isChangingAvatar = true;
+            }
+        }
+        else if (request.AvatarUrl != user.AvatarUrl)
+        {
+            isChangingAvatar = true;
+        }
+
+        if (isChangingAvatar && !string.IsNullOrEmpty(oldAvatarUrl) && oldAvatarUrl.StartsWith("http"))
+        {
+            try
+            {
+                await fileStorageService.DeleteFileAsync(oldAvatarUrl, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Cloudinary Delete Old Avatar Error] {ex.Message}");
             }
         }
 
