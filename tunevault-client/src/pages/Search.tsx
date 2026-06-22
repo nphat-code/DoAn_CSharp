@@ -180,7 +180,9 @@ export const Search = () => {
 
   const getImageUrl = (url?: string) => {
     if (!url) return '';
-    return url.startsWith('http') ? url : `https://tunevault-api.onrender.com${url}`;
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'https://tunevault-api.onrender.com';
+    return `${baseUrl}${url}`;
   };
 
   const renderRow = (item: any, type: 'track' | 'artist' | 'album' | 'playlist' | 'profile', isTopResult: boolean = false) => {

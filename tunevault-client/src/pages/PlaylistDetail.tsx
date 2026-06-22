@@ -201,7 +201,12 @@ export const PlaylistDetail = () => {
   };
 
   const displayCover = playlist?.coverUrl || (playlist?.tracks && playlist.tracks.length > 0 ? playlist.tracks[0].coverUrl : null);
-  const getCoverUrl = (url?: string | null) => url ? (url.startsWith('http') || url.startsWith('data:') ? url : url?.startsWith('http') ? url : `https://tunevault-api.onrender.com${url}`) : null;
+  const getCoverUrl = (url?: string | null) => {
+    if (!url) return null;
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'https://tunevault-api.onrender.com';
+    return `${baseUrl}${url}`;
+  };
 
   useEffect(() => {
     if (displayCover) {

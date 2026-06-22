@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace TuneVault.Application.Features.Playlists.Commands.UpdatePlaylist;
 
-public class UpdatePlaylistCommandHandler(IPlaylistRepository playlistRepository) : IRequestHandler<UpdatePlaylistCommand, bool>
+public class UpdatePlaylistCommandHandler(IPlaylistRepository playlistRepository, IFileStorageService fileStorageService) : IRequestHandler<UpdatePlaylistCommand, bool>
 {
     public async Task<bool> Handle(UpdatePlaylistCommand request, CancellationToken cancellationToken)
     {
@@ -42,14 +42,12 @@ public class UpdatePlaylistCommandHandler(IPlaylistRepository playlistRepository
                         if (ext == "jpeg") ext = "jpg";
                         
                         var bytes = Convert.FromBase64String(base64Data.Trim());
+                        using var stream = new MemoryStream(bytes);
                         
-                        var fileName = $"{Guid.NewGuid()}.{ext}";
-                        var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "playlists", fileName);
+                        var fileName = $"cover_{Guid.NewGuid()}.{ext}";
+                        var url = await fileStorageService.SaveFileAsync(stream, fileName, "playlists", cancellationToken);
                         
-                        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-                        await File.WriteAllBytesAsync(path, bytes, cancellationToken);
-                        
-                        playlist.CoverUrl = $"/uploads/playlists/{fileName}";
+                        playlist.CoverUrl = url;
                     }
                 }
                 catch

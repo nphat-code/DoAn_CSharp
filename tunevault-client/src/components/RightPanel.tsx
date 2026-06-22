@@ -111,8 +111,9 @@ export const RightPanel = ({ width }: RightPanelProps) => {
 
   const getImageUrl = (url: string | undefined | null) => {
     if (!url) return "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62"; // Fallback Ed Sheeran image
-    if (url.startsWith('http')) return url;
-    return url?.startsWith('http') ? url : `https://tunevault-api.onrender.com${url}`;
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'https://tunevault-api.onrender.com';
+    return `${baseUrl}${url}`;
   };
 
   if (showQueue) {
