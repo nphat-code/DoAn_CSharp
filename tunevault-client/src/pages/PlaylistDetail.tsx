@@ -693,7 +693,7 @@ export const PlaylistDetail = () => {
                 className="relative w-[180px] h-[180px] bg-zinc-700 rounded shadow-md group flex-shrink-0"
                 onMouseLeave={() => setShowCoverDropdown(false)}
               >
-                {editCover || displayCover ? (
+                {editCover || (displayCover && editCover !== "") ? (
                   <img src={getCoverUrl(editCover || displayCover)!} alt="Cover" className="w-full h-full object-cover rounded" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
