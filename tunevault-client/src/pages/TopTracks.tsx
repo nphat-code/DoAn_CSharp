@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { mediaService } from '../services/mediaService';
 import { usePlayer } from '../context/PlayerContext';
 import type { MediaItemDto } from '../types';
-import { Play } from 'lucide-react';
+import { Play, Clock } from 'lucide-react';
 
 export const TopTracks = () => {
   const navigate = useNavigate();
@@ -44,8 +44,22 @@ export const TopTracks = () => {
 
   return (
     <div className="flex flex-col h-full bg-[#121212] overflow-y-auto px-8 py-6">
-      <h1 className="text-3xl font-bold text-white mb-8 mt-4">Bản nhạc hàng đầu tháng này</h1>
+      <div className="mb-8 mt-4">
+        <h1 className="text-3xl font-bold text-white mb-2">Bản nhạc hàng đầu tháng này</h1>
+        <p className="text-sm text-zinc-400">Chỉ hiển thị với bạn</p>
+      </div>
       <div className="flex flex-col">
+        {/* Header Row */}
+        <div className="flex items-center gap-4 px-4 py-2 text-sm text-zinc-400 border-b border-white/10 mb-4">
+          <div className="w-6 text-center">#</div>
+          <div className="w-10"></div>
+          <div className="flex-1 min-w-0">Tiêu đề</div>
+          <div className="hidden md:block flex-1">Album</div>
+          <div className="w-12 flex justify-end">
+            <Clock size={16} />
+          </div>
+        </div>
+        
         {topTracks.map((track, index) => (
           <div
             key={track.id}
@@ -74,7 +88,7 @@ export const TopTracks = () => {
               </p>
             </div>
             <div className="hidden md:block flex-1 text-sm text-zinc-400 truncate hover:underline">
-              {track.description || track.title}
+              {track.albumTitle || ''}
             </div>
             <div className="text-sm text-zinc-400 w-12 text-right">
               {formatDuration(track.duration)}

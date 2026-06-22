@@ -60,7 +60,10 @@ export const TopArtists = () => {
 
   return (
     <div className="flex flex-col h-full bg-[#121212] overflow-y-auto px-8 py-6">
-      <h1 className="text-3xl font-bold text-white mb-8 mt-4">Nghệ sĩ hàng đầu tháng này</h1>
+      <div className="mb-8 mt-4">
+        <h1 className="text-3xl font-bold text-white mb-2">Nghệ sĩ hàng đầu tháng này</h1>
+        <p className="text-sm text-zinc-400">Chỉ hiển thị với bạn</p>
+      </div>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-y-3 -mx-6 px-6">
         {topArtists.map((artist, idx) => {
           const isPlayingRow = currentMedia?.artistId === artist.id;
