@@ -29,21 +29,33 @@ public class UpdatePlaylistCommandHandler(IPlaylistRepository playlistRepository
             }
             else if (request.CoverUrl.StartsWith("data:image"))
             {
-                var match = Regex.Match(request.CoverUrl, @"data:image/(?<type>.+?),(?<data>.+)");
-                if (match.Success)
+                try
                 {
-                    var base64Data = match.Groups["data"].Value;
-                    var ext = match.Groups["type"].Value.Split(';')[0];
-                    if (ext == "jpeg") ext = "jpg";
-                    var bytes = Convert.FromBase64String(base64Data);
-                    
-                    var fileName = $"{Guid.NewGuid()}.{ext}";
-                    var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "playlists", fileName);
-                    
-                    Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-                    await File.WriteAllBytesAsync(path, bytes, cancellationToken);
-                    
-                    playlist.CoverUrl = $"/uploads/playlists/{fileName}";
+                    var parts = request.CoverUrl.Split(',', 2);
+                    if (parts.Length == 2)
+                    {
+                        var meta = parts[0];
+                        var base64Data = parts[1];
+                        
+                        var typePart = meta.Split(';')[0];
+                        var ext = typePart.Split('/').LastOrDefault() ?? "jpg";
+                        if (ext == "jpeg") ext = "jpg";
+                        
+                        var bytes = Convert.FromBase64String(base64Data.Trim());
+                        
+                        var fileName = $"{Guid.NewGuid()}.{ext}";
+                        var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "playlists", fileName);
+                        
+                        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                        await File.WriteAllBytesAsync(path, bytes, cancellationToken);
+                        
+                        playlist.CoverUrl = $"/uploads/playlists/{fileName}";
+                    }
+                }
+                catch
+                {
+                    // Fallback if parsing fails
+                    playlist.CoverUrl = request.CoverUrl;
                 }
             }
             else

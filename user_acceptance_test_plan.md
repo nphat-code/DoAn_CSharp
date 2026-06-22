@@ -33,8 +33,8 @@
 *   [x] Kiểm tra Sidebar (Thư viện trái) xem có hiển thị Avatar & tên của nghệ sĩ vừa Follow chưa.
 
 ## 5. Quản Lý Danh Sách Phát (Playlist)
-*   [ ] Bấm nút tạo Playlist mới (Dấu + ở Sidebar).
-*   [ ] Bấm vào Playlist vừa tạo, bấm **Sửa thông tin chi tiết**: Đổi tên, mô tả và thử upload một ảnh bìa (Cover) mới từ máy tính.
+*   [x] Bấm nút tạo Playlist mới (Dấu + ở Sidebar).
+*   [x] Bấm vào Playlist vừa tạo, bấm **Sửa thông tin chi tiết**: Đổi tên, mô tả và thử upload một ảnh bìa (Cover) mới từ máy tính.
 *   [ ] Bấm nút **3 chấm** ở một bài hát bất kỳ (ví dụ ở trang Tìm kiếm hoặc trang Album) -> chọn **Thêm vào danh sách phát** -> chọn Playlist vừa tạo.
 *   [ ] Vào lại Playlist kiểm tra xem bài hát đã nằm trong danh sách chưa.
 *   [ ] Xóa thử 1 bài hát ra khỏi Playlist.
