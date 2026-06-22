@@ -21,8 +21,6 @@ export const Profile = () => {
   const [topArtists, setTopArtists] = useState<{ name: string, avatarUrl: string, id?: string }[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [showAllArtists, setShowAllArtists] = useState(false);
-  const [showAllTracks, setShowAllTracks] = useState(false);
   const { playMediaList, isPlaying, togglePlayPause, currentMedia } = usePlayer();
 
   useEffect(() => {
@@ -241,15 +239,15 @@ export const Profile = () => {
               </div>
               {topArtists.length > 3 && (
                 <button 
-                  onClick={() => setShowAllArtists(!showAllArtists)}
+                  onClick={() => navigate('/profile/top/artists')}
                   className="text-zinc-400 text-sm font-bold hover:underline"
                 >
-                  {showAllArtists ? "Ẩn bớt" : "Hiện tất cả"}
+                  Hiện tất cả
                 </button>
               )}
             </div>
             <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-y-3 -mx-6">
-              {topArtists.slice(0, showAllArtists ? undefined : 3).map((artist, idx) => {
+              {topArtists.slice(0, 3).map((artist, idx) => {
                 const isPlayingRow = currentMedia?.artistId === artist.id;
                 return (
                   <div
@@ -294,15 +292,15 @@ export const Profile = () => {
               </div>
               {topTracks.length > 4 && (
                 <button 
-                  onClick={() => setShowAllTracks(!showAllTracks)}
+                  onClick={() => navigate('/profile/top/tracks')}
                   className="text-zinc-400 text-sm font-bold hover:underline"
                 >
-                  {showAllTracks ? "Ẩn bớt" : "Hiện tất cả"}
+                  Hiện tất cả
                 </button>
               )}
             </div>
             <div className="flex flex-col">
-              {topTracks.slice(0, showAllTracks ? undefined : 4).map((track, index) => (
+              {topTracks.slice(0, 4).map((track, index) => (
                 <div
                   key={track.id}
                   className="flex items-center gap-4 px-4 py-2 hover:bg-white/10 rounded-md group cursor-pointer"

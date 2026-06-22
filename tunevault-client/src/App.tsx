@@ -15,6 +15,8 @@ import { AdminDashboard } from './pages/AdminDashboard';
 import { SharedWithMe } from './pages/SharedWithMe';
 import { RecentHistory } from './pages/RecentHistory';
 import { ArtistDetail } from './pages/ArtistDetail';
+import { TopArtists } from './pages/TopArtists';
+import { TopTracks } from './pages/TopTracks';
 
 const Placeholder = ({ title }: { title: string }) => (
   <div className="p-6">
@@ -48,6 +50,8 @@ function App() {
           <Route path="recent-history" element={isAuthenticated ? <RecentHistory /> : <Navigate to="/login" />} />
           <Route path="notifications" element={isAuthenticated ? <Placeholder title="Notifications" /> : <Navigate to="/login" />} />
           <Route path="profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
+          <Route path="profile/top/artists" element={isAuthenticated ? <TopArtists /> : <Navigate to="/login" />} />
+          <Route path="profile/top/tracks" element={isAuthenticated ? <TopTracks /> : <Navigate to="/login" />} />
           <Route path="user/:id" element={isAuthenticated ? <UserProfile /> : <Navigate to="/login" />} />
           <Route path="admin" element={isAuthenticated ? <AdminDashboard /> : <Navigate to="/login" />} />
           <Route path="now-playing" element={isAuthenticated ? <NowPlaying /> : <Navigate to="/login" />} />
