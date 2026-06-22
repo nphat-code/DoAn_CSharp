@@ -67,7 +67,7 @@ public class PlaylistsController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> UpdatePlaylist(Guid id, [FromBody] UpdatePlaylistRequest request)
     {
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var command = new UpdatePlaylistCommand(id, userId, request.Name, request.Description, request.CoverUrl);
+        var command = new UpdatePlaylistCommand(id, userId, request.Name, request.Description, request.CoverUrl, request.IsPublic);
         var result = await mediator.Send(command);
         if (!result) return NotFound();
         return Ok(new { success = true });
@@ -120,4 +120,5 @@ public class UpdatePlaylistRequest
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string? CoverUrl { get; set; }
+    public bool? IsPublic { get; set; }
 }

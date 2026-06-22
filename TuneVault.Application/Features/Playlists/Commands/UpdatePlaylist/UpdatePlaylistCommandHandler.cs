@@ -16,6 +16,10 @@ public class UpdatePlaylistCommandHandler(IPlaylistRepository playlistRepository
 
         playlist.Name = request.Name;
         playlist.Description = request.Description;
+        if (request.IsPublic.HasValue)
+        {
+            playlist.IsPublic = request.IsPublic.Value;
+        }
 
         if (request.CoverUrl != null)
         {

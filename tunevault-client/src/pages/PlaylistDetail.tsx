@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { playlistService } from '../services/playlistService';
 import type { PlaylistDetailDto } from '../services/playlistService';
 import { usePlayer } from '../context/PlayerContext';
-import { Play, Trash2, Clock, Search, Heart, MoreHorizontal, X, Camera, Music, Share2 } from 'lucide-react';
+import { Play, Trash2, Clock, Search, Heart, MoreHorizontal, X, Camera, Music, Share2, Edit2, Globe, Lock } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import type { MediaItemDto } from '../types';
 import { ShareMediaModal } from '../components/ShareMediaModal';
@@ -26,6 +26,16 @@ export const PlaylistDetail = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showCoverDropdown, setShowCoverDropdown] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [autoOpenFilePicker, setAutoOpenFilePicker] = useState(false);
+
+  useEffect(() => {
+    if (showEditModal && autoOpenFilePicker && fileInputRef.current) {
+      setTimeout(() => {
+        fileInputRef.current?.click();
+        setAutoOpenFilePicker(false);
+      }, 100);
+    }
+  }, [showEditModal, autoOpenFilePicker]);
 
   // Share states
   const [showShareModal, setShowShareModal] = useState(false);
@@ -137,6 +147,17 @@ export const PlaylistDetail = () => {
     }
   };
 
+  const handleTogglePublic = async () => {
+    if (!id || !playlist) return;
+    try {
+      await playlistService.updatePlaylist(id, playlist.name, playlist.description, undefined, !playlist.isPublic);
+      setPlaylist({ ...playlist, isPublic: !playlist.isPublic });
+      setShowDropdown(false);
+    } catch (error) {
+      alert("Lỗi khi cập nhật trạng thái");
+    }
+  };
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -215,6 +236,7 @@ export const PlaylistDetail = () => {
             setEditDescription(playlist.description || "");
             setEditCover(playlist.coverUrl || null);
             setShowEditModal(true);
+            setAutoOpenFilePicker(true);
           }}
         >
           {displayCover ? (
@@ -228,9 +250,9 @@ export const PlaylistDetail = () => {
           </div>
         </div>
         <div className="flex flex-col justify-end min-w-0 flex-1 w-full pb-1">
-          <span className="text-sm font-bold text-white tracking-widest mb-1">{playlist.isPublic ? "Công khai" : "Cá nhân"}</span>
+          <span className="text-sm font-bold text-white tracking-widest mb-1">Danh sách phát {playlist.isPublic ? "công khai" : "riêng tư"}</span>
           <h1 
-            className="font-black text-white tracking-tighter leading-tight mb-2 line-clamp-2 cursor-pointer hover:underline"
+            className="font-black text-white tracking-tighter leading-tight mb-2 line-clamp-2 cursor-pointer"
             style={{ fontSize: 'clamp(48px, 6cqw, 72px)', lineHeight: '1.2' }}
             onClick={() => {
               setEditName(playlist.name);
@@ -254,18 +276,20 @@ export const PlaylistDetail = () => {
       <div className="flex-1 flex flex-col border-t border-white/10 pt-6 relative z-10 bg-black/20">
         {/* Controls */}
         <div className="flex items-center gap-6 mb-6 px-6">
-          <button 
-            onClick={handleMainPlayClick}
-            className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center hover:scale-105 transition hover:bg-green-400 shadow-xl"
-          >
-            {isPlaylistPlaying ? (
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" className="text-black ml-0">
-                <path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path>
-              </svg>
-            ) : (
-              <Play size={24} className="text-black fill-black ml-1" />
-            )}
-          </button>
+          {playlist.tracks && playlist.tracks.length > 0 && (
+            <button 
+              onClick={handleMainPlayClick}
+              className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center hover:scale-105 transition hover:bg-green-400 shadow-xl"
+            >
+              {isPlaylistPlaying ? (
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" className="text-black ml-0">
+                  <path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path>
+                </svg>
+              ) : (
+                <Play size={24} className="text-black fill-black ml-1" />
+              )}
+            </button>
+          )}
           
           <div className="relative">
             <button 
@@ -286,9 +310,27 @@ export const PlaylistDetail = () => {
                       setEditCover(playlist.coverUrl || null);
                       setShowEditModal(true);
                     }}
-                    className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white transition"
+                    className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white transition flex items-center gap-2"
                   >
+                    <Edit2 size={16} />
                     Sửa thông tin chi tiết
+                  </button>
+                  <button 
+                    onClick={handleTogglePublic}
+                    className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white transition flex items-center gap-2"
+                  >
+                    {playlist.isPublic ? <Lock size={16} /> : <Globe size={16} />}
+                    {playlist.isPublic ? "Đặt thành riêng tư" : "Đặt thành công khai"}
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setShowDropdown(false);
+                      handleDeletePlaylist();
+                    }}
+                    className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white transition flex items-center gap-2"
+                  >
+                    <Trash2 size={16} />
+                    Xóa
                   </button>
                   <button 
                     onClick={() => {
@@ -300,15 +342,6 @@ export const PlaylistDetail = () => {
                   >
                     <Share2 size={16} />
                     Chia sẻ
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setShowDropdown(false);
-                      handleDeletePlaylist();
-                    }}
-                    className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white transition"
-                  >
-                    Xóa
                   </button>
                 </div>
               </>
@@ -447,7 +480,7 @@ export const PlaylistDetail = () => {
         </div>
 
         {/* Tìm kiếm để thêm bài hát */}
-        <div className="mt-12 w-full pt-8 border-t border-zinc-800">
+        <div className="mt-12 w-full pt-8 px-6 pb-12 border-t border-zinc-800">
            <h2 className="text-xl font-bold text-white mb-4">Hãy cùng tìm nội dung cho danh sách phát của bạn</h2>
            <div className="relative w-full md:w-96 mb-6">
              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={20} />
@@ -463,17 +496,50 @@ export const PlaylistDetail = () => {
           {isSearching && <div className="text-zinc-500 font-medium">Đang tìm kiếm...</div>}
           
           {!isSearching && addResults.length > 0 && (
-           <div className="flex flex-col gap-2">
-             {addResults.map(track => (
-               <div key={track.id} className="flex items-center justify-between p-3 hover:bg-zinc-800/80 rounded-md transition group">
-                 <div className="flex items-center gap-4">
-                   <div className="w-10 h-10 bg-zinc-700 rounded flex-shrink-0 flex items-center justify-center">
-                     <span className="text-white/50 font-bold">{track.title.charAt(0)}</span>
+           <div className="flex flex-col gap-0 pb-6">
+             {addResults.map((track, idx) => {
+               const isPlayingTrack = currentMedia?.id === track.id;
+               return (
+               <div 
+                 key={track.id} 
+                 className="flex items-center justify-between p-2 hover:bg-white/10 rounded-md transition group cursor-pointer"
+                 onDoubleClick={() => {
+                   if (isPlayingTrack) {
+                     togglePlayPause();
+                   } else {
+                     playMediaList(addResults, idx);
+                   }
+                 }}
+               >
+                 <div className="flex items-center gap-4 flex-1 overflow-hidden">
+                   <div className="relative w-10 h-10 bg-zinc-800 rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
+                       {track.coverUrl ? (
+                         <img src={track.coverUrl.startsWith('http') || track.coverUrl.startsWith('data:') ? track.coverUrl : track.coverUrl?.startsWith('http') ? track.coverUrl : `https://tunevault-api.onrender.com${track.coverUrl}`} alt={track.title} className="w-full h-full object-cover group-hover:opacity-50 transition" />
+                       ) : (
+                         <span className="text-white/50 text-xs group-hover:opacity-0 transition">{track.title.charAt(0)}</span>
+                       )}
+                       
+                       <button className="absolute inset-0 m-auto flex items-center justify-center hidden group-hover:flex" onClick={(e) => { 
+                          e.stopPropagation(); 
+                          if (isPlayingTrack) {
+                            togglePlayPause();
+                          } else {
+                            playMediaList(addResults, idx); 
+                          }
+                       }}>
+                         {isPlayingTrack && isPlaying ? (
+                           <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="text-white">
+                             <path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path>
+                           </svg>
+                         ) : (
+                           <Play size={16} className="fill-white text-white" />
+                         )}
+                       </button>
                    </div>
-                   <div className="flex flex-col">
-                     <span className="text-white font-semibold">{track.title}</span>
+                   <div className="flex flex-col overflow-hidden w-[40%]">
+                     <span className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-white'} font-semibold text-base truncate`}>{track.title}</span>
                      <span 
-                       className="text-zinc-400 text-sm hover:underline hover:text-white cursor-pointer inline-block w-fit"
+                       className="text-zinc-400 text-sm hover:underline hover:text-white cursor-pointer inline-block w-fit truncate"
                        onClick={(e) => {
                          e.stopPropagation();
                          if (track.artistId) navigate(`/artist/${track.artistId}`);
@@ -482,15 +548,16 @@ export const PlaylistDetail = () => {
                        {track.artistName || track.description || "Nghệ sĩ"}
                      </span>
                    </div>
+                   <div className="text-sm text-[#b3b3b3] truncate flex-1 hidden md:block">{track.albumTitle || "Đĩa đơn"}</div>
                  </div>
                  <button 
-                   onClick={() => handleAddTrack(track)}
-                   className="px-4 py-1.5 rounded-full border border-zinc-500 text-white font-bold text-sm hover:border-white hover:scale-105 transition flex items-center gap-1"
+                   onClick={(e) => { e.stopPropagation(); handleAddTrack(track); }}
+                   className="px-4 py-1.5 ml-4 rounded-full border border-zinc-500 text-white font-bold text-sm hover:border-white hover:scale-105 transition flex items-center gap-1 shrink-0"
                  >
                    Thêm
                  </button>
                </div>
-             ))}
+             )})}
            </div>
          )}
         </div>

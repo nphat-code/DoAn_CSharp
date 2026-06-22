@@ -75,18 +75,24 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
     };
   }, [isAuthenticated]);
 
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newPlaylistName, setNewPlaylistName] = useState("");
-  const [isPublic, setIsPublic] = useState(false);
-
-  const submitCreatePlaylist = async () => {
-    if (!newPlaylistName.trim()) return;
+  const submitCreatePlaylistAuto = async () => {
     try {
-      const newPlaylist = await playlistService.createPlaylist(newPlaylistName, undefined, isPublic);
+      const myPlaylists = playlists.filter(p => p.name.startsWith('Danh sách phát của tôi #'));
+      let nextNum = 1;
+      if (myPlaylists.length > 0) {
+        const nums = myPlaylists.map(p => {
+          const numStr = p.name.replace('Danh sách phát của tôi #', '');
+          return parseInt(numStr) || 0;
+        });
+        nextNum = Math.max(...nums) + 1;
+      } else {
+        nextNum = playlists.filter(p => p.name.startsWith('Danh sách phát của tôi')).length + 1;
+        if (nextNum === 1) nextNum = playlists.length + 1;
+      }
+      const newName = `Danh sách phát của tôi #${nextNum}`;
+      const newPlaylist = await playlistService.createPlaylist(newName, undefined, true);
       setPlaylists([newPlaylist, ...playlists]);
-      setShowCreateModal(false);
-      setNewPlaylistName("");
-      setIsPublic(false);
+      navigate(`/playlist/${newPlaylist.id}`);
     } catch (error) {
       alert("Lỗi khi tạo playlist. Vui lòng đăng nhập.");
     }
@@ -109,7 +115,7 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
           
           <div className={`items-center gap-2 text-spotify-lighttext ${isExpanded ? 'flex' : 'hidden lg:flex'}`}>
             {isAuthenticated && (
-              <button onClick={() => setShowCreateModal(true)} className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition flex items-center gap-1 text-sm font-semibold" title="Tạo playlist mới">
+              <button onClick={submitCreatePlaylistAuto} className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition flex items-center gap-1 text-sm font-semibold" title="Tạo playlist mới">
                 <Plus size={20} /> Tạo
               </button>
             )}
@@ -246,50 +252,7 @@ export const Sidebar = ({ isExpanded = false, onToggleExpand, width }: SidebarPr
           )}
         </div>
       </div>
-      {/* Modal Tạo Playlist */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-zinc-800 rounded-xl p-6 w-96 shadow-2xl border border-zinc-700 animate-in fade-in zoom-in duration-200">
-             <h2 className="text-xl font-bold text-white mb-6 text-center">Tạo danh sách phát</h2>
-             <input 
-               type="text" 
-               placeholder="Thêm tên..." 
-               value={newPlaylistName}
-               onChange={(e) => setNewPlaylistName(e.target.value)}
-               onKeyDown={(e) => { if (e.key === 'Enter') submitCreatePlaylist(); }}
-               className="w-full bg-zinc-700/50 text-white rounded-md p-3 outline-none focus:ring-2 focus:ring-white mb-4 placeholder-zinc-400 font-medium"
-               autoFocus
-             />
-             <div className="flex items-center gap-2 mb-6">
-               <input 
-                 type="checkbox" 
-                 id="isPublic"
-                 checked={isPublic}
-                 onChange={(e) => setIsPublic(e.target.checked)}
-                 className="w-4 h-4 rounded text-green-500 focus:ring-green-500 bg-zinc-700 border-zinc-600"
-               />
-               <label htmlFor="isPublic" className="text-sm text-zinc-300 font-medium cursor-pointer">
-                 Đặt ở chế độ công khai
-               </label>
-             </div>
-             <div className="flex justify-end gap-2">
-               <button 
-                 onClick={() => { setShowCreateModal(false); setNewPlaylistName(""); setIsPublic(false); }}
-                 className="px-6 py-3 font-bold text-white hover:scale-105 transition"
-               >
-                 Hủy
-               </button>
-               <button 
-                 onClick={submitCreatePlaylist}
-                 disabled={!newPlaylistName.trim()}
-                 className="px-6 py-3 bg-white text-black font-bold rounded-full hover:scale-105 transition disabled:opacity-50 disabled:hover:scale-100"
-               >
-                 Tạo mới
-               </button>
-             </div>
-          </div>
-        </div>
-      )}
+      {/* Removed Create Modal */}
     </div>
   );
 };
