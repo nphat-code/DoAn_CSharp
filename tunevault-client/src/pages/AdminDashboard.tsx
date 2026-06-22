@@ -109,43 +109,44 @@ export const AdminDashboard = () => {
 
   return (
     <div className="flex flex-col min-h-full bg-zinc-900 p-8">
-      <div className="flex items-center gap-4 mb-8">
-        <ShieldAlert size={40} className="text-red-500" />
-        <h1 className="text-4xl font-bold text-white tracking-tight">Quản trị Hệ thống</h1>
-      </div>
-
-      {/* Tabs and Search */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-8 border-b border-zinc-800 pb-2 justify-between items-start sm:items-center">
-        <div className="flex gap-4">
-          <button 
-            onClick={() => setActiveTab('tracks')}
-            className={`flex items-center gap-2 px-4 py-2 font-bold rounded-md transition ${activeTab === 'tracks' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-white'}`}
-          >
-            <Music size={20} /> Bài hát
-          </button>
-          <button 
-            onClick={() => setActiveTab('albums')}
-            className={`flex items-center gap-2 px-4 py-2 font-bold rounded-md transition ${activeTab === 'albums' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-white'}`}
-          >
-            <Disc size={20} /> Album
-          </button>
-          <button 
-            onClick={() => setActiveTab('artists')}
-            className={`flex items-center gap-2 px-4 py-2 font-bold rounded-md transition ${activeTab === 'artists' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-white'}`}
-          >
-            <User size={20} /> Nghệ sĩ
-          </button>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <div className="flex items-center gap-4">
+          <ShieldAlert size={40} className="text-red-500" />
+          <h1 className="text-4xl font-bold text-white tracking-tight">Quản trị Hệ thống</h1>
         </div>
-        <div className="relative w-full sm:w-64 shrink-0">
+        
+        <div className="relative w-full sm:w-80 shrink-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
           <input 
             type="text" 
-            placeholder="Tìm kiếm..."
+            placeholder="Tìm kiếm bài hát, album, nghệ sĩ..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-zinc-800 text-white rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/20 transition text-sm"
+            className="w-full bg-zinc-800/80 text-white rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/20 transition text-sm border border-zinc-700 focus:bg-zinc-800"
           />
         </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-4 mb-8 border-b border-zinc-800 pb-2">
+        <button 
+          onClick={() => setActiveTab('tracks')}
+          className={`flex items-center gap-2 px-4 py-2 font-bold rounded-md transition ${activeTab === 'tracks' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-white'}`}
+        >
+          <Music size={20} /> Bài hát
+        </button>
+        <button 
+          onClick={() => setActiveTab('albums')}
+          className={`flex items-center gap-2 px-4 py-2 font-bold rounded-md transition ${activeTab === 'albums' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-white'}`}
+        >
+          <Disc size={20} /> Album
+        </button>
+        <button 
+          onClick={() => setActiveTab('artists')}
+          className={`flex items-center gap-2 px-4 py-2 font-bold rounded-md transition ${activeTab === 'artists' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-white'}`}
+        >
+          <User size={20} /> Nghệ sĩ
+        </button>
       </div>
 
       {/* Content */}
