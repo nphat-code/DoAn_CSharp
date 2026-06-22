@@ -7,19 +7,7 @@ import { ShareMediaModal } from '../components/ShareMediaModal';
 import { useNavigate } from 'react-router-dom';
 
 import { TrackDropdownMenu } from '../components/TrackDropdownMenu';
-
-const formatDuration = (timeString: string | undefined) => {
-  if (!timeString) return "0:00";
-  if (timeString.includes(":")) {
-    const parts = timeString.split(":");
-    if (parts.length >= 2) {
-      const min = parseInt(parts[1], 10);
-      const sec = parseFloat(parts[2] || "0");
-      return `${min}:${Math.floor(sec).toString().padStart(2, '0')}`;
-    }
-  }
-  return timeString;
-};
+import { formatDuration } from '../utils/format';
 
 export const Favorites = () => {
   const [favorites, setFavorites] = useState<MediaItemDto[]>([]);

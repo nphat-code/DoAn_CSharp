@@ -8,6 +8,7 @@ import { usePlayer } from '../context/PlayerContext';
 import { Play, MoreHorizontal, Share2 } from 'lucide-react';
 import { ShareMediaModal } from '../components/ShareMediaModal';
 import { TrackDropdownMenu } from '../components/TrackDropdownMenu';
+import { formatDuration } from '../utils/format';
 
 export const ArtistDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -154,18 +155,7 @@ export const ArtistDetail = () => {
     }
   };
 
-  const formatDuration = (durationStr: string) => {
-    if (!durationStr) return "0:00";
-    const parts = durationStr.split(':');
-    if (parts.length >= 3) {
-      const hours = parseInt(parts[0], 10);
-      const minutes = parseInt(parts[1], 10);
-      const seconds = parseInt(parts[2].split('.')[0], 10);
-      if (hours > 0) return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-      return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    }
-    return durationStr;
-  };
+
 
   const handleToggleFavorite = async (trackId: string) => {
     try {

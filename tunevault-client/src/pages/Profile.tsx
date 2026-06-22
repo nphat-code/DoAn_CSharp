@@ -9,6 +9,7 @@ import { usePlayer } from '../context/PlayerContext';
 import { Settings, MoreHorizontal, Play, Edit2, X, Pencil, Link as LinkIcon, Plus } from 'lucide-react';
 import { ShareMediaModal } from '../components/ShareMediaModal';
 import { TrackDropdownMenu } from '../components/TrackDropdownMenu';
+import { formatDuration } from '../utils/format';
 
 export const Profile = () => {
   const navigate = useNavigate();
@@ -185,18 +186,7 @@ export const Profile = () => {
     }
   };
 
-  const formatDuration = (timeString: string | undefined) => {
-    if (!timeString) return "0:00";
-    if (timeString.includes(":")) {
-      const parts = timeString.split(":");
-      if (parts.length >= 2) {
-        const min = parseInt(parts[1], 10);
-        const sec = parseFloat(parts[2] || "0");
-        return `${min}:${Math.floor(sec).toString().padStart(2, '0')}`;
-      }
-    }
-    return timeString;
-  };
+
 
   if (loading) return <div className="text-zinc-400 p-8 h-full bg-[#121212]">Đang tải thông tin...</div>;
   if (!profile) return <div className="text-zinc-400 p-8 h-full bg-[#121212]">Không thể tải thông tin cá nhân.</div>;
