@@ -35,9 +35,9 @@
 ## 5. Quản Lý Danh Sách Phát (Playlist)
 *   [x] Bấm nút tạo Playlist mới (Dấu + ở Sidebar).
 *   [x] Bấm vào Playlist vừa tạo, bấm **Sửa thông tin chi tiết**: Đổi tên, mô tả và thử upload một ảnh bìa (Cover) mới từ máy tính.
-*   [ ] Bấm nút **3 chấm** ở một bài hát bất kỳ (ví dụ ở trang Tìm kiếm hoặc trang Album) -> chọn **Thêm vào danh sách phát** -> chọn Playlist vừa tạo.
-*   [ ] Vào lại Playlist kiểm tra xem bài hát đã nằm trong danh sách chưa.
-*   [ ] Xóa thử 1 bài hát ra khỏi Playlist.
+*   [x] Bấm nút **3 chấm** ở một bài hát bất kỳ (ví dụ ở trang Tìm kiếm hoặc trang Album) -> chọn **Thêm vào danh sách phát** -> chọn Playlist vừa tạo.
+*   [x] Vào lại Playlist kiểm tra xem bài hát đã nằm trong danh sách chưa.
+*   [x] Xóa thử 1 bài hát ra khỏi Playlist.
 
 ## 6. Tính Năng Xã Hội (Share & Notification)
 *   [ ] Bấm **Chia sẻ** một Bài hát hoặc Album cho một người dùng khác (nếu ứng dụng có chức năng chọn user để gửi) hoặc Copy Link.

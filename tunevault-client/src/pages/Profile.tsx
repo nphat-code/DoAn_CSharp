@@ -168,6 +168,20 @@ export const Profile = () => {
     }
   };
 
+  const handlePlayPlaylist = async (e: React.MouseEvent, playlistId: string) => {
+    e.stopPropagation();
+    try {
+      const details = await playlistService.getPlaylistDetails(playlistId);
+      if (details.tracks && details.tracks.length > 0) {
+        playMediaList(details.tracks, 0);
+      } else {
+        alert("Danh sách phát này chưa có bài hát nào.");
+      }
+    } catch (error) {
+      console.error("Failed to play playlist", error);
+    }
+  };
+
   const formatDuration = (timeString: string | undefined) => {
     if (!timeString) return "0:00";
     if (timeString.includes(":")) {
@@ -612,18 +626,12 @@ export const Profile = () => {
                         <span className="text-4xl text-zinc-500">🎵</span>
                       </div>
                     )}
-                    {/* Play button overlay */}
-                    <div className="absolute right-2 bottom-2 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                      <button 
-                        className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black hover:bg-green-400 hover:scale-105 shadow-xl"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/playlist/${playlist.id}`);
-                        }}
-                      >
-                        <Play size={24} fill="currentColor" className="ml-1" />
-                      </button>
-                    </div>
+                    <button 
+                      onClick={(e) => handlePlayPlaylist(e, playlist.id)}
+                      className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0`}
+                    >
+                      <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                    </button>
                   </div>
                   <div className="w-full">
                     <h3 className="text-white font-bold truncate w-full text-left mb-1">{playlist.name}</h3>
