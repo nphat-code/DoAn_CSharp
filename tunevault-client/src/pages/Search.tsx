@@ -7,8 +7,8 @@ import type { SearchResultDto } from '../types';
 import { usePlayer } from '../context/PlayerContext';
 import { Play, Pause, Share2, Clock, MoreHorizontal } from 'lucide-react';
 import { ShareMediaModal } from '../components/ShareMediaModal';
+import { TrackListRow } from '../components/TrackListRow';
 import { TrackDropdownMenu } from '../components/TrackDropdownMenu';
-import { formatDuration } from '../utils/format';
 
 export const Search = () => {
   const [searchParams] = useSearchParams();
@@ -543,85 +543,24 @@ export const Search = () => {
                 </div>
               </div>
               <div className="flex flex-col gap-0 pb-10">
-                {results.tracks.map((track, index) => {
-                  const isPlayingTrack = currentMedia?.id === track.id;
-                  const isTrackFavorited = favoritesIds.has(track.id);
-                  return (
-                    <div 
-                      key={track.id} 
-                      className="grid grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(100px,1fr)] gap-4 px-4 py-2 hover:bg-white/10 rounded-md transition items-center group cursor-pointer"
-                      onDoubleClick={() => {
-                        if (isPlayingTrack) {
-                          togglePlayPause();
-                        } else {
-                          playMediaList(results.tracks, index);
-                        }
-                      }}
-                    >
-                      <div className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-[#b3b3b3]'} text-base font-medium flex items-center justify-end pr-2 relative w-full`}>
-                        <span className="group-hover:hidden">{index + 1}</span>
-                        <button className="hidden group-hover:block" onClick={(e) => { 
-                          e.stopPropagation(); 
-                          if (isPlayingTrack) {
-                            togglePlayPause();
-                          } else {
-                            playMediaList(results.tracks, index); 
-                          }
-                        }}>
-                          {isPlayingTrack && isPlaying ? (
-                            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" className="text-white">
-                              <path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path>
-                            </svg>
-                          ) : (
-                            <Play size={14} className="fill-white text-white" />
-                          )}
-                        </button>
-                      </div>
-                      <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="w-10 h-10 bg-zinc-800 rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
-                          {track.coverUrl ? (
-                            <img src={getImageUrl(track.coverUrl)} alt={track.title} className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="text-white/50 text-xs">{track.title.charAt(0)}</span>
-                          )}
-                        </div>
-                        <div className="flex flex-col overflow-hidden">
-                          <span className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-white'} font-semibold text-base truncate`}>{track.title}</span>
-                          <span 
-                            className="text-[#b3b3b3] text-sm truncate hover:underline hover:text-white cursor-pointer inline-block w-fit"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (track.artistId) navigate(`/artist/${track.artistId}`);
-                            }}
-                          >
-                            {track.artistName || track.description || "Nghệ sĩ"}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-sm text-[#b3b3b3] truncate hover:text-white transition hidden md:block cursor-pointer"
-                           onClick={(e) => {
-                             e.stopPropagation();
-                             if (track.albumId) navigate(`/album/${track.albumId}`);
-                           }}>
-                        {track.albumTitle || track.title}
-                      </div>
-                      <div className="flex items-center justify-end gap-4 pr-4 relative">
-                        <div className="text-sm text-[#b3b3b3] font-medium w-12 text-right">{formatDuration(track.duration)}</div>
-                        
-                        <TrackDropdownMenu
-                          track={track}
-                          isFavorited={isTrackFavorited}
-                          onToggleFavorite={() => handleToggleFavorite(undefined as any, track.id)}
-                          onShare={(id, title) => {
-                            setShareData({ id, type: 'Bài hát', title });
-                            setShowShareModal(true);
-                          }}
-                          className="opacity-0 group-hover:opacity-100 transition"
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
+                {results.tracks.map((track, index) => (
+                  <TrackListRow
+                    key={track.id}
+                    track={{
+                      ...track,
+                      albumTitle: track.albumTitle || track.title
+                    }}
+                    index={index}
+                    tracks={results.tracks}
+                    isFavorited={favoritesIds.has(track.id)}
+                    onToggleFavorite={() => handleToggleFavorite(undefined as any, track.id)}
+                    onShare={(id, title) => {
+                      setShareData({ id, type: 'Bài hát', title });
+                      setShowShareModal(true);
+                    }}
+                    className="grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(100px,1fr)]"
+                  />
+                ))}
               </div>
             </div>
           )}

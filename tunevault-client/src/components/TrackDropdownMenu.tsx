@@ -7,9 +7,9 @@ import type { MediaItemDto } from '../types';
 
 interface TrackDropdownMenuProps {
   track: MediaItemDto;
-  isFavorited: boolean;
-  onToggleFavorite: (trackId: string) => void;
-  onShare: (trackId: string, trackTitle: string) => void;
+  isFavorited?: boolean;
+  onToggleFavorite?: (trackId: string) => void;
+  onShare?: (trackId: string, trackTitle: string) => void;
   
   showGoToArtist?: boolean;
   showGoToAlbum?: boolean;
@@ -22,7 +22,7 @@ interface TrackDropdownMenuProps {
 
 export const TrackDropdownMenu = ({
   track,
-  isFavorited,
+  isFavorited = false,
   onToggleFavorite,
   onShare,
   showGoToArtist = true,
@@ -132,26 +132,28 @@ export const TrackDropdownMenu = ({
               )}
             </div>
 
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleClose();
-                onToggleFavorite(track.id);
-              }}
-              className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
-            >
-              {isFavorited ? (
-                <>
-                  <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
-                  Xóa khỏi bài hát đã thích
-                </>
-              ) : (
-                <>
-                  <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
-                  Lưu vào bài hát đã thích
-                </>
-              )}
-            </button>
+            {onToggleFavorite && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClose();
+                  onToggleFavorite(track.id);
+                }}
+                className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
+              >
+                {isFavorited ? (
+                  <>
+                    <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
+                    Xóa khỏi bài hát đã thích
+                  </>
+                ) : (
+                  <>
+                    <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                    Lưu vào bài hát đã thích
+                  </>
+                )}
+              </button>
+            )}
 
             <hr className="border-white/10 my-1" />
 
@@ -184,16 +186,18 @@ export const TrackDropdownMenu = ({
               </button>
             )}
 
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleClose();
-                onShare(track.id, track.title);
-              }}
-              className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
-            >
-              <Share2 size={16} /> Chia sẻ
-            </button>
+            {onShare && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClose();
+                  onShare(track.id, track.title);
+                }}
+                className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
+              >
+                <Share2 size={16} /> Chia sẻ
+              </button>
+            )}
 
             {onRemoveFromAlbum && (
               <>

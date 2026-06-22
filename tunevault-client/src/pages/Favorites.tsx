@@ -1,20 +1,16 @@
-import { getImageUrl } from '../utils/imageUrl';
 import { useEffect, useState } from 'react';
 import { mediaService } from '../services/mediaService';
 import { usePlayer } from '../context/PlayerContext';
 import { Play, Heart, Clock } from 'lucide-react';
 import type { MediaItemDto } from '../types';
 import { ShareMediaModal } from '../components/ShareMediaModal';
-import { useNavigate } from 'react-router-dom';
 
-import { TrackDropdownMenu } from '../components/TrackDropdownMenu';
-import { formatDuration } from '../utils/format';
+import { TrackListRow } from '../components/TrackListRow';
 
 export const Favorites = () => {
   const [favorites, setFavorites] = useState<MediaItemDto[]>([]);
   const [loading, setLoading] = useState(true);
   const { playMediaList, currentMedia, isFavorited, setIsFavorited, isPlaying, togglePlayPause, queue, updateQueueContext } = usePlayer();
-  const navigate = useNavigate();
 
   const currentUserStr = localStorage.getItem('user');
   const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
@@ -188,84 +184,20 @@ export const Favorites = () => {
           {favorites.length === 0 ? (
             <div className="text-center text-zinc-400 mt-10">Bạn chưa thêm bài hát nào vào danh sách này.</div>
           ) : (
-            favorites.map((track, index) => {
-              const isPlayingTrack = currentMedia?.id === track.id;
-              return (
-              <div 
-                key={track.id} 
-                className="grid grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(100px,1fr)] gap-4 px-4 py-2 hover:bg-white/10 rounded-md transition items-center group cursor-pointer"
-                onDoubleClick={() => {
-                  if (isPlayingTrack) {
-                    if (queue.length <= 1) {
-                      updateQueueContext(favorites, currentMedia.id);
-                    }
-                    togglePlayPause();
-                  } else {
-                    playMediaList(favorites, index);
-                  }
+            favorites.map((track, index) => (
+              <TrackListRow 
+                key={track.id}
+                track={track}
+                index={index}
+                tracks={favorites}
+                isFavorited={true}
+                onToggleFavorite={() => handleToggleFavorite(undefined, track)}
+                onShare={(id, title) => {
+                  setShareData({ id, type: 'Bài hát', title });
+                  setShowShareModal(true);
                 }}
-              >
-                <div className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-[#b3b3b3]'} text-base font-medium flex items-center justify-end pr-2 relative w-full`}>
-                  <span className="group-hover:hidden">{index + 1}</span>
-                  <button className="hidden group-hover:block" onClick={(e) => { 
-                    e.stopPropagation(); 
-                    if (isPlayingTrack) {
-                      if (queue.length <= 1) {
-                        updateQueueContext(favorites, currentMedia.id);
-                      }
-                      togglePlayPause();
-                    } else {
-                      playMediaList(favorites, index); 
-                    }
-                  }}>
-                    {isPlayingTrack && isPlaying ? (
-                      <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" className="text-white">
-                        <path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path>
-                      </svg>
-                    ) : (
-                      <Play size={14} className="fill-white text-white" />
-                    )}
-                  </button>
-                </div>
-                <div className="flex items-center gap-3 overflow-hidden">
-                  <div className="w-10 h-10 bg-zinc-800 rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
-                    {track.coverUrl ? (
-                      <img src={getImageUrl(track.coverUrl)} alt={track.title} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-white/50 text-xs">{track.title.charAt(0)}</span>
-                    )}
-                  </div>
-                  <div className="flex flex-col overflow-hidden">
-                    <span className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-white'} font-semibold text-base truncate`}>{track.title}</span>
-                    <span 
-                      className="text-[#b3b3b3] text-sm truncate hover:underline hover:text-white cursor-pointer inline-block w-fit"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (track.artistId) navigate(`/artist/${track.artistId}`);
-                      }}
-                    >
-                      {track.artistName || track.description || "Nghệ sĩ"}
-                    </span>
-                  </div>
-                </div>
-                <div className="text-sm text-[#b3b3b3] truncate hover:text-white transition hidden md:block">
-                  {track.albumTitle || "Đĩa đơn"}
-                </div>
-                <div className="flex items-center justify-end gap-4 pr-4 relative">
-                  <div className="text-sm text-[#b3b3b3] font-medium w-12 text-right">{formatDuration(track.duration)}</div>
-                  <TrackDropdownMenu
-                      track={track}
-                      isFavorited={true}
-                      onToggleFavorite={() => handleToggleFavorite(undefined, track)}
-                      onShare={(id, title) => {
-                        setShareData({ id, type: 'Bài hát', title });
-                        setShowShareModal(true);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 transition"
-                    />
-                </div>
-              </div>
-            )})
+              />
+            ))
           )}
         </div>
       </div>

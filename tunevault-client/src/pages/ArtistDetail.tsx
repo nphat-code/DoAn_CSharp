@@ -8,8 +8,7 @@ import type { MediaItemDto } from '../types';
 import { usePlayer } from '../context/PlayerContext';
 import { Play, MoreHorizontal, Share2 } from 'lucide-react';
 import { ShareMediaModal } from '../components/ShareMediaModal';
-import { TrackDropdownMenu } from '../components/TrackDropdownMenu';
-import { formatDuration } from '../utils/format';
+import { TrackListRow } from '../components/TrackListRow';
 
 export const ArtistDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -322,81 +321,21 @@ export const ArtistDetail = () => {
 
             {tracks.length > 0 ? (
               <div className="flex flex-col gap-0 pb-4">
-                {displayTracks.map((track, index) => {
-                  const isPlayingTrack = currentMedia?.id === track.id;
-                  // Mock play count consistently
-                  const mockPlays = Math.floor(((track.title.length * 345) % 1000000) + 100000);
-
-                  return (
-                    <div
-                      key={track.id}
-                      className="grid grid-cols-[32px_1fr_100px_minmax(80px,120px)] gap-4 px-4 py-2 hover:bg-white/10 rounded-md transition items-center group cursor-pointer"
-                      onDoubleClick={() => handlePlayMedia(index)}
-                    >
-                      <div className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-spotify-lighttext'} text-base font-medium flex items-center justify-end pr-2 relative w-full`}>
-                        <span className="group-hover:hidden">{index + 1}</span>
-                        <button className="hidden group-hover:block" onClick={(e) => {
-                          e.stopPropagation();
-                          if (isPlayingTrack) {
-                            if (queue.length <= 1) updateQueueContext(tracks, currentMedia.id);
-                            togglePlayPause();
-                          } else {
-                            handlePlayMedia(index);
-                          }
-                        }}>
-                          {isPlayingTrack && isPlaying ? (
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="text-white">
-                              <path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path>
-                            </svg>
-                          ) : (
-                            <Play size={16} className="fill-white text-white" />
-                          )}
-                        </button>
-                      </div>
-
-                      <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="w-10 h-10 rounded overflow-hidden flex-shrink-0 bg-zinc-800">
-                          {track.coverUrl ? (
-                            <img src={getAvatarUrl(track.coverUrl)} className="w-full h-full object-cover" alt="" />
-                          ) : (
-                            <div className="w-full h-full bg-zinc-700"></div>
-                          )}
-                        </div>
-                        <div className="flex flex-col overflow-hidden justify-center">
-                          <span className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-white'} font-medium text-base truncate`}>{track.title}</span>
-                          {/* Dấu 'E' cho bài hát có lời explicit có thể thêm ở đây, nhưng tạm thời bỏ qua */}
-                        </div>
-                      </div>
-
-                      <div className="text-spotify-lighttext text-sm flex items-center">
-                        {mockPlays.toLocaleString('vi-VN')}
-                      </div>
-
-                      <div className="flex items-center justify-end gap-4 pr-4">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleToggleFavorite(track.id); }}
-                          className={`${likedTracks.has(track.id) ? 'opacity-100 text-[#1ed760]' : 'opacity-0 group-hover:opacity-100 text-spotify-lighttext hover:text-white'} transition`}
-                        >
-                          {likedTracks.has(track.id) ? (
-                            <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
-                          ) : (
-                            <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
-                          )}
-                        </button>
-                        <div className="text-sm text-spotify-lighttext font-medium w-12 text-right">{formatDuration(track.duration)}</div>
-
-                        <TrackDropdownMenu
-                          track={track}
-                          isFavorited={likedTracks.has(track.id)}
-                          onToggleFavorite={handleToggleFavorite}
-                          onShare={handleShareTrack}
-                          showGoToArtist={false}
-                          className="opacity-0 group-hover:opacity-100 transition"
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
+                {displayTracks.map((track, index) => (
+                  <TrackListRow
+                    key={track.id}
+                    track={{
+                      ...track,
+                      albumTitle: track.albumTitle || track.title
+                    }}
+                    index={index}
+                    tracks={tracks}
+                    isFavorited={likedTracks.has(track.id)}
+                    onToggleFavorite={() => handleToggleFavorite(track.id)}
+                    onShare={() => handleShareTrack(track.id, track.title)}
+                                        className="grid-cols-[32px_1fr_100px_minmax(80px,120px)]"
+                  />
+                ))}
               </div>
             ) : (
               <div className="text-zinc-400">Nghệ sĩ này chưa có bài hát nào.</div>

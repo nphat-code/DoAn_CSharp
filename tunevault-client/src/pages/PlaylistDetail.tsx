@@ -9,8 +9,8 @@ import { Play, Trash2, Search, MoreHorizontal, Camera, Music, Share2, Edit2, Glo
 import { mediaService } from '../services/mediaService';
 import type { MediaItemDto } from '../types';
 import { ShareMediaModal } from '../components/ShareMediaModal';
-import { TrackDropdownMenu } from '../components/TrackDropdownMenu';
-import { formatDuration } from '../utils/format';
+import { TrackListRow } from '../components/TrackListRow';
+
 
 export const PlaylistDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -403,96 +403,25 @@ export const PlaylistDetail = () => {
 
           {/* Tracks */}
           <div className="flex flex-col gap-0 pb-10">
-            {playlist.tracks && playlist.tracks.map((track, index) => {
-              const isPlayingTrack = currentMedia?.id === track.id;
-              return (
-                <div
-                  key={track.id}
-                  className="grid grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(120px,1fr)] gap-4 px-4 py-2 hover:bg-white/10 rounded-md transition items-center group cursor-pointer"
-                  onDoubleClick={() => {
-                    if (isPlayingTrack) {
-                      if (queue.length <= 1) {
-                        updateQueueContext(playlist.tracks, currentMedia.id);
-                      }
-                      togglePlayPause();
-                    } else {
-                      playMediaList(playlist.tracks, index);
-                    }
-                  }}
-                >
-                  <div className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-[#b3b3b3]'} text-base font-medium flex items-center justify-end pr-2 relative w-full`}>
-                    <span className="group-hover:hidden">{index + 1}</span>
-                    <button className="hidden group-hover:block" onClick={(e) => {
-                      e.stopPropagation();
-                      if (isPlayingTrack) {
-                        if (queue.length <= 1) {
-                          updateQueueContext(playlist.tracks, currentMedia.id);
-                        }
-                        togglePlayPause();
-                      } else {
-                        playMediaList(playlist.tracks, index);
-                      }
-                    }}>
-                      {isPlayingTrack && isPlaying ? (
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" className="text-white">
-                          <path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path>
-                        </svg>
-                      ) : (
-                        <Play size={14} className="fill-white text-white" />
-                      )}
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    <div className="w-10 h-10 bg-zinc-800 rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
-                      {track.coverUrl ? (
-                        <img src={getImageUrl(track.coverUrl)} alt={track.title} className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="text-white/50 text-xs">{track.title.charAt(0)}</span>
-                      )}
-                    </div>
-                    <div className="flex flex-col overflow-hidden">
-                      <span className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-white'} font-semibold text-base truncate`}>{track.title}</span>
-                      <span
-                        className="text-[#b3b3b3] text-sm truncate hover:underline hover:text-white cursor-pointer inline-block w-fit"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (track.artistId) navigate(`/artist/${track.artistId}`);
-                        }}
-                      >
-                        {track.artistName || track.description || "Nghệ sĩ"}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-sm text-[#b3b3b3] truncate hover:text-white transition hidden md:block">{track.albumTitle || track.title}</div>
-                  <div className="flex items-center justify-end gap-4 pr-4">
-                    <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition">
-                      <button
-                        onClick={(e) => handleToggleFavorite(e, track.id)}
-                        className={`hover:scale-105 transition ${favoritesIds.has(track.id) ? 'opacity-100' : 'text-[#b3b3b3] hover:text-white opacity-0 group-hover:opacity-100'}`}
-                      >
-                        {favoritesIds.has(track.id) ? (
-                          <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
-                        ) : (
-                          <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
-                        )}
-                      </button>
-                    </div>
-                    <div className="text-sm text-[#b3b3b3] font-medium w-12 text-right">{formatDuration(track.duration)}</div>
-                    <TrackDropdownMenu
-                      track={track}
-                      isFavorited={favoritesIds.has(track.id)}
-                      onToggleFavorite={(id) => handleToggleFavorite(undefined, id)}
-                      onShare={(id, title) => {
-                        setShareData({ id, type: 'Bài hát', title });
-                        setShowShareModal(true);
-                      }}
-                      onRemoveFromPlaylist={isAdmin ? handleRemoveTrack : undefined}
-                      className="opacity-0 group-hover:opacity-100 transition"
-                    />
-                  </div>
-                </div>
-              )
-            })}
+            {playlist.tracks && playlist.tracks.map((track, index) => (
+              <TrackListRow
+                key={track.id}
+                track={{
+                  ...track,
+                  albumTitle: track.albumTitle || track.title
+                }}
+                index={index}
+                tracks={playlist.tracks}
+                isFavorited={favoritesIds.has(track.id)}
+                onToggleFavorite={() => handleToggleFavorite(undefined, track.id)}
+                onShare={(id: string, title: string) => {
+                  setShareData({ id, type: 'Bài hát', title });
+                  setShowShareModal(true);
+                }}
+                onRemoveFromPlaylist={isAdmin ? () => handleRemoveTrack(track.id) : undefined}
+                className="grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(120px,1fr)]"
+              />
+            ))}
           </div>
         </div>
 
