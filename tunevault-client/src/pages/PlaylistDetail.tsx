@@ -56,8 +56,8 @@ export const PlaylistDetail = () => {
     return () => window.removeEventListener('favoritesUpdated', fetchFavs);
   }, []);
 
-  const handleToggleFavorite = async (e: React.MouseEvent, trackId: string) => {
-    e.stopPropagation();
+  const handleToggleFavorite = async (e: React.MouseEvent | undefined, trackId: string) => {
+    e?.stopPropagation();
     try {
       const res = await mediaService.toggleFavorite(trackId);
       setFavoritesIds(prev => {
