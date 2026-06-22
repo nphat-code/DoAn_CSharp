@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { playlistService } from '../services/playlistService';
 import type { PlaylistDetailDto } from '../services/playlistService';
 import { usePlayer } from '../context/PlayerContext';
-import { Play, Trash2, Clock, Search, MoreHorizontal, X, Camera, Music, Share2, Edit2, Globe, Lock, PlusCircle, CheckCircle2, User, Disc } from 'lucide-react';
+import { Play, Trash2, Clock, Search, MoreHorizontal, X, Camera, Music, Share2, Edit2, Globe, Lock, User, Disc } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import type { MediaItemDto } from '../types';
 import { ShareMediaModal } from '../components/ShareMediaModal';
@@ -466,9 +466,13 @@ export const PlaylistDetail = () => {
                     <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition">
                       <button
                         onClick={(e) => handleToggleFavorite(e, track.id)}
-                        className={`hover:scale-105 transition ${favoritesIds.has(track.id) ? 'text-green-500 opacity-100' : 'text-[#b3b3b3] hover:text-white opacity-0 group-hover:opacity-100'}`}
+                        className={`hover:scale-105 transition ${favoritesIds.has(track.id) ? 'opacity-100' : 'text-[#b3b3b3] hover:text-white opacity-0 group-hover:opacity-100'}`}
                       >
-                        {favoritesIds.has(track.id) ? <CheckCircle2 size={16} /> : <PlusCircle size={16} />}
+                        {favoritesIds.has(track.id) ? (
+                          <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
+                        ) : (
+                          <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                        )}
                       </button>
                     </div>
                     <div className="text-sm text-[#b3b3b3] font-medium w-12 text-right">{formatDuration(track.duration)}</div>
@@ -483,7 +487,7 @@ export const PlaylistDetail = () => {
                       {openTrackDropdown === track.id && (
                         <>
                           <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpenTrackDropdown(null); }}></div>
-                          <div className="absolute right-0 top-full mt-1 w-64 bg-[#282828] rounded shadow-xl py-1 z-50 border border-white/10">
+                          <div className={`absolute right-0 ${index >= (playlist.tracks?.length || 0) - 3 ? 'bottom-full mb-1' : 'top-full mt-1'} w-64 bg-[#282828] rounded shadow-xl py-1 z-50 border border-white/10`}>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -504,9 +508,15 @@ export const PlaylistDetail = () => {
                               className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
                             >
                               {favoritesIds.has(track.id) ? (
-                                <><CheckCircle2 size={16} className="text-green-500" /> Xóa khỏi bài hát đã thích</>
+                                <>
+                                  <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
+                                  Xóa khỏi bài hát đã thích
+                                </>
                               ) : (
-                                <><PlusCircle size={16} /> Lưu vào bài hát đã thích</>
+                                <>
+                                  <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                                  Lưu vào bài hát đã thích
+                                </>
                               )}
                             </button>
 
