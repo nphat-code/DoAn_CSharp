@@ -22,6 +22,7 @@ export const Profile = () => {
   const menuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showAllArtists, setShowAllArtists] = useState(false);
+  const [showAllTracks, setShowAllTracks] = useState(false);
   const { playMediaList, isPlaying, togglePlayPause, currentMedia } = usePlayer();
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export const Profile = () => {
       setPlaylists(userPlaylists);
 
       const allMedia = await mediaService.getAllMedia();
-      setTopTracks(allMedia.slice(0, 4));
+      setTopTracks(allMedia);
 
       const artistsMap = new Map();
       allMedia.forEach(m => {
@@ -291,10 +292,17 @@ export const Profile = () => {
                 <h2 className="text-2xl font-bold text-white mb-1 hover:underline cursor-pointer inline-block">Bản nhạc hàng đầu tháng này</h2>
                 <p className="text-sm text-zinc-400">Chỉ hiển thị với bạn</p>
               </div>
-              <button className="text-zinc-400 text-sm font-bold hover:underline">Hiện tất cả</button>
+              {topTracks.length > 4 && (
+                <button 
+                  onClick={() => setShowAllTracks(!showAllTracks)}
+                  className="text-zinc-400 text-sm font-bold hover:underline"
+                >
+                  {showAllTracks ? "Ẩn bớt" : "Hiện tất cả"}
+                </button>
+              )}
             </div>
             <div className="flex flex-col">
-              {topTracks.map((track, index) => (
+              {topTracks.slice(0, showAllTracks ? undefined : 4).map((track, index) => (
                 <div
                   key={track.id}
                   className="flex items-center gap-4 px-4 py-2 hover:bg-white/10 rounded-md group cursor-pointer"
