@@ -6,7 +6,7 @@ import { playlistService, type PlaylistDto } from '../services/playlistService';
 import { mediaService } from '../services/mediaService';
 import type { MediaItemDto } from '../types';
 import { usePlayer } from '../context/PlayerContext';
-import { Settings, MoreHorizontal, Play, Edit2, X, Pencil, Link as LinkIcon, Share2, Plus } from 'lucide-react';
+import { Settings, MoreHorizontal, Play, Edit2, X, Pencil, Link as LinkIcon, Share2, Plus, User, Disc } from 'lucide-react';
 import { ShareMediaModal } from '../components/ShareMediaModal';
 
 export const Profile = () => {
@@ -508,8 +508,11 @@ export const Profile = () => {
                                 onMouseEnter={() => setShowPlaylistMenu(track.id)}
                                 onMouseLeave={() => setShowPlaylistMenu(null)}
                               >
-                                <button className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center justify-between">
-                                  <span>Thêm vào danh sách phát</span>
+                                <button className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Plus size={16} />
+                                    <span>Thêm vào danh sách phát</span>
+                                  </div>
                                   <svg role="img" height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 14l8-6-8-6v12z"></path></svg>
                                 </button>
                                 {showPlaylistMenu === track.id && (
@@ -531,7 +534,7 @@ export const Profile = () => {
                                               alert("Có thể bài hát đã có trong playlist này.");
                                             }
                                           }}
-                                          className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white truncate"
+                                          className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white truncate"
                                         >
                                           {p.name}
                                         </button>
@@ -546,17 +549,17 @@ export const Profile = () => {
                                   handleToggleFavorite(e, track.id);
                                   setOpenDropdown(null);
                                 }}
-                                className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
+                                className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
                               >
                                 {isTrackFavorited ? (
                                   <>
                                     <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
-                                    Xóa khỏi Bài hát đã thích
+                                    Xóa khỏi bài hát đã thích
                                   </>
                                 ) : (
                                   <>
                                     <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
-                                    Thêm vào Bài hát đã thích
+                                    Lưu vào bài hát đã thích
                                   </>
                                 )}
                               </button>
@@ -569,8 +572,9 @@ export const Profile = () => {
                                   if (track.artistId) navigate(`/artist/${track.artistId}`);
                                   setOpenDropdown(null);
                                 }}
-                                className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                                className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
                               >
+                                <User size={16} />
                                 Chuyển tới nghệ sĩ
                               </button>
                               
@@ -581,18 +585,19 @@ export const Profile = () => {
                                     if (track.albumId) navigate(`/album/${track.albumId}`);
                                     setOpenDropdown(null);
                                   }}
-                                  className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                                  className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
                                 >
-                                  Chuyển đến Album
+                                  <Disc size={16} />
+                                  Chuyển đến album
                                 </button>
                               )}
 
                               <button 
                                 onClick={(e) => {
-                                  handleShareTrack(e, track.id, track.title);
                                   setOpenDropdown(null);
+                                  handleShareTrack(e, track.id, track.title);
                                 }}
-                                className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
+                                className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
                               >
                                 <Share2 size={16} /> Chia sẻ
                               </button>
