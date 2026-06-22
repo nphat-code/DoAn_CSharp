@@ -484,7 +484,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
 
   return (
     <div 
-      className="bg-[#121212] flex flex-col shrink-0 relative overflow-hidden rounded-lg border-l border-zinc-800"
+      className="bg-[#121212] flex flex-col shrink-0 relative overflow-hidden rounded-lg border-l border-zinc-800 group"
       style={{ width: width ? `${width}px` : '420px', minWidth: '280px' }}
     >
          
@@ -535,17 +535,137 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                >
                  {currentMedia.title}
                </h3>
-               <div className="flex gap-3">
+               <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 relative">
                  {isAdmin && (
                    <button onClick={handleDeleteMedia} className="text-zinc-300 hover:text-red-500 transition drop-shadow-md" title="Xóa bài hát này">
                       <Trash2 size={20} />
                    </button>
                  )}
-                 <button className="text-zinc-300 hover:text-white transition drop-shadow-md"><MoreHorizontal size={20} /></button>
+                 <button 
+                   onClick={(e) => {
+                     e.stopPropagation();
+                     const rect = e.currentTarget.getBoundingClientRect();
+                     const openUpwards = window.innerHeight - rect.bottom < 250;
+                     if (openDropdown?.id === currentMedia.id) setOpenDropdown(null);
+                     else setOpenDropdown({ id: currentMedia.id, openUpwards });
+                   }}
+                   className="text-zinc-300 hover:text-white transition drop-shadow-md"
+                 >
+                   <MoreHorizontal size={20} />
+                 </button>
                  <button onClick={() => navigate('/now-playing')} className="text-zinc-300 hover:text-white transition drop-shadow-md" title="Mở rộng chế độ xem Đang phát">
                     <Maximize2 size={20} />
                  </button>
-                 <button className="text-zinc-300 hover:text-white transition drop-shadow-md"><X size={20} /></button>
+
+                 {openDropdown?.id === currentMedia.id && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpenDropdown(null); }}></div>
+                      <div
+                        className={`absolute right-8 w-max min-w-[200px] bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 ${openDropdown?.openUpwards ? 'bottom-full mb-1' : 'top-full mt-1'}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div
+                          className="relative"
+                          onMouseEnter={() => setShowPlaylistMenu(`rightpanel-${currentMedia.id}`)}
+                          onMouseLeave={() => setShowPlaylistMenu(null)}
+                        >
+                          <button className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center justify-between">
+                            <span>Thêm vào danh sách phát</span>
+                            <svg role="img" height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 14l8-6-8-6v12z"></path></svg>
+                          </button>
+                          {showPlaylistMenu === `rightpanel-${currentMedia.id}` && (
+                            <div className={`absolute ${openDropdown?.openUpwards ? 'bottom-full mb-1' : 'top-0'} right-full mr-1 w-full min-w-[150px] bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 max-h-64 overflow-y-auto custom-scrollbar`}>
+                              {playlists.length === 0 ? (
+                                <div className="px-4 py-2 text-sm text-zinc-500">Chưa có danh sách phát</div>
+                              ) : (
+                                playlists.map(p => (
+                                  <button
+                                    key={p.id}
+                                    onClick={async () => {
+                                      try {
+                                        const m = await import('../services/playlistService');
+                                        await m.playlistService.addTrackToPlaylist(p.id, currentMedia.id);
+                                        alert("Đã thêm vào " + p.name);
+                                      } catch(err) {
+                                        alert("Lỗi khi thêm. Có thể bài hát đã có trong danh sách.");
+                                      }
+                                      setOpenDropdown(null);
+                                    }}
+                                    className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white truncate"
+                                  >
+                                    {p.name}
+                                  </button>
+                                ))
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        <button 
+                          onClick={(e) => handleQueueToggleFavorite(e, currentMedia.id)}
+                          className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
+                        >
+                          {isFavorited ? (
+                            <>
+                              <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
+                              Xóa khỏi Bài hát đã thích
+                            </>
+                          ) : (
+                            <>
+                              <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                              Lưu vào Bài hát đã thích
+                            </>
+                          )}
+                        </button>
+                        
+                        <div className="h-px bg-white/10 my-1 mx-2"></div>
+
+                        {(currentMedia.artistId || (currentMedia as any).artist?.id) && (
+                          <button 
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              const id = currentMedia.artistId || (currentMedia as any).artist?.id;
+                              if (id) {
+                                setOpenDropdown(null); 
+                                navigate(`/artist/${id}`); 
+                              }
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
+                          >
+                            <User size={16} /> Chuyển tới Nghệ sĩ
+                          </button>
+                        )}
+                        {(currentMedia.albumId || (currentMedia as any).album?.id) && (
+                          <button 
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              const id = currentMedia.albumId || (currentMedia as any).album?.id;
+                              if (id) {
+                                setOpenDropdown(null); 
+                                navigate(`/album/${id}`); 
+                              }
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
+                          >
+                            <Disc size={16} /> Chuyển đến Album
+                          </button>
+                        )}
+                        
+                        <div className="h-px bg-white/10 my-1 mx-2"></div>
+
+                        <button 
+                          onClick={() => {
+                            setShareData({ id: currentMedia.id, title: currentMedia.title });
+                            setShowShareModal(true);
+                            setOpenDropdown(null);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
+                        >
+                          <Share2 size={16} /> Chia sẻ
+                        </button>
+                      </div>
+                    </>
+                 )}
                </div>
              </div>
 
@@ -570,7 +690,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                    {/* Share Button */}
                    <button 
                       onClick={() => setShowShareModal(true)}
-                      className="text-zinc-200 hover:text-white hover:scale-105 transition" 
+                      className="text-zinc-200 hover:text-white hover:scale-105 transition opacity-0 group-hover:opacity-100 transition-opacity duration-300 drop-shadow-md" 
                       title="Chia sẻ"
                    >
                        <svg role="img" height="24" width="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3v12M8 7l4-4 4 4M20 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6" strokeLinecap="round" strokeLinejoin="round"></path></svg>
@@ -579,7 +699,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                    {/* Add to Playlist / Liked Button */}
                    <button 
                       onClick={toggleFavorite}
-                      className="text-zinc-200 hover:text-white hover:scale-105 transition" 
+                      className="text-zinc-200 hover:text-white hover:scale-105 transition drop-shadow-md" 
                       title={isFavorited ? "Đã thêm vào Bài hát đã thích" : "Thêm vào danh sách phát"}
                    >
                       {isFavorited ? (
