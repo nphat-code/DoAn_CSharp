@@ -5,7 +5,7 @@ import type { AlbumDto } from '../services/albumService';
 import { artistService } from '../services/artistService';
 import type { ArtistDto } from '../services/artistService';
 import type { MediaItemDto } from '../types';
-import { Trash2, Music, Disc, User, ShieldAlert, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Trash2, Music, Disc, User, ShieldAlert, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -16,6 +16,7 @@ export const AdminDashboard = () => {
   const [artists, setArtists] = useState<ArtistDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchTracks = async () => {
     try {
@@ -47,7 +48,6 @@ export const AdminDashboard = () => {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      setCurrentPage(1);
       if (activeTab === 'tracks') await fetchTracks();
       if (activeTab === 'albums') await fetchAlbums();
       if (activeTab === 'artists') await fetchArtists();
@@ -55,6 +55,16 @@ export const AdminDashboard = () => {
     };
     loadData();
   }, [activeTab]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchQuery]);
+
+  const filteredTracks = tracks.filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase()) || t.artistName?.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredAlbums = albums.filter(a => a.title.toLowerCase().includes(searchQuery.toLowerCase()) || a.artistName?.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredArtists = artists.filter(a => a.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  const currentDataLength = activeTab === 'tracks' ? filteredTracks.length : activeTab === 'albums' ? filteredAlbums.length : filteredArtists.length;
 
   const getPaginatedData = <T,>(data: T[]) => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -104,26 +114,38 @@ export const AdminDashboard = () => {
         <h1 className="text-4xl font-bold text-white tracking-tight">Quản trị Hệ thống</h1>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-4 mb-8 border-b border-zinc-800 pb-2">
-        <button 
-          onClick={() => setActiveTab('tracks')}
-          className={`flex items-center gap-2 px-4 py-2 font-bold rounded-md transition ${activeTab === 'tracks' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-white'}`}
-        >
-          <Music size={20} /> Bài hát
-        </button>
-        <button 
-          onClick={() => setActiveTab('albums')}
-          className={`flex items-center gap-2 px-4 py-2 font-bold rounded-md transition ${activeTab === 'albums' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-white'}`}
-        >
-          <Disc size={20} /> Album
-        </button>
-        <button 
-          onClick={() => setActiveTab('artists')}
-          className={`flex items-center gap-2 px-4 py-2 font-bold rounded-md transition ${activeTab === 'artists' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-white'}`}
-        >
-          <User size={20} /> Nghệ sĩ
-        </button>
+      {/* Tabs and Search */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-8 border-b border-zinc-800 pb-2 justify-between items-start sm:items-center">
+        <div className="flex gap-4">
+          <button 
+            onClick={() => setActiveTab('tracks')}
+            className={`flex items-center gap-2 px-4 py-2 font-bold rounded-md transition ${activeTab === 'tracks' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-white'}`}
+          >
+            <Music size={20} /> Bài hát
+          </button>
+          <button 
+            onClick={() => setActiveTab('albums')}
+            className={`flex items-center gap-2 px-4 py-2 font-bold rounded-md transition ${activeTab === 'albums' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-white'}`}
+          >
+            <Disc size={20} /> Album
+          </button>
+          <button 
+            onClick={() => setActiveTab('artists')}
+            className={`flex items-center gap-2 px-4 py-2 font-bold rounded-md transition ${activeTab === 'artists' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-white'}`}
+          >
+            <User size={20} /> Nghệ sĩ
+          </button>
+        </div>
+        <div className="relative w-full sm:w-64 shrink-0">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
+          <input 
+            type="text" 
+            placeholder="Tìm kiếm..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-zinc-800 text-white rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/20 transition text-sm"
+          />
+        </div>
       </div>
 
       {/* Content */}
@@ -143,7 +165,7 @@ export const AdminDashboard = () => {
             </thead>
             <tbody className="divide-y divide-zinc-800/50">
               {/* TRACKS */}
-              {activeTab === 'tracks' && getPaginatedData(tracks).map(track => (
+              {activeTab === 'tracks' && getPaginatedData(filteredTracks).map(track => (
                 <tr key={track.id} className="hover:bg-zinc-800/50 transition">
                   <td className="px-6 py-4 font-bold text-white flex items-center gap-3">
                     {track.coverUrl ? (
@@ -162,7 +184,7 @@ export const AdminDashboard = () => {
               ))}
 
               {/* ALBUMS */}
-              {activeTab === 'albums' && getPaginatedData(albums).map(album => (
+              {activeTab === 'albums' && getPaginatedData(filteredAlbums).map(album => (
                 <tr key={album.id} className="hover:bg-zinc-800/50 transition">
                   <td className="px-6 py-4 font-bold text-white flex items-center gap-3">
                     {album.coverUrl ? (
@@ -181,7 +203,7 @@ export const AdminDashboard = () => {
               ))}
 
               {/* ARTISTS */}
-              {activeTab === 'artists' && getPaginatedData(artists).map(artist => (
+              {activeTab === 'artists' && getPaginatedData(filteredArtists).map(artist => (
                 <tr key={artist.id} className="hover:bg-zinc-800/50 transition">
                   <td className="px-6 py-4 font-bold text-white flex items-center gap-3">
                     {artist.avatarUrl ? (
@@ -198,13 +220,10 @@ export const AdminDashboard = () => {
                 </tr>
               ))}
 
-              {!loading && 
-               ((activeTab === 'tracks' && tracks.length === 0) || 
-               (activeTab === 'albums' && albums.length === 0) || 
-               (activeTab === 'artists' && artists.length === 0)) && (
+              {!loading && currentDataLength === 0 && (
                 <tr>
                   <td colSpan={4} className="px-6 py-8 text-center text-zinc-500">
-                    Không có dữ liệu
+                    Không tìm thấy dữ liệu
                   </td>
                 </tr>
               )}
@@ -214,10 +233,10 @@ export const AdminDashboard = () => {
       </div>
 
       {/* Pagination Controls */}
-      {!loading && (
+      {!loading && currentDataLength > 0 && (
         <div className="mt-6 flex items-center justify-between text-zinc-400">
           <div className="text-sm">
-            Hiển thị <span className="font-bold text-white">{activeTab === 'tracks' ? Math.min(tracks.length, (currentPage - 1) * ITEMS_PER_PAGE + 1) : activeTab === 'albums' ? Math.min(albums.length, (currentPage - 1) * ITEMS_PER_PAGE + 1) : Math.min(artists.length, (currentPage - 1) * ITEMS_PER_PAGE + 1)}</span> - <span className="font-bold text-white">{activeTab === 'tracks' ? Math.min(tracks.length, currentPage * ITEMS_PER_PAGE) : activeTab === 'albums' ? Math.min(albums.length, currentPage * ITEMS_PER_PAGE) : Math.min(artists.length, currentPage * ITEMS_PER_PAGE)}</span> trong tổng số <span className="font-bold text-white">{activeTab === 'tracks' ? tracks.length : activeTab === 'albums' ? albums.length : artists.length}</span> mục
+            Hiển thị <span className="font-bold text-white">{Math.min(currentDataLength, (currentPage - 1) * ITEMS_PER_PAGE + 1)}</span> - <span className="font-bold text-white">{Math.min(currentDataLength, currentPage * ITEMS_PER_PAGE)}</span> trong tổng số <span className="font-bold text-white">{currentDataLength}</span> mục tìm thấy
           </div>
           <div className="flex gap-2">
             <button 
@@ -229,7 +248,7 @@ export const AdminDashboard = () => {
             </button>
             <button 
               onClick={() => setCurrentPage(p => p + 1)}
-              disabled={currentPage >= Math.ceil((activeTab === 'tracks' ? tracks.length : activeTab === 'albums' ? albums.length : artists.length) / ITEMS_PER_PAGE)}
+              disabled={currentPage >= Math.ceil(currentDataLength / ITEMS_PER_PAGE)}
               className="p-2 rounded bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               <ChevronRight size={20} />
