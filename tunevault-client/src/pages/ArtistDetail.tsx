@@ -75,6 +75,21 @@ export const ArtistDetail = () => {
   }, [id]);
 
   useEffect(() => {
+    const updateFollowStatus = async () => {
+      if (!id) return;
+      try {
+        const followStatus = await artistService.getFollowStatus(id);
+        setIsFollowing(followStatus);
+      } catch (error) {
+        console.error("Error updating follow status", error);
+      }
+    };
+
+    window.addEventListener('followedArtistsUpdated', updateFollowStatus);
+    return () => window.removeEventListener('followedArtistsUpdated', updateFollowStatus);
+  }, [id]);
+
+  useEffect(() => {
     if (artist?.avatarUrl) {
       const fac = new FastAverageColor();
       const img = new Image();

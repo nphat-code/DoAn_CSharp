@@ -83,9 +83,13 @@ export const RightPanel = ({ width }: RightPanelProps) => {
       }
     };
     checkFollowStatus();
+
+    window.addEventListener('followedArtistsUpdated', checkFollowStatus);
+    return () => window.removeEventListener('followedArtistsUpdated', checkFollowStatus);
   }, [currentMedia?.artistId]);
 
-  const handleToggleFollowArtist = async () => {
+  const handleToggleFollowArtist = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!currentMedia?.artistId) return;
     setLoadingFollow(true);
     try {

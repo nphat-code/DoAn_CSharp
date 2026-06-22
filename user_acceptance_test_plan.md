@@ -26,8 +26,8 @@
 *   [x] Mở bảng danh sách chờ (Queue) ở góc phải PlayerBar để xem bài hát nào sẽ phát tiếp theo.
 
 ## 4. Tương Tác Cá Nhân (Like, Follow, Thư Viện)
-*   [ ] **Like bài hát:** Khi nhạc đang phát, bấm vào icon hình Trái Tim (ở PlayerBar hoặc danh sách bài). Kiểm tra xem tim có đổi màu xanh không.
-*   [ ] **Bài hát đã thích:** Mở trang "Bài hát đã thích" (Favorites) từ Sidebar. Kiểm tra xem bài hát vừa tim có xuất hiện ở đây không.
+*   [x] **Like bài hát:** Khi nhạc đang phát, bấm vào icon hình Trái Tim (ở PlayerBar hoặc danh sách bài). Kiểm tra xem tim có đổi màu xanh không.
+*   [x] **Bài hát đã thích:** Mở trang "Bài hát đã thích" (Favorites) từ Sidebar. Kiểm tra xem bài hát vừa tim có xuất hiện ở đây không.
 *   [ ] **Theo dõi nghệ sĩ:** Vào trang Chi tiết Nghệ Sĩ (Click vào tên họ), bấm nút "Theo dõi". 
 *   [ ] Kiểm tra RightPanel (bảng bên phải) xem trạng thái "Đang theo dõi" đã cập nhật chưa.
 *   [ ] Kiểm tra Sidebar (Thư viện trái) xem có hiển thị Avatar & tên của nghệ sĩ vừa Follow chưa.
