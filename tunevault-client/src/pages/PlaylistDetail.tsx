@@ -356,6 +356,7 @@ export const PlaylistDetail = () => {
                     {playlist.isPublic ? <Lock size={16} /> : <Globe size={16} />}
                     {playlist.isPublic ? "Đặt thành riêng tư" : "Đặt thành công khai"}
                   </button>
+                  <hr className="border-white/10 my-1" />
                   <button
                     onClick={() => {
                       setShowDropdown(false);
