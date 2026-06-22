@@ -330,10 +330,11 @@ export const ArtistDetail = () => {
                     }}
                     index={index}
                     tracks={tracks}
+                    showGoToArtist={false}
                     isFavorited={likedTracks.has(track.id)}
                     onToggleFavorite={() => handleToggleFavorite(track.id)}
                     onShare={() => handleShareTrack(track.id, track.title)}
-                                        className="grid-cols-[32px_1fr_100px_minmax(80px,120px)]"
+                    className="grid-cols-[32px_1fr_100px_minmax(80px,120px)]"
                   />
                 ))}
               </div>
