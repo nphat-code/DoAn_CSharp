@@ -209,7 +209,7 @@ export const Profile = () => {
   if (!profile) return <div className="text-zinc-400 p-8 h-full bg-[#121212]">Không thể tải thông tin cá nhân.</div>;
 
   return (
-    <div className="flex flex-col h-full bg-[#121212] overflow-y-auto" onClick={() => { if (openDropdown) setOpenDropdown(null); }}>
+    <div className="flex flex-col min-h-full bg-[#121212]" onClick={() => { if (openDropdown) setOpenDropdown(null); }}>
       {/* Header */}
       <div
         className="flex flex-col md:flex-row items-end gap-6 px-6 pb-6 bg-gradient-to-b from-[#535353] to-[#181818] text-white shrink-0 relative z-10"

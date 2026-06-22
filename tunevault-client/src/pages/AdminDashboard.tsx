@@ -89,7 +89,7 @@ export const AdminDashboard = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-zinc-900 p-8 overflow-y-auto">
+    <div className="flex flex-col min-h-full bg-zinc-900 p-8">
       <div className="flex items-center gap-4 mb-8">
         <ShieldAlert size={40} className="text-red-500" />
         <h1 className="text-4xl font-bold text-white tracking-tight">Quản trị Hệ thống</h1>
