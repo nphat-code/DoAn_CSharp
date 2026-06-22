@@ -5,7 +5,9 @@ import type { AlbumDto } from '../services/albumService';
 import { artistService } from '../services/artistService';
 import type { ArtistDto } from '../services/artistService';
 import type { MediaItemDto } from '../types';
-import { Trash2, Music, Disc, User, ShieldAlert } from 'lucide-react';
+import { Trash2, Music, Disc, User, ShieldAlert, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const ITEMS_PER_PAGE = 10;
 
 export const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState<'tracks' | 'albums' | 'artists'>('tracks');
@@ -13,6 +15,7 @@ export const AdminDashboard = () => {
   const [albums, setAlbums] = useState<AlbumDto[]>([]);
   const [artists, setArtists] = useState<ArtistDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchTracks = async () => {
     try {
@@ -44,6 +47,7 @@ export const AdminDashboard = () => {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+      setCurrentPage(1);
       if (activeTab === 'tracks') await fetchTracks();
       if (activeTab === 'albums') await fetchAlbums();
       if (activeTab === 'artists') await fetchArtists();
@@ -51,6 +55,11 @@ export const AdminDashboard = () => {
     };
     loadData();
   }, [activeTab]);
+
+  const getPaginatedData = <T,>(data: T[]) => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return data.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  };
 
   const handleDeleteTrack = async (id: string) => {
     if (!confirm("Bạn có chắc chắn muốn xóa bài hát này?")) return;
@@ -134,7 +143,7 @@ export const AdminDashboard = () => {
             </thead>
             <tbody className="divide-y divide-zinc-800/50">
               {/* TRACKS */}
-              {activeTab === 'tracks' && tracks.map(track => (
+              {activeTab === 'tracks' && getPaginatedData(tracks).map(track => (
                 <tr key={track.id} className="hover:bg-zinc-800/50 transition">
                   <td className="px-6 py-4 font-bold text-white flex items-center gap-3">
                     {track.coverUrl ? (
@@ -153,7 +162,7 @@ export const AdminDashboard = () => {
               ))}
 
               {/* ALBUMS */}
-              {activeTab === 'albums' && albums.map(album => (
+              {activeTab === 'albums' && getPaginatedData(albums).map(album => (
                 <tr key={album.id} className="hover:bg-zinc-800/50 transition">
                   <td className="px-6 py-4 font-bold text-white flex items-center gap-3">
                     {album.coverUrl ? (
@@ -172,7 +181,7 @@ export const AdminDashboard = () => {
               ))}
 
               {/* ARTISTS */}
-              {activeTab === 'artists' && artists.map(artist => (
+              {activeTab === 'artists' && getPaginatedData(artists).map(artist => (
                 <tr key={artist.id} className="hover:bg-zinc-800/50 transition">
                   <td className="px-6 py-4 font-bold text-white flex items-center gap-3">
                     {artist.avatarUrl ? (
@@ -203,6 +212,31 @@ export const AdminDashboard = () => {
           </table>
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {!loading && (
+        <div className="mt-6 flex items-center justify-between text-zinc-400">
+          <div className="text-sm">
+            Hiển thị <span className="font-bold text-white">{activeTab === 'tracks' ? Math.min(tracks.length, (currentPage - 1) * ITEMS_PER_PAGE + 1) : activeTab === 'albums' ? Math.min(albums.length, (currentPage - 1) * ITEMS_PER_PAGE + 1) : Math.min(artists.length, (currentPage - 1) * ITEMS_PER_PAGE + 1)}</span> - <span className="font-bold text-white">{activeTab === 'tracks' ? Math.min(tracks.length, currentPage * ITEMS_PER_PAGE) : activeTab === 'albums' ? Math.min(albums.length, currentPage * ITEMS_PER_PAGE) : Math.min(artists.length, currentPage * ITEMS_PER_PAGE)}</span> trong tổng số <span className="font-bold text-white">{activeTab === 'tracks' ? tracks.length : activeTab === 'albums' ? albums.length : artists.length}</span> mục
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="p-2 rounded bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button 
+              onClick={() => setCurrentPage(p => p + 1)}
+              disabled={currentPage >= Math.ceil((activeTab === 'tracks' ? tracks.length : activeTab === 'albums' ? albums.length : artists.length) / ITEMS_PER_PAGE)}
+              className="p-2 rounded bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
