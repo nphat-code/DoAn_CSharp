@@ -6,8 +6,9 @@ import { playlistService, type PlaylistDto } from '../services/playlistService';
 import { mediaService } from '../services/mediaService';
 import type { MediaItemDto } from '../types';
 import { usePlayer } from '../context/PlayerContext';
-import { Settings, MoreHorizontal, Play, Edit2, X, Pencil, Link as LinkIcon, Share2, Plus, User, Disc } from 'lucide-react';
+import { Settings, MoreHorizontal, Play, Edit2, X, Pencil, Link as LinkIcon, Plus } from 'lucide-react';
 import { ShareMediaModal } from '../components/ShareMediaModal';
+import { TrackDropdownMenu } from '../components/TrackDropdownMenu';
 
 export const Profile = () => {
   const navigate = useNavigate();
@@ -27,9 +28,7 @@ export const Profile = () => {
   const { playMediaList, isPlaying, togglePlayPause, currentMedia, queue, updateQueueContext } = usePlayer();
 
   const [favoritesIds, setFavoritesIds] = useState<Set<string>>(new Set());
-  const [openDropdown, setOpenDropdown] = useState<{ id: string, openUpwards: boolean } | null>(null);
-  const [showPlaylistMenu, setShowPlaylistMenu] = useState<string | null>(null);
-  const [shareData, setShareData] = useState<{ id: string, type: string, title: string } | null>(null);
+  const [shareData, setShareData] = useState<{ id: string, type: 'Bài hát' | 'Nghệ sĩ' | 'Album' | 'Hồ sơ' | 'Danh sách phát', title: string } | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [autoOpenFilePicker, setAutoOpenFilePicker] = useState(false);
 
@@ -53,8 +52,8 @@ export const Profile = () => {
     return () => window.removeEventListener('favoritesUpdated', fetchFavs);
   }, []);
 
-  const handleToggleFavorite = async (e: React.MouseEvent, trackId: string) => {
-    e.stopPropagation();
+  const handleToggleFavorite = async (e: React.MouseEvent | undefined, trackId: string) => {
+    e?.stopPropagation();
     try {
       const res = await mediaService.toggleFavorite(trackId);
       setFavoritesIds(prev => {
@@ -67,12 +66,6 @@ export const Profile = () => {
     } catch (error) {
       console.error(error);
     }
-  };
-
-  const handleShareTrack = (e: React.MouseEvent, trackId: string, trackTitle: string) => {
-    e.stopPropagation();
-    setShareData({ id: trackId, type: 'Bài hát', title: trackTitle });
-    setShowShareModal(true);
   };
 
   useEffect(() => {
@@ -118,7 +111,7 @@ export const Profile = () => {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => window.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleSaveProfile = async () => {
@@ -209,7 +202,7 @@ export const Profile = () => {
   if (!profile) return <div className="text-zinc-400 p-8 h-full bg-[#121212]">Không thể tải thông tin cá nhân.</div>;
 
   return (
-    <div className="flex flex-col min-h-full bg-[#121212]" onClick={() => { if (openDropdown) setOpenDropdown(null); }}>
+    <div className="flex flex-col min-h-full bg-[#121212]">
       {/* Header */}
       <div
         className="flex flex-col md:flex-row items-end gap-6 px-6 pb-6 bg-gradient-to-b from-[#535353] to-[#181818] text-white shrink-0 relative z-10"
@@ -359,7 +352,6 @@ export const Profile = () => {
                       <div className="w-full h-full shadow-lg rounded-full bg-zinc-800 shrink-0 relative overflow-hidden">
                         <img src={artist.avatarUrl.startsWith('http') || artist.avatarUrl.startsWith('data:') ? artist.avatarUrl : artist.avatarUrl?.startsWith('http') ? artist.avatarUrl : `https://tunevault-api.onrender.com${artist.avatarUrl}`} alt={artist.name} className="w-full h-full object-cover rounded-full" />
                       </div>
-                      {/* Play button overlay */}
                       <button 
                         onClick={(e) => handlePlayArtist(e, artist.id)}
                         className={`absolute right-2 bottom-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${isPlayingRow ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}
@@ -481,130 +473,16 @@ export const Profile = () => {
                       </button>
                       <div className="text-sm text-[#b3b3b3] font-medium w-12 text-right">{formatDuration(track.duration)}</div>
                       
-                      <div className="relative flex items-center">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (openDropdown?.id === track.id) {
-                              setOpenDropdown(null);
-                            } else {
-                              const rect = e.currentTarget.getBoundingClientRect();
-                              const openUpwards = window.innerHeight - rect.bottom < 250;
-                              setOpenDropdown({ id: track.id, openUpwards });
-                            }
-                          }}
-                          className={`text-zinc-400 hover:text-white transition ${openDropdown?.id === track.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-                        >
-                          <MoreHorizontal size={18} />
-                        </button>
-
-                        {openDropdown?.id === track.id && (
-                          <>
-                            <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpenDropdown(null); }}></div>
-                            <div className={`absolute right-0 w-max min-w-[240px] bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 ${openDropdown.openUpwards ? 'bottom-full mb-1' : 'top-full mt-1'}`}>
-                              
-                              <div 
-                                className="relative"
-                                onMouseEnter={() => setShowPlaylistMenu(track.id)}
-                                onMouseLeave={() => setShowPlaylistMenu(null)}
-                              >
-                                <button className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    <Plus size={16} />
-                                    <span>Thêm vào danh sách phát</span>
-                                  </div>
-                                  <svg role="img" height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 14l8-6-8-6v12z"></path></svg>
-                                </button>
-                                {showPlaylistMenu === track.id && (
-                                  <div className={`absolute ${openDropdown.openUpwards ? 'bottom-0' : 'top-0'} right-full mr-1 w-56 bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 max-h-64 overflow-y-auto custom-scrollbar`}>
-                                    {playlists.length === 0 ? (
-                                      <div className="px-4 py-2 text-sm text-zinc-500">Chưa có danh sách phát</div>
-                                    ) : (
-                                      playlists.map(p => (
-                                        <button 
-                                          key={p.id}
-                                          onClick={async (e) => {
-                                            e.stopPropagation();
-                                            try {
-                                              await playlistService.addTrackToPlaylist(p.id, track.id);
-                                              alert("Đã thêm vào " + p.name);
-                                              setOpenDropdown(null);
-                                              setShowPlaylistMenu(null);
-                                            } catch (err) {
-                                              alert("Có thể bài hát đã có trong playlist này.");
-                                            }
-                                          }}
-                                          className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white truncate"
-                                        >
-                                          {p.name}
-                                        </button>
-                                      ))
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-
-                              <button 
-                                onClick={(e) => {
-                                  handleToggleFavorite(e, track.id);
-                                  setOpenDropdown(null);
-                                }}
-                                className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
-                              >
-                                {isTrackFavorited ? (
-                                  <>
-                                    <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
-                                    Xóa khỏi bài hát đã thích
-                                  </>
-                                ) : (
-                                  <>
-                                    <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
-                                    Lưu vào bài hát đã thích
-                                  </>
-                                )}
-                              </button>
-                              
-                              <hr className="border-white/10 my-1" />
-                              
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (track.artistId) navigate(`/artist/${track.artistId}`);
-                                  setOpenDropdown(null);
-                                }}
-                                className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
-                              >
-                                <User size={16} />
-                                Chuyển tới nghệ sĩ
-                              </button>
-                              
-                              {(track.albumId || track.albumTitle) && (
-                                <button 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (track.albumId) navigate(`/album/${track.albumId}`);
-                                    setOpenDropdown(null);
-                                  }}
-                                  className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
-                                >
-                                  <Disc size={16} />
-                                  Chuyển đến album
-                                </button>
-                              )}
-
-                              <button 
-                                onClick={(e) => {
-                                  setOpenDropdown(null);
-                                  handleShareTrack(e, track.id, track.title);
-                                }}
-                                className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
-                              >
-                                <Share2 size={16} /> Chia sẻ
-                              </button>
-                            </div>
-                          </>
-                        )}
-                      </div>
+                      <TrackDropdownMenu
+                        track={track}
+                        isFavorited={isTrackFavorited}
+                        onToggleFavorite={(id) => handleToggleFavorite(undefined, id)}
+                        onShare={(id, title) => {
+                          setShareData({ id, type: 'Bài hát', title });
+                          setShowShareModal(true);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 transition"
+                      />
                     </div>
                   </div>
                 );
