@@ -18,32 +18,46 @@ public class MediaItemRepository(IDbConnection dbConnection) : IMediaItemReposit
     public async Task<IEnumerable<MediaItem>> GetAllAsync(CancellationToken cancellationToken)
     {
         var sql = @"
-            SELECT m.*, a.* 
+            SELECT m.*, a.*, al.*
             FROM MediaItems m
             LEFT JOIN Artists a ON m.ArtistId = a.Id
+            LEFT JOIN Albums al ON m.AlbumId = al.Id
             ORDER BY m.CreatedAt DESC";
         var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
         
-        return await dbConnection.QueryAsync<MediaItem, Artist, MediaItem>(
+        return await dbConnection.QueryAsync<MediaItem, Artist, Album, MediaItem>(
             command,
-            (mediaItem, artist) => 
+            (mediaItem, artist, album) => 
             {
                 mediaItem.Artist = artist;
+                mediaItem.Album = album;
                 return mediaItem;
             },
-            splitOn: "Id"
+            splitOn: "Id,Id"
         );
     }
 
     public async Task<IEnumerable<MediaItem>> SearchAsync(string query, CancellationToken cancellationToken)
     {
         var sql = @"
-            SELECT * FROM MediaItems 
-            WHERE Title ILIKE @SearchTerm OR Description ILIKE @SearchTerm
-            ORDER BY CreatedAt DESC";
+            SELECT m.*, a.*, al.*
+            FROM MediaItems m
+            LEFT JOIN Artists a ON m.ArtistId = a.Id
+            LEFT JOIN Albums al ON m.AlbumId = al.Id
+            WHERE m.Title ILIKE @SearchTerm OR m.Description ILIKE @SearchTerm
+            ORDER BY m.CreatedAt DESC";
         var command = new CommandDefinition(sql, new { SearchTerm = $"%{query}%" }, cancellationToken: cancellationToken);
         
-        return await dbConnection.QueryAsync<MediaItem>(command);
+        return await dbConnection.QueryAsync<MediaItem, Artist, Album, MediaItem>(
+            command,
+            (mediaItem, artist, album) => 
+            {
+                mediaItem.Artist = artist;
+                mediaItem.Album = album;
+                return mediaItem;
+            },
+            splitOn: "Id,Id"
+        );
     }
 
     public async Task AddAsync(MediaItem mediaItem, CancellationToken cancellationToken)
