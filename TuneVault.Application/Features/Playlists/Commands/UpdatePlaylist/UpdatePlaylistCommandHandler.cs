@@ -23,9 +23,13 @@ public class UpdatePlaylistCommandHandler(IPlaylistRepository playlistRepository
 
         if (request.CoverUrl != null)
         {
+            var oldCoverUrl = playlist.CoverUrl;
+            bool isChangingCover = false;
+
             if (request.CoverUrl == "")
             {
                 playlist.CoverUrl = null;
+                isChangingCover = true;
             }
             else if (request.CoverUrl.StartsWith("data:image"))
             {
@@ -48,6 +52,7 @@ public class UpdatePlaylistCommandHandler(IPlaylistRepository playlistRepository
                         var url = await fileStorageService.SaveFileAsync(stream, fileName, "playlists", cancellationToken);
                         
                         playlist.CoverUrl = url;
+                        isChangingCover = true;
                     }
                 }
                 catch
@@ -56,9 +61,25 @@ public class UpdatePlaylistCommandHandler(IPlaylistRepository playlistRepository
                     playlist.CoverUrl = request.CoverUrl;
                 }
             }
-            else
+            else if (request.CoverUrl != playlist.CoverUrl)
             {
                 playlist.CoverUrl = request.CoverUrl;
+                // Note: if setting to a new existing URL, we don't necessarily delete the old one here unless we are sure it's orphaned, 
+                // but usually the frontend sends either "" or "data:image...". 
+                isChangingCover = true;
+            }
+
+            // Xóa ảnh cũ trên Cloudinary nếu có thay đổi và ảnh cũ là link Cloudinary
+            if (isChangingCover && !string.IsNullOrEmpty(oldCoverUrl) && oldCoverUrl.StartsWith("http"))
+            {
+                try
+                {
+                    await fileStorageService.DeleteFileAsync(oldCoverUrl, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[Cloudinary Delete Old Cover Error] {ex.Message}");
+                }
             }
         }
 
