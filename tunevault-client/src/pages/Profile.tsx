@@ -551,12 +551,21 @@ export const Profile = () => {
         {/* Playlists Section */}
         {playlists.length > 0 && (
           <div className="mb-12">
-            <h2 className="text-2xl font-bold text-white mb-6">Playlist Công khai</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {playlists.map(playlist => (
+            <div className="flex justify-between items-end mb-6">
+              <h2 className="text-2xl font-bold text-white hover:underline cursor-pointer inline-block">Playlist Công khai</h2>
+              {playlists.length > 3 && (
+                <button 
+                  className="text-zinc-400 text-sm font-bold hover:underline"
+                >
+                  Hiện tất cả
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-y-3 -mx-6">
+              {playlists.slice(0, 3).map(playlist => (
                 <div 
                   key={playlist.id} 
-                  className="bg-[#181818] p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
+                  className="p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
                   onClick={() => navigate(`/playlist/${playlist.id}`)}
                 >
                   <div className="relative w-full aspect-square mb-4 shadow-lg rounded-md bg-zinc-800 shrink-0">
