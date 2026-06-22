@@ -725,20 +725,22 @@ export const PlaylistDetail = () => {
                     {showCoverDropdown && (
                       <div className="absolute top-full right-0 mt-1 w-36 bg-zinc-800 rounded shadow-xl border border-zinc-700 py-1 z-50">
                         <button
-                          className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                          className="w-full flex items-center gap-2 px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
                           onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
                         >
-                          Thay đổi ảnh
+                          <Camera size={16} />
+                          <span>Thay đổi ảnh</span>
                         </button>
                         <button
-                          className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white"
+                          className="w-full flex items-center gap-2 px-4 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
                           onClick={(e) => {
                             e.stopPropagation();
                             setEditCover("");
                             setShowCoverDropdown(false);
                           }}
                         >
-                          Xóa ảnh
+                          <Trash2 size={16} />
+                          <span>Xóa ảnh</span>
                         </button>
                       </div>
                     )}

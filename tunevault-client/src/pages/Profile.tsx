@@ -31,6 +31,16 @@ export const Profile = () => {
   const [showPlaylistMenu, setShowPlaylistMenu] = useState<string | null>(null);
   const [shareData, setShareData] = useState<{ id: string, type: string, title: string } | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [autoOpenFilePicker, setAutoOpenFilePicker] = useState(false);
+
+  useEffect(() => {
+    if (isEditing && autoOpenFilePicker && fileInputRef.current) {
+      setTimeout(() => {
+        fileInputRef.current?.click();
+        setAutoOpenFilePicker(false);
+      }, 100);
+    }
+  }, [isEditing, autoOpenFilePicker]);
 
   useEffect(() => {
     const fetchFavs = () => {
@@ -200,7 +210,10 @@ export const Profile = () => {
           )}
 
           <button
-            onClick={() => setIsEditing(!isEditing)}
+            onClick={() => {
+              setIsEditing(true);
+              setAutoOpenFilePicker(true);
+            }}
             className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
           >
             <Edit2 className="text-white w-6 h-6 md:w-8 md:h-8 mb-1" />
