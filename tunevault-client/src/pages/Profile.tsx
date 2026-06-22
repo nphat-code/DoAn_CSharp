@@ -328,7 +328,7 @@ export const Profile = () => {
                     </p>
                   </div>
                   <div className="hidden md:block flex-1 text-sm text-zinc-400 truncate hover:underline">
-                    {track.albumTitle || ''}
+                    {track.albumTitle || track.title}
                   </div>
                   <div className="text-sm text-zinc-400 w-12 text-right">
                     {formatDuration(track.duration)}
