@@ -488,18 +488,16 @@ export const AlbumDetail = () => {
                     </div>
 
                     <div className="flex items-center justify-end gap-4 pr-4">
-                      <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition">
-                        <button
+                      <button
                           onClick={(e) => { e.stopPropagation(); handleToggleFavorite(track.id); }}
-                          className={`${likedTracks.has(track.id) ? 'opacity-100 text-[#1ed760]' : 'text-spotify-lighttext hover:text-white'}`}
+                          className={`hover:scale-105 transition ${likedTracks.has(track.id) ? 'opacity-100 text-[#1ed760]' : 'opacity-0 group-hover:opacity-100 text-spotify-lighttext hover:text-white'}`}
                         >
                           {likedTracks.has(track.id) ? (
-                            <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="#1ed760"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
+                            <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.922A9.922 9.922 0 1 0 12 2.078a9.922 9.922 0 0 0 0 19.844zM10.74 15.6l-4.14-4.14 1.06-1.06 3.08 3.08 6.42-6.42 1.06 1.06-7.48 7.48z"></path></svg>
                           ) : (
                             <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
                           )}
                         </button>
-                      </div>
                       <div className="text-sm text-spotify-lighttext font-medium w-12 text-right">{formatDuration(track.duration)}</div>
 
                       <TrackDropdownMenu
