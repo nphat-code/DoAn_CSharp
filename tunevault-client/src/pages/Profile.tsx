@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { profileService, type ProfileDto } from '../services/profileService';
+import { followService } from '../services/followService';
 import { playlistService, type PlaylistDto } from '../services/playlistService';
 import { mediaService } from '../services/mediaService';
 import type { MediaItemDto } from '../types';
@@ -20,6 +21,7 @@ export const Profile = () => {
   const [bioInput, setBioInput] = useState('');
   const [topTracks, setTopTracks] = useState<MediaItemDto[]>([]);
   const [topArtists, setTopArtists] = useState<{ name: string, avatarUrl: string, id?: string }[]>([]);
+  const [following, setFollowing] = useState<ProfileDto[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { playMediaList, isPlaying, togglePlayPause, currentMedia, queue, updateQueueContext } = usePlayer();
@@ -75,6 +77,9 @@ export const Profile = () => {
       setAvatarUrlInput(data.avatarUrl || '');
       setUsernameInput(data.username || '');
       setBioInput(data.bio || '');
+
+      const followingData = await followService.getFollowing(data.id);
+      setFollowing(followingData);
 
       const userPlaylists = await playlistService.getUserPlaylists();
       setPlaylists(userPlaylists);
@@ -592,6 +597,45 @@ export const Profile = () => {
                   <div className="w-full">
                     <h3 className="text-white font-bold truncate w-full text-left mb-1">{playlist.name}</h3>
                     <p className="text-sm text-zinc-400 truncate w-full text-left">Của {profile.username}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Following Section */}
+        {following.length > 0 && (
+          <div className="mb-12">
+            <div className="flex justify-between items-end mb-6">
+              <h2 className="text-2xl font-bold text-white hover:underline cursor-pointer inline-block">Đang theo dõi</h2>
+              {following.length > 3 && (
+                <button 
+                  className="text-zinc-400 text-sm font-bold hover:underline"
+                >
+                  Hiện tất cả
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-y-3 -mx-6">
+              {following.slice(0, 3).map(f => (
+                <div
+                  key={f.id}
+                  className="p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
+                  onClick={() => navigate(`/user/${f.id}`)}
+                >
+                  <div className="relative w-full aspect-square mb-3 shadow-lg rounded-full bg-zinc-800 shrink-0">
+                    {f.avatarUrl ? (
+                      <img src={f.avatarUrl.startsWith('http') || f.avatarUrl.startsWith('data:') ? f.avatarUrl : `https://tunevault-api.onrender.com${f.avatarUrl}`} alt={f.username} className="w-full h-full object-cover rounded-full" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-4xl text-zinc-500">{f.username.charAt(0).toUpperCase()}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="w-full">
+                    <h3 className="text-white font-bold truncate w-full text-center">{f.username}</h3>
+                    <p className="text-sm text-zinc-400 truncate w-full text-center mt-1">Hồ sơ</p>
                   </div>
                 </div>
               ))}
