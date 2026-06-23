@@ -24,6 +24,8 @@ interface PlayerContextType {
   currentIndex: number;
   showQueue: boolean;
   setShowQueue: (show: boolean) => void;
+  isExpandedView: boolean;
+  setIsExpandedView: (show: boolean) => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -37,6 +39,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const [queue, setQueue] = useState<MediaItemDto[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [showQueue, setShowQueue] = useState(false);
+  const [isExpandedView, setIsExpandedView] = useState(false);
 
   const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -195,7 +198,9 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
       queue,
       currentIndex,
       showQueue,
-      setShowQueue
+      setShowQueue,
+      isExpandedView,
+      setIsExpandedView
     }}>
       {children}
     </PlayerContext.Provider>

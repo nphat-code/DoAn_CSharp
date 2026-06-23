@@ -6,12 +6,12 @@ import { TopBar } from './TopBar';
 import { RightPanel } from './RightPanel';
 import { PlayerProvider, usePlayer } from '../context/PlayerContext';
 import { NotificationProvider } from '../context/NotificationContext';
+import { NowPlayingOverlay } from '../pages/NowPlaying';
 
 export const MainLayout = () => {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === '/';
-  const isNowPlaying = location.pathname === '/now-playing';
 
   const [sidebarWidth, setSidebarWidth] = useState(420);
   const [rightPanelWidth, setRightPanelWidth] = useState(420);
@@ -75,22 +75,17 @@ export const MainLayout = () => {
           <TopBar />
           
           {/* Vùng thân gồm Sidebar - MainContent - RightPanel */}
-          <div className="flex-1 flex overflow-hidden">
-            {!isNowPlaying && (
-              <>
-                <Sidebar isExpanded={isSidebarExpanded} onToggleExpand={() => setIsSidebarExpanded(!isSidebarExpanded)} width={sidebarWidth} />
-                
-                {/* Resizer Sidebar */}
-                <div 
-                  onMouseDown={startResizeSidebar}
+          <div className="flex-1 flex overflow-hidden relative">
+            <Sidebar isExpanded={isSidebarExpanded} onToggleExpand={() => setIsSidebarExpanded(!isSidebarExpanded)} width={sidebarWidth} />
+            
+            {/* Resizer Sidebar */}
+            <div 
+              onMouseDown={startResizeSidebar}
                   className="w-2 cursor-col-resize z-50 flex-shrink-0 bg-transparent"
                   title="Kéo để thay đổi kích thước"
                 />
-              </>
-            )}
-
             <div 
-              className={`${isSidebarExpanded && !isNowPlaying ? 'w-0 opacity-0 p-0 m-0' : 'flex-1 min-w-[300px]'} bg-spotify-card rounded-lg overflow-hidden relative shadow-2xl transition-all duration-300`}
+              className={`${isSidebarExpanded ? 'w-0 opacity-0 p-0 m-0' : 'flex-1 min-w-[300px]'} bg-spotify-card rounded-lg overflow-hidden relative shadow-2xl transition-all duration-300`}
             >
               {isHome && (
                 <div 
@@ -117,18 +112,17 @@ export const MainLayout = () => {
               </main>
             </div>
 
-            {!isNowPlaying && (
-              <>
-                {/* Resizer RightPanel */}
-                <div 
-                  onMouseDown={startResizeRightPanel}
-                  className="w-2 cursor-col-resize z-50 flex-shrink-0 bg-transparent"
-                  title="Kéo để thay đổi kích thước"
-                />
+            {/* Resizer RightPanel */}
+            <div 
+              onMouseDown={startResizeRightPanel}
+              className="w-2 cursor-col-resize z-50 flex-shrink-0 bg-transparent"
+              title="Kéo để thay đổi kích thước"
+            />
 
-                <RightPanel width={rightPanelWidth} />
-              </>
-            )}
+            <RightPanel width={rightPanelWidth} />
+
+            {/* Now Playing Overlay rendered unconditionally (it hides itself if not expanded) */}
+            <NowPlayingOverlay />
           </div>
 
           {/* Fixed PlayerBar */}

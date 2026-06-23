@@ -13,7 +13,7 @@ interface RightPanelProps {
 }
 
 export const RightPanel = ({ width }: RightPanelProps) => {
-  const { currentMedia, mediaRef, isFavorited, toggleFavorite, showQueue, setShowQueue, queue, currentIndex, playMediaList } = usePlayer();
+  const { currentMedia, mediaRef, isFavorited, toggleFavorite, showQueue, setShowQueue, queue, currentIndex, playMediaList, setIsExpandedView } = usePlayer();
   const navigate = useNavigate();
   const bgLayerRef = useRef<HTMLDivElement>(null);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -584,7 +584,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                  >
                    <MoreHorizontal size={20} />
                  </button>
-                 <button onClick={() => navigate('/now-playing')} className="text-zinc-300 hover:text-white transition drop-shadow-md" title="Mở rộng chế độ xem Đang phát">
+                 <button onClick={() => setIsExpandedView(true)} className="text-zinc-300 hover:text-white transition drop-shadow-md" title="Mở rộng chế độ xem Đang phát">
                     <Maximize2 size={20} />
                  </button>
 

@@ -8,7 +8,7 @@ import { Profile } from './pages/Profile';
 import { Search } from './pages/Search';
 import { Favorites } from './pages/Favorites';
 import { AlbumDetail } from './pages/AlbumDetail';
-import { NowPlaying } from './pages/NowPlaying';
+
 import { TrackDetail } from './pages/TrackDetail';
 import { UserProfile } from './pages/UserProfile';
 import { AdminDashboard } from './pages/AdminDashboard';
@@ -54,7 +54,7 @@ function App() {
           <Route path="profile/top/tracks" element={isAuthenticated ? <TopTracks /> : <Navigate to="/login" />} />
           <Route path="user/:id" element={isAuthenticated ? <UserProfile /> : <Navigate to="/login" />} />
           <Route path="admin" element={isAuthenticated ? <AdminDashboard /> : <Navigate to="/login" />} />
-          <Route path="now-playing" element={isAuthenticated ? <NowPlaying /> : <Navigate to="/login" />} />
+
         </Route>
       </Routes>
     </BrowserRouter>

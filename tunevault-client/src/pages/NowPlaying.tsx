@@ -1,24 +1,24 @@
 import { getImageUrl } from '../utils/imageUrl';
 import { usePlayer } from '../context/PlayerContext';
-import { useNavigate } from 'react-router-dom';
 import { Minimize2, MoreHorizontal, User, Music } from 'lucide-react';
 import { VideoCanvas } from '../components/VideoCanvas';
 
-export const NowPlaying = () => {
-  const { currentMedia, mediaRef } = usePlayer();
-  const navigate = useNavigate();
+export const NowPlayingOverlay = () => {
+  const { currentMedia, mediaRef, isExpandedView, setIsExpandedView } = usePlayer();
+
+  if (!isExpandedView) return null;
 
   if (!currentMedia) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-[#004A4E] text-white">
+      <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#004A4E] text-white animate-in fade-in zoom-in-95 duration-200">
         <p>Không có bài hát nào đang phát.</p>
-        <button onClick={() => navigate(-1)} className="ml-4 underline">Quay lại</button>
+        <button onClick={() => setIsExpandedView(false)} className="ml-4 underline">Đóng</button>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full relative bg-black overflow-hidden flex flex-col items-center justify-center">
+    <div className="absolute inset-0 z-50 bg-black overflow-hidden flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-200">
       
       {/* Background/Video Layer */}
       <div className="absolute inset-0 z-0 flex items-center justify-center">
@@ -44,7 +44,7 @@ export const NowPlaying = () => {
           <button className="hover:text-white transition drop-shadow-lg"><User size={24} /></button>
           <button className="hover:text-white transition drop-shadow-lg"><MoreHorizontal size={24} /></button>
           <button 
-            onClick={() => navigate(-1)} 
+            onClick={() => setIsExpandedView(false)} 
             className="hover:text-white transition ml-4 bg-black/40 p-2 rounded-full backdrop-blur-md"
             title="Thu nhỏ"
           >
