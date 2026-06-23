@@ -339,7 +339,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                         </div>
                         {!isCollapsed && (
                           <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
-                            <span className="text-base text-white font-semibold truncate">Bài hát đã thích</span>
+                        <span className={`text-base font-semibold truncate ${currentMedia?.isLikedContext ? 'text-green-500' : 'text-white'}`}>Bài hát đã thích</span>
                             <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • {likedTracksCount} bài hát</span>
                           </div>
                         )}
@@ -404,7 +404,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                     </div>
                     {!isCollapsed && (
                       <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
-                        <span className="text-base text-white font-semibold truncate">{playlist.name}</span>
+                        <span className={`text-base font-semibold truncate ${currentMedia?.playlistId === playlist.id ? 'text-green-500' : 'text-white'}`}>{playlist.name}</span>
                         <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • Bạn</span>
                       </div>
                     )}
@@ -457,7 +457,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                         </div>
                         {!isCollapsed && (
                           <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
-                            <span className="text-base text-white font-semibold truncate">{album.title}</span>
+                        <span className={`text-base font-semibold truncate ${currentMedia?.albumId === album.id ? 'text-green-500' : 'text-white'}`}>{album.title}</span>
                             <span className="text-sm text-spotify-lighttext font-medium truncate">Album • {album.artistName || 'Nhiều nghệ sĩ'}</span>
                           </div>
                         )}
@@ -507,7 +507,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                         </div>
                         {!isCollapsed && (
                           <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
-                            <span className="text-base text-white font-semibold truncate">{artist.name}</span>
+                        <span className={`text-base font-semibold truncate ${currentMedia?.artistId === artist.id ? 'text-green-500' : 'text-white'}`}>{artist.name}</span>
                             <span className="text-sm text-spotify-lighttext font-medium truncate">Nghệ sĩ</span>
                           </div>
                         )}
