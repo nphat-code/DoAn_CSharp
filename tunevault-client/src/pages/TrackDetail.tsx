@@ -155,7 +155,12 @@ export const TrackDetail = () => {
             </div>
             
             <span className="text-xs text-white/70">•</span>
-            <span className="hover:underline cursor-pointer">{track.albumTitle || track.title}</span>
+            <span 
+              className={`hover:underline ${track.albumId ? 'cursor-pointer' : ''}`}
+              onClick={() => track.albumId && navigate(`/album/${track.albumId}`)}
+            >
+              {track.albumTitle || track.title}
+            </span>
 
             {track.createdAt && (
               <>
