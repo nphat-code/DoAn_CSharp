@@ -249,7 +249,7 @@ export const PlaylistDetail = () => {
 
   return (
     <div
-      className="flex flex-col h-full bg-spotify-card relative"
+      className="flex flex-col h-full bg-spotify-card relative scrollbar-hide"
       style={{ overflowY: 'overlay' as any }}
     >
       {/* Background Gradient */}

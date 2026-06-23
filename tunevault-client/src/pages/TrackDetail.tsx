@@ -101,7 +101,7 @@ export const TrackDetail = () => {
   const artistAvatar = track.artistAvatarUrl ? getImageUrl(track.artistAvatarUrl) : "https://i.scdn.co/image/ab67616d00001e023192276cb04c3da1dd1f2cf8"; // Default avatar
 
   return (
-    <div className="flex flex-col h-full bg-spotify-card overflow-y-auto relative">
+    <div className="flex flex-col h-full bg-spotify-card overflow-y-auto relative scrollbar-hide">
       {/* Background Gradient */}
       <div 
         className="absolute top-0 left-0 w-full h-[340px] pointer-events-none z-0"

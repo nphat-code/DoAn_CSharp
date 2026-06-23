@@ -119,7 +119,7 @@ export const Favorites = () => {
   if (loading) return <div className="p-6 text-white">Đang tải danh sách bài hát đã thích...</div>;
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-[#4A30A4] to-[#121212] overflow-y-auto">
+    <div className="flex flex-col h-full bg-gradient-to-b from-[#4A30A4] to-[#121212] overflow-y-auto scrollbar-hide">
       {/* Header */}
       <div 
         className="flex items-end gap-6 px-6 pb-6 shrink-0"
