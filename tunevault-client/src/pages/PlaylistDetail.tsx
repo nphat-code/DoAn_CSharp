@@ -261,8 +261,8 @@ export const PlaylistDetail = () => {
       />
       {/* Header */}
       <div
-        className="flex items-end gap-6 px-6 pb-6 shrink-0 relative z-10"
-        style={{ height: 'clamp(195.5px, 25cqw, 340px)', minHeight: '195.5px' }}
+        className="flex items-end gap-6 px-6 pb-6 pt-24 shrink-0 relative z-10"
+        style={{ minHeight: 'clamp(195.5px, 25cqw, 340px)' }}
       >
         <div
           className="bg-zinc-800 shadow-2xl rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden group relative cursor-pointer"

@@ -220,7 +220,7 @@ export const ArtistDetail = () => {
         {/* Header - Image as background */}
         <div
           className="relative px-6 pb-6 pt-16 flex items-end"
-          style={{ height: 'clamp(340px, 40cqw, 400px)', minHeight: '340px' }}
+          style={{ minHeight: 'clamp(340px, 40cqw, 400px)' }}
         >
           {/* Header Background Image */}
           {artist.avatarUrl && (
