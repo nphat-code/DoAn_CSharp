@@ -23,8 +23,19 @@ export const RecentHistory = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const data = await mediaService.getRecentHistory(10);
-        setHistory(data);
+        const data = await mediaService.getRecentHistory(50);
+        
+        const uniqueTracks = new Map<string, HistoryItem>();
+        for (const item of data) {
+          if (!item.mediaItem || !item.mediaItem.id) continue;
+          
+          if (!uniqueTracks.has(item.mediaItem.id)) {
+            uniqueTracks.set(item.mediaItem.id, item);
+          }
+        }
+        
+        const distinctHistory = Array.from(uniqueTracks.values()).slice(0, 10);
+        setHistory(distinctHistory);
       } catch (error) {
         console.error('Error fetching history:', error);
       } finally {
