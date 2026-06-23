@@ -433,9 +433,9 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                           {isExpanded && (
                             <button
                               onClick={(e) => handlePlayAlbum(e, album.id)}
-                              className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.albumId === album.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
+                              className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.albumId === album.id && !currentMedia?.playlistId && !currentMedia?.isLikedContext ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
                             >
-                              {currentMedia?.albumId === album.id && isPlaying ? (
+                              {currentMedia?.albumId === album.id && !currentMedia?.playlistId && !currentMedia?.isLikedContext && isPlaying ? (
                                 <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
                               ) : (
                                 <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
@@ -445,9 +445,9 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                           {!isCollapsed && !isExpanded && (
                             <button
                               onClick={(e) => handlePlayAlbum(e, album.id)}
-                              className={`absolute inset-0 bg-black/60 flex items-center justify-center text-white transition-opacity duration-200 z-20 ${currentMedia?.albumId === album.id ? 'opacity-100' : 'opacity-0 group-hover/item:opacity-100'}`}
+                              className={`absolute inset-0 bg-black/60 flex items-center justify-center text-white transition-opacity duration-200 z-20 rounded-md ${currentMedia?.albumId === album.id && !currentMedia?.playlistId && !currentMedia?.isLikedContext ? 'opacity-100' : 'opacity-0 group-hover/item:opacity-100'}`}
                             >
-                              {currentMedia?.albumId === album.id && isPlaying ? (
+                              {currentMedia?.albumId === album.id && !currentMedia?.playlistId && !currentMedia?.isLikedContext && isPlaying ? (
                                 <svg height="20" width="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
                               ) : (
                                 <svg height="20" width="20" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
@@ -457,7 +457,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                         </div>
                         {!isCollapsed && (
                           <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
-                        <span className={`text-base font-semibold truncate ${currentMedia?.albumId === album.id ? 'text-green-500' : 'text-white'}`}>{album.title}</span>
+                        <span className={`text-base font-semibold truncate ${currentMedia?.albumId === album.id && !currentMedia?.playlistId && !currentMedia?.isLikedContext ? 'text-green-500' : 'text-white'}`}>{album.title}</span>
                             <span className="text-sm text-spotify-lighttext font-medium truncate">Album • {album.artistName || 'Nhiều nghệ sĩ'}</span>
                           </div>
                         )}
@@ -483,9 +483,9 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                           {isExpanded && (
                             <button
                               onClick={(e) => handlePlayArtist(e, artist.id)}
-                              className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.artistId === artist.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
+                              className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.artistId === artist.id && !currentMedia?.playlistId && !currentMedia?.isLikedContext ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
                             >
-                              {currentMedia?.artistId === artist.id && isPlaying ? (
+                              {currentMedia?.artistId === artist.id && !currentMedia?.playlistId && !currentMedia?.isLikedContext && isPlaying ? (
                                 <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
                               ) : (
                                 <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
@@ -495,9 +495,9 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                           {!isCollapsed && !isExpanded && (
                             <button
                               onClick={(e) => handlePlayArtist(e, artist.id)}
-                              className={`absolute inset-0 bg-black/60 flex items-center justify-center text-white transition-opacity duration-200 z-20 rounded-full ${currentMedia?.artistId === artist.id ? 'opacity-100' : 'opacity-0 group-hover/item:opacity-100'}`}
+                              className={`absolute inset-0 bg-black/60 flex items-center justify-center text-white transition-opacity duration-200 z-20 rounded-full ${currentMedia?.artistId === artist.id && !currentMedia?.playlistId && !currentMedia?.isLikedContext ? 'opacity-100' : 'opacity-0 group-hover/item:opacity-100'}`}
                             >
-                              {currentMedia?.artistId === artist.id && isPlaying ? (
+                              {currentMedia?.artistId === artist.id && !currentMedia?.playlistId && !currentMedia?.isLikedContext && isPlaying ? (
                                 <svg height="20" width="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
                               ) : (
                                 <svg height="20" width="20" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
@@ -507,7 +507,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                         </div>
                         {!isCollapsed && (
                           <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
-                        <span className={`text-base font-semibold truncate ${currentMedia?.artistId === artist.id ? 'text-green-500' : 'text-white'}`}>{artist.name}</span>
+                        <span className={`text-base font-semibold truncate ${currentMedia?.artistId === artist.id && !currentMedia?.playlistId && !currentMedia?.isLikedContext ? 'text-green-500' : 'text-white'}`}>{artist.name}</span>
                             <span className="text-sm text-spotify-lighttext font-medium truncate">Nghệ sĩ</span>
                           </div>
                         )}
