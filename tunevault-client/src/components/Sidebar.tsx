@@ -1,5 +1,5 @@
 import { getImageUrl } from '../utils/imageUrl';
-import { Library, Plus, ArrowRight, Search, List, Heart, Users, Disc, ArrowLeft, Maximize2, Minimize2, X } from 'lucide-react';
+import { Library, Plus, ArrowRight, Search, Heart, Users, Disc, ArrowLeft, Maximize2, Minimize2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -114,28 +114,28 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
           pList.push(playlistService.getUserPlaylists().catch(() => []));
           pList.push(artistService.getFollowedArtists().catch(() => []));
         }
-        
+
         if (isAuthenticated) {
-            const [albumData, playData, artistData] = await Promise.all(pList);
-            const userStr = localStorage.getItem('user');
-            const user = userStr ? JSON.parse(userStr) : null;
-            const savedIds = user ? JSON.parse(localStorage.getItem(`savedAlbums_${user.id}`) || '[]') : [];
-            const allAlbums = albumData as AlbumDto[];
-            
-            setAlbums(allAlbums.filter(a => savedIds.includes(a.id)));
-            setPlaylists(playData as PlaylistDto[]);
-            setArtists((artistData || []) as any[]);
-            
-            try {
-              const favoritesData = await import('../services/mediaService').then(m => m.mediaService.getFavorites());
-              setLikedTracksCount(favoritesData.length);
-            } catch (err) {
-              setLikedTracksCount(0);
-            }
+          const [albumData, playData, artistData] = await Promise.all(pList);
+          const userStr = localStorage.getItem('user');
+          const user = userStr ? JSON.parse(userStr) : null;
+          const savedIds = user ? JSON.parse(localStorage.getItem(`savedAlbums_${user.id}`) || '[]') : [];
+          const allAlbums = albumData as AlbumDto[];
+
+          setAlbums(allAlbums.filter(a => savedIds.includes(a.id)));
+          setPlaylists(playData as PlaylistDto[]);
+          setArtists((artistData || []) as any[]);
+
+          try {
+            const favoritesData = await import('../services/mediaService').then(m => m.mediaService.getFavorites());
+            setLikedTracksCount(favoritesData.length);
+          } catch (err) {
+            setLikedTracksCount(0);
+          }
         } else {
-            setAlbums([]);
-            setPlaylists([]);
-            setArtists([]);
+          setAlbums([]);
+          setPlaylists([]);
+          setArtists([]);
         }
       } catch (error) {
         console.error(error);
@@ -143,7 +143,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
         setLoading(false);
       }
     };
-    
+
     fetchData();
 
     const handleUpdate = () => fetchData();
@@ -183,7 +183,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
   };
 
   return (
-    <div 
+    <div
       className="bg-spotify-card rounded-lg flex flex-col overflow-hidden h-full w-full group"
     >
       {/* Header */}
@@ -210,7 +210,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                 </div>
                 <span className="text-spotify-lighttext font-bold text-base hover:text-white transition cursor-pointer" onClick={onToggleCollapse}>Thư viện</span>
               </div>
-              
+
               <div className="flex items-center gap-2 text-spotify-lighttext">
                 {isAuthenticated && (
                   <button onClick={submitCreatePlaylistAuto} className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition" title="Tạo playlist mới">
@@ -263,30 +263,24 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
               {!isCollapsed && (
                 <div className="flex items-center justify-between px-2 py-2 mb-2 text-spotify-lighttext h-10 mt-2">
                   <div className={`flex items-center transition-all overflow-hidden ${isSearchOpen ? 'bg-zinc-800 rounded-md w-full px-2 py-1.5' : 'w-8 h-8 justify-center bg-transparent hover:bg-spotify-hover2 rounded-full'}`}>
-                     <button onClick={() => setIsSearchOpen(true)} className="shrink-0"><Search size={18} /></button>
-                     {isSearchOpen && (
-                       <>
-                         <input 
-                           type="text" 
-                           autoFocus
-                           placeholder="Tìm kiếm trong Thư viện"
-                           value={searchQuery}
-                           onChange={(e) => setSearchQuery(e.target.value)}
-                           onBlur={() => { if (!searchQuery) setIsSearchOpen(false); }}
-                           className="bg-transparent text-sm text-white px-2 outline-none w-full"
-                         />
-                         {searchQuery && (
-                           <button onClick={() => setSearchQuery('')} className="shrink-0 hover:text-white"><X size={16} /></button>
-                         )}
-                       </>
-                     )}
+                    <button onClick={() => setIsSearchOpen(true)} className="shrink-0"><Search size={18} /></button>
+                    {isSearchOpen && (
+                      <>
+                        <input
+                          type="text"
+                          autoFocus
+                          placeholder="Tìm kiếm trong Thư viện"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onBlur={() => { if (!searchQuery) setIsSearchOpen(false); }}
+                          className="bg-transparent text-sm text-white px-2 outline-none w-full"
+                        />
+                        {searchQuery && (
+                          <button onClick={() => setSearchQuery('')} className="shrink-0 hover:text-white"><X size={16} /></button>
+                        )}
+                      </>
+                    )}
                   </div>
-                  {!isSearchOpen && (
-                    <button className="flex items-center gap-1.5 text-sm font-medium hover:text-white transition group shrink-0 ml-auto">
-                      <span>Gần đây</span>
-                      <List size={18} className="group-hover:text-white" />
-                    </button>
-                  )}
                 </div>
               )}
 
@@ -299,7 +293,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                         <span className="text-white font-bold text-base">Tạo danh sách phát đầu tiên của bạn</span>
                         <span className="text-white font-medium text-sm">Rất dễ, chúng tôi sẽ giúp bạn</span>
                       </div>
-                      <button 
+                      <button
                         onClick={() => navigate('/login')}
                         className="bg-white text-black font-bold px-4 py-1.5 rounded-full text-sm hover:scale-105 transition"
                       >
@@ -314,7 +308,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                         <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-md bg-gradient-to-br from-indigo-600 to-purple-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
                           <Heart size={isExpanded ? 48 : 20} className="fill-white text-white shrink-0" />
                           {isExpanded && (
-                            <button 
+                            <button
                               onClick={handlePlayLiked}
                               className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.isLikedContext ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
                             >
@@ -350,10 +344,10 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                     )}
                   </>
                 )}
-                
+
                 {/* User Playlists */}
                 {isAuthenticated && showPlaylists && filteredPlaylists.map(playlist => (
-                  <div 
+                  <div
                     key={playlist.id}
                     onClick={() => handleItemClick(`/playlist/${playlist.id}`)}
                     className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`}
@@ -366,7 +360,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                         <Library size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
                       )}
                       {isExpanded && (
-                        <button 
+                        <button
                           onClick={(e) => handlePlayPlaylist(e, playlist.id)}
                           className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.playlistId === playlist.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
                         >
@@ -386,14 +380,14 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                     )}
                   </div>
                 ))}
-                
+
                 {/* Albums */}
                 {loading ? (
                   !isCollapsed && <div className="p-4 text-center text-zinc-500 text-sm w-full">Đang tải thư viện...</div>
                 ) : (
                   <>
                     {showAlbums && filteredAlbums.map(album => (
-                      <div 
+                      <div
                         key={album.id}
                         onClick={() => handleItemClick(`/album/${album.id}`)}
                         className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`}
@@ -406,7 +400,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                             <Disc size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
                           )}
                           {isExpanded && (
-                            <button 
+                            <button
                               onClick={(e) => handlePlayAlbum(e, album.id)}
                               className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.albumId === album.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
                             >
@@ -428,7 +422,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                     ))}
                     {/* Artists */}
                     {isAuthenticated && showArtists && filteredArtists.map(artist => (
-                      <div 
+                      <div
                         key={artist.id}
                         onClick={() => handleItemClick(`/artist/${artist.id}`)}
                         className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`}
@@ -443,7 +437,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                             )}
                           </div>
                           {isExpanded && (
-                            <button 
+                            <button
                               onClick={(e) => handlePlayArtist(e, artist.id)}
                               className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.artistId === artist.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
                             >
@@ -464,7 +458,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                       </div>
                     ))}
                     {filteredAlbums.length === 0 && filteredPlaylists.length === 0 && filteredArtists.length === 0 && isAuthenticated && !isCollapsed && (
-                       <div className="p-4 text-center text-zinc-500 text-sm w-full">Không tìm thấy kết quả.</div>
+                      <div className="p-4 text-center text-zinc-500 text-sm w-full">Không tìm thấy kết quả.</div>
                     )}
                   </>
                 )}
