@@ -6,7 +6,7 @@ import { albumService } from '../services/albumService';
 import type { AlbumDto } from '../services/albumService';
 import type { MediaItemDto } from '../types';
 // import { aiService } from '../services/aiService';
-import { Plus, Trash2, Disc } from 'lucide-react';
+import { Disc } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const Home = () => {
@@ -18,8 +18,6 @@ export const Home = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'songs' | 'albums' | 'foryou'>('all');
 
-  const currentUserStr = localStorage.getItem('user');
-  const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,26 +53,6 @@ export const Home = () => {
       window.removeEventListener('favoritesUpdated', fetchData);
     };
   }, []);
-
-  const handleAddToLikedSongs = async (e: React.MouseEvent, trackId: string) => {
-    e.stopPropagation();
-    if (!currentUser) {
-      alert("Vui lòng đăng nhập để thêm vào Bài hát đã thích.");
-      return;
-    }
-    
-    try {
-      const res = await mediaService.toggleFavorite(trackId);
-      if (res.isFavorited) {
-        alert("Đã thêm vào Bài hát đã thích!");
-      } else {
-        alert("Đã xóa khỏi Bài hát đã thích!");
-      }
-      window.dispatchEvent(new Event('favoritesUpdated'));
-    } catch (error) {
-      alert("Lỗi khi thay đổi bài hát yêu thích.");
-    }
-  };
 
   const handlePlayAlbum = async (e: React.MouseEvent, albumId: string) => {
     e.stopPropagation();
@@ -263,34 +241,6 @@ export const Home = () => {
                 >
                   {track.artistName || track.description || 'Nghệ sĩ'}
                 </p>
-                {currentUser && currentUser.role === 'Admin' && (
-                  <button 
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      if (confirm("Bạn có chắc chắn muốn xóa bài này vĩnh viễn khỏi hệ thống không? Hành động này không thể hoàn tác.")) {
-                        try {
-                          await mediaService.deleteMedia(track.id);
-                          setTracks(prev => prev.filter(t => t.id !== track.id));
-                          alert("Đã xóa bài hát thành công!");
-                        } catch (error) {
-                          alert("Lỗi khi xóa.");
-                        }
-                      }
-                    }}
-                    className="absolute top-6 left-6 p-1.5 bg-black/60 hover:bg-red-500/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition shadow-md"
-                    title="Xóa bài hát này"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                )}
-                
-                <button 
-                  onClick={(e) => handleAddToLikedSongs(e, track.id)}
-                  className="absolute top-6 right-6 p-1.5 bg-black/60 hover:bg-black/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition shadow-md"
-                  title="Thêm vào Bài hát đã thích"
-                >
-                  <Plus size={16} />
-                </button>
               </div>
             ))}
           </div>
