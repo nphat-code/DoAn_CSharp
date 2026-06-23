@@ -244,7 +244,7 @@ export const UserProfile = () => {
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-white mb-6 hover:underline cursor-pointer inline-block">Người theo dõi</h2>
           {followers.length > 0 ? (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-y-3 -mx-6">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-0 -mx-6">
               {followers.map(f => (
                 <div
                   key={f.id}
@@ -278,7 +278,7 @@ export const UserProfile = () => {
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-white mb-6 hover:underline cursor-pointer inline-block">Đang theo dõi</h2>
           {following.length > 0 ? (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-y-3 -mx-6">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-0 -mx-6">
               {following.map(f => (
                 <div
                   key={f.id}

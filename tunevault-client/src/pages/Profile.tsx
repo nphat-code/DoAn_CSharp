@@ -329,7 +329,7 @@ export const Profile = () => {
                 </button>
               )}
             </div>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-y-3 -mx-6">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-0 -mx-6">
               {topArtists.slice(0, 3).map((artist, idx) => {
                 const isPlayingRow = currentMedia?.artistId === artist.id;
                 return (
@@ -417,7 +417,7 @@ export const Profile = () => {
                 </button>
               )}
             </div>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-y-3 -mx-6">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-0 -mx-6">
               {playlists.slice(0, 3).map(playlist => (
                 <div 
                   key={playlist.id} 
@@ -466,7 +466,7 @@ export const Profile = () => {
                 </button>
               )}
             </div>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-y-3 -mx-6">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-0 -mx-6">
               {following.slice(0, 3).map(f => (
                 <div
                   key={f.id}

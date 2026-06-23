@@ -389,7 +389,7 @@ export const Search = () => {
       <div 
         key={`${type}-${id}`}
         onClick={onClick}
-        className="p-3 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative flex flex-col"
+        className="p-3 rounded-md bg-transparent hover:bg-[#282828] transition cursor-pointer group relative flex flex-col"
       >
         <div className="w-full aspect-square mb-3 relative">
           <div className={`w-full h-full bg-zinc-700 shadow-lg flex items-center justify-center relative overflow-hidden group-hover:shadow-xl transition ${isCircular ? 'rounded-full' : 'rounded-md'}`}>
@@ -567,7 +567,7 @@ export const Search = () => {
 
           {/* Grid Results List */}
           {activeTab !== 'all' && activeTab !== 'songs' ? (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-6">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-0">
               {activeTab === 'artists' && results.artists?.map(artist => renderCard(artist, 'artist'))}
               {activeTab === 'albums' && results.albums?.map(album => renderCard(album, 'album'))}
               {activeTab === 'playlists' && results.playlists?.map(playlist => renderCard(playlist, 'playlist'))}

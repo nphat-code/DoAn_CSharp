@@ -159,12 +159,12 @@ export const Home = () => {
           {loading ? (
             <div className="text-zinc-500 font-medium">Đang tải...</div>
           ) : albums.length > 0 ? (
-            <div className={activeTab === 'all' ? "flex overflow-x-auto gap-6 pb-4 custom-scrollbar" : "grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-6"}>
+            <div className={activeTab === 'all' ? "flex overflow-x-auto gap-0 pb-4 custom-scrollbar" : "grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-0"}>
               {albums.slice(0, activeTab === 'all' ? 10 : undefined).map(album => (
                 <div 
                   key={album.id}
                   onClick={() => navigate(`/album/${album.id}`)}
-                  className={`p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative flex flex-col ${activeTab === 'all' ? 'min-w-[180px] w-[180px] flex-shrink-0' : ''}`}
+                  className={`p-4 rounded-md bg-transparent hover:bg-[#282828] transition cursor-pointer group relative flex flex-col ${activeTab === 'all' ? 'min-w-[180px] w-[180px] flex-shrink-0' : ''}`}
                 >
                   <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center relative overflow-hidden group-hover:shadow-xl transition">
                     {album.coverUrl ? (
@@ -219,12 +219,12 @@ export const Home = () => {
           {loading ? (
           <div className="text-zinc-500 font-medium">Đang tải...</div>
         ) : tracks.length > 0 ? (
-          <div className={activeTab === 'all' ? "flex overflow-x-auto gap-6 pb-4 custom-scrollbar" : "grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-6"}>
+          <div className={activeTab === 'all' ? "flex overflow-x-auto gap-0 pb-4 custom-scrollbar" : "grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-0"}>
             {tracks.slice(0, activeTab === 'all' ? 10 : undefined).map((track, index, arr) => (
               <div 
                 key={track.id}
                 onClick={() => playMediaList(arr, index)}
-                className={`p-4 rounded-md bg-zinc-800/20 hover:bg-zinc-800 transition cursor-pointer group relative ${activeTab === 'all' ? 'min-w-[180px] w-[180px] flex-shrink-0' : ''}`}
+                className={`p-4 rounded-md bg-transparent hover:bg-[#282828] transition cursor-pointer group relative ${activeTab === 'all' ? 'min-w-[180px] w-[180px] flex-shrink-0' : ''}`}
               >
                 <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center group-hover:shadow-xl transition relative overflow-hidden">
                   {track.coverUrl ? (
