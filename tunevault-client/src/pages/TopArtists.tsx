@@ -72,7 +72,7 @@ export const TopArtists = () => {
             <div
               key={idx}
               onClick={() => { if (artist.id) navigate(`/artist/${artist.id}`); }}
-              className="p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center"
+              className="p-2 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center"
             >
               <div className="relative w-full aspect-square mb-3">
                 <div className="w-full h-full shadow-lg rounded-full bg-zinc-800 shrink-0 relative overflow-hidden">

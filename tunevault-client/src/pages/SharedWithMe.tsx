@@ -89,7 +89,7 @@ export const SharedWithMe: React.FC = () => {
       ) : (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-0">
           {shares.map(share => (
-            <div key={share.id} className="bg-transparent p-4 rounded-xl hover:bg-[#282828] transition group cursor-pointer" onClick={() => handlePlay(share)}>
+            <div key={share.id} className="bg-transparent p-2 rounded-xl hover:bg-[#282828] transition group cursor-pointer" onClick={() => handlePlay(share)}>
               <div className="flex items-center gap-3 mb-4 border-b border-white/5 pb-3">
                 {share.senderAvatarUrl ? (
                   <img src={getImageUrl(share.senderAvatarUrl)} className="w-8 h-8 rounded-full object-cover" alt="" />

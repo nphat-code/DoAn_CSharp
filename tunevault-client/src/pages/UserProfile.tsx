@@ -204,7 +204,7 @@ export const UserProfile = () => {
               {playlists.map(playlist => (
                 <div 
                   key={playlist.id} 
-                  className="bg-[#181818] p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
+                  className="bg-transparent p-2 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
                   onClick={() => navigate(`/playlist/${playlist.id}`)}
                 >
                   <div className="relative w-full aspect-square mb-4 shadow-lg rounded-md bg-zinc-800 shrink-0">
@@ -248,7 +248,7 @@ export const UserProfile = () => {
               {followers.map(f => (
                 <div
                   key={f.id}
-                  className="p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
+                  className="p-2 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
                   onClick={() => navigate(`/user/${f.id}`)}
                 >
                   <div className="relative w-full aspect-square mb-3 shadow-lg rounded-full bg-zinc-800 shrink-0">
@@ -282,7 +282,7 @@ export const UserProfile = () => {
               {following.map(f => (
                 <div
                   key={f.id}
-                  className="p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
+                  className="p-2 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
                   onClick={() => navigate(`/user/${f.id}`)}
                 >
                   <div className="relative w-full aspect-square mb-3 shadow-lg rounded-full bg-zinc-800 shrink-0">
