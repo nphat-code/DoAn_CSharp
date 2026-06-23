@@ -1,5 +1,5 @@
 import { getImageUrl } from '../utils/imageUrl';
-import { Library, Plus, ArrowRight, Search, List, Heart, Users, Disc, ArrowLeft, Maximize2, Minimize2, Play } from 'lucide-react';
+import { Library, Plus, ArrowRight, Search, List, Heart, Users, Disc, ArrowLeft, Maximize2, Minimize2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -26,7 +26,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
   const [loading, setLoading] = useState(true);
   const isAuthenticated = !!localStorage.getItem('token');
   const navigate = useNavigate();
-  const { playMediaList } = usePlayer();
+  const { currentMedia, isPlaying, togglePlayPause, playMediaList } = usePlayer();
 
   const handleItemClick = (path: string) => {
     navigate(path);
@@ -61,6 +61,10 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
 
   const handlePlayAlbum = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
+    if (currentMedia?.albumId === id) {
+      togglePlayPause();
+      return;
+    }
     try {
       const data = await albumService.getAlbumById(id);
       if (data && data.tracks && data.tracks.length > 0) {
@@ -247,9 +251,9 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                   {isExpanded && (
                     <button 
                       onClick={handlePlayLiked}
-                      className="absolute bottom-2 right-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center text-black opacity-0 group-hover/item:opacity-100 hover:scale-105 transition-all shadow-lg translate-y-2 group-hover/item:translate-y-0 z-10"
+                      className="absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black opacity-0 group-hover/item:opacity-100 transition-all duration-200 shadow-xl hover:scale-110 hover:bg-green-400 hover:shadow-2xl translate-y-2 group-hover/item:translate-y-0 z-20"
                     >
-                      <Play fill="currentColor" size={24} className="ml-1" />
+                      <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
                     </button>
                   )}
                 </div>
@@ -292,9 +296,9 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                 {isExpanded && (
                   <button 
                     onClick={(e) => handlePlayPlaylist(e, playlist.id)}
-                    className="absolute bottom-2 right-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center text-black opacity-0 group-hover/item:opacity-100 hover:scale-105 transition-all shadow-lg translate-y-2 group-hover/item:translate-y-0 z-10"
+                    className="absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black opacity-0 group-hover/item:opacity-100 transition-all duration-200 shadow-xl hover:scale-110 hover:bg-green-400 hover:shadow-2xl translate-y-2 group-hover/item:translate-y-0 z-20"
                   >
-                    <Play fill="currentColor" size={24} className="ml-1" />
+                    <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
                   </button>
                 )}
               </div>
@@ -328,9 +332,13 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                     {isExpanded && (
                       <button 
                         onClick={(e) => handlePlayAlbum(e, album.id)}
-                        className="absolute bottom-2 right-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center text-black opacity-0 group-hover/item:opacity-100 hover:scale-105 transition-all shadow-lg translate-y-2 group-hover/item:translate-y-0 z-10"
+                        className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.albumId === album.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
                       >
-                        <Play fill="currentColor" size={24} className="ml-1" />
+                        {currentMedia?.albumId === album.id && isPlaying ? (
+                          <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+                        ) : (
+                          <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                        )}
                       </button>
                     )}
                   </div>
@@ -359,9 +367,9 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                     {isExpanded && (
                       <button 
                         onClick={(e) => handlePlayArtist(e, artist.id)}
-                        className="absolute bottom-2 right-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center text-black opacity-0 group-hover/item:opacity-100 hover:scale-105 transition-all shadow-lg translate-y-2 group-hover/item:translate-y-0 z-10"
+                        className="absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black opacity-0 group-hover/item:opacity-100 transition-all duration-200 shadow-xl hover:scale-110 hover:bg-green-400 hover:shadow-2xl translate-y-2 group-hover/item:translate-y-0 z-20"
                       >
-                        <Play fill="currentColor" size={24} className="ml-1" />
+                        <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
                       </button>
                     )}
                   </div>

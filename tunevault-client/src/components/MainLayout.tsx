@@ -79,24 +79,29 @@ export const MainLayout = () => {
           <div className="flex-1 flex overflow-hidden relative">
             {/* Wrapper cho Sidebar để xử lý hiệu ứng mở rộng (overlay lên trên MainContent) */}
             <div 
-              className={`transition-all duration-300 flex-shrink-0 ${isSidebarExpanded ? 'absolute top-0 bottom-0 left-0 z-40' : 'relative h-full'}`}
+              className={`transition-all duration-300 flex-shrink-0 overflow-hidden ${isSidebarExpanded ? 'absolute top-0 bottom-0 left-0 z-40' : 'relative h-full'}`}
               style={{ 
                 width: isSidebarExpanded ? `calc(100% - ${rightPanelWidth}px - 8px)` : (isSidebarCollapsed ? '72px' : `${sidebarWidth}px`),
                 minWidth: isSidebarCollapsed ? '72px' : '280px'
               }}
             >
-              <Sidebar 
-                isCollapsed={isSidebarCollapsed} 
-                onToggleCollapse={() => {
-                  setIsSidebarCollapsed(!isSidebarCollapsed);
-                  if (isSidebarExpanded) setIsSidebarExpanded(false);
-                }}
-                isExpanded={isSidebarExpanded}
-                onToggleExpand={() => {
-                  setIsSidebarExpanded(!isSidebarExpanded);
-                  if (isSidebarCollapsed) setIsSidebarCollapsed(false);
-                }}
-              />
+              <div 
+                className="h-full"
+                style={isSidebarExpanded ? { width: `calc(100vw - ${rightPanelWidth + 24}px)` } : { width: '100%' }}
+              >
+                <Sidebar 
+                  isCollapsed={isSidebarCollapsed} 
+                  onToggleCollapse={() => {
+                    setIsSidebarCollapsed(!isSidebarCollapsed);
+                    if (isSidebarExpanded) setIsSidebarExpanded(false);
+                  }}
+                  isExpanded={isSidebarExpanded}
+                  onToggleExpand={() => {
+                    setIsSidebarExpanded(!isSidebarExpanded);
+                    if (isSidebarCollapsed) setIsSidebarCollapsed(false);
+                  }}
+                />
+              </div>
             </div>
 
             {/* Placeholder giữ chỗ khi Sidebar thành absolute để không làm co giật layout */}
