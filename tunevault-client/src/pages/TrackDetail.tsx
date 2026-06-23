@@ -109,8 +109,8 @@ export const TrackDetail = () => {
     >
       {/* Header */}
       <div 
-        className="flex items-end gap-6 px-6 pb-6 pt-24 shrink-0 relative z-10"
-        style={{ minHeight: 'clamp(195.5px, 25cqw, 340px)' }}
+        className="flex items-end gap-6 px-6 pb-6 shrink-0 relative z-10"
+        style={{ height: 'clamp(195.5px, 25cqw, 340px)', minHeight: '195.5px' }}
       >
         {/* Cover Art */}
         <div 
@@ -130,7 +130,7 @@ export const TrackDetail = () => {
           
           <h1 
             className="font-black text-white tracking-tighter leading-tight mb-2 line-clamp-2"
-            style={{ fontSize: 'clamp(48px, 6cqw, 72px)', lineHeight: '1.2' }}
+            style={{ fontSize: track.title.length > 20 ? 'clamp(32px, 4cqw, 48px)' : 'clamp(48px, 6cqw, 72px)', lineHeight: '1.2' }}
           >
             {track.title}
           </h1>

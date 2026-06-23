@@ -220,7 +220,7 @@ export const ArtistDetail = () => {
         {/* Header - Image as background */}
         <div
           className="relative px-6 pb-6 pt-16 flex items-end"
-          style={{ minHeight: 'clamp(340px, 40cqw, 400px)' }}
+          style={{ height: 'clamp(340px, 40cqw, 400px)', minHeight: '340px' }}
         >
           {/* Header Background Image */}
           {artist.avatarUrl && (
@@ -238,7 +238,7 @@ export const ArtistDetail = () => {
           <div className="relative z-10 flex flex-col justify-end min-w-0 flex-1 w-full pb-1">
             <h1
               className="font-black text-white tracking-tighter leading-tight mb-4 line-clamp-2 drop-shadow-xl"
-              style={{ fontSize: 'clamp(64px, 8cqw, 96px)', lineHeight: '1.1' }}
+              style={{ fontSize: artist.name.length > 20 ? 'clamp(40px, 5cqw, 64px)' : 'clamp(64px, 8cqw, 96px)', lineHeight: '1.1' }}
             >
               {artist.name}
             </h1>
