@@ -98,7 +98,7 @@ export const MainLayout = () => {
             >
               <div 
                 className="h-full"
-                style={{ width: '100%' }}
+                style={isSidebarExpanded ? { width: `calc(100vw - ${rightPanelWidth + 24}px)` } : { width: '100%' }}
               >
                 <Sidebar 
                   isCollapsed={isSidebarCollapsed} 
