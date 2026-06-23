@@ -57,7 +57,7 @@ export const MainLayout = () => {
     setIsResizing(true);
 
     const onMouseMove = (moveEvent: MouseEvent) => {
-      const newWidth = Math.min(Math.max(250, startWidth - (moveEvent.clientX - startX)), 420);
+      const newWidth = Math.min(Math.max(280, startWidth - (moveEvent.clientX - startX)), 420);
       setRightPanelWidth(newWidth);
     };
 
