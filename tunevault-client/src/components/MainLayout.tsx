@@ -101,7 +101,7 @@ export const MainLayout = () => {
             )}
             
             <div 
-              className={`flex-1 min-w-[300px] bg-spotify-card rounded-lg overflow-hidden relative shadow-2xl transition-all duration-300 ${isSidebarExpanded ? 'w-0 opacity-0 min-w-0 p-0 m-0 border-none hidden' : ''}`}
+              className={`bg-spotify-card rounded-lg overflow-hidden relative shadow-2xl transition-all duration-300 ${isSidebarExpanded ? 'w-0 opacity-0 min-w-0 p-0 m-0 border-none flex-none' : 'flex-1 min-w-[300px]'}`}
             >
               {isHome && (
                 <div 

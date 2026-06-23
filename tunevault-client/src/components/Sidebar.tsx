@@ -1,5 +1,5 @@
 import { getImageUrl } from '../utils/imageUrl';
-import { Library, Plus, ArrowRight, Search, List, Heart, Users, Disc, ArrowLeft, Maximize2, Minimize2 } from 'lucide-react';
+import { Library, Plus, ArrowRight, Search, List, Heart, Users, Disc, ArrowLeft, Maximize2, Minimize2, Play } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,6 +8,8 @@ import type { PlaylistDto } from '../services/playlistService';
 import { albumService } from '../services/albumService';
 import type { AlbumDto } from '../services/albumService';
 import { artistService } from '../services/artistService';
+import { mediaService } from '../services/mediaService';
+import { usePlayer } from '../context/PlayerContext';
 
 interface SidebarProps {
   isCollapsed?: boolean;
@@ -25,6 +27,63 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
   const [loading, setLoading] = useState(true);
   const isAuthenticated = !!localStorage.getItem('token');
   const navigate = useNavigate();
+  const { playMediaList } = usePlayer();
+
+  const handleItemClick = (path: string) => {
+    navigate(path);
+    if (isExpanded && onToggleExpand) {
+      onToggleExpand();
+    }
+  };
+
+  const handlePlayLiked = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const data = await mediaService.getFavorites();
+      if (data && data.length > 0) {
+        playMediaList(data, 0);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handlePlayPlaylist = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    try {
+      const data = await playlistService.getPlaylistDetails(id);
+      if (data && data.tracks && data.tracks.length > 0) {
+        playMediaList(data.tracks, 0);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handlePlayAlbum = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    try {
+      const data = await albumService.getAlbumById(id);
+      if (data && data.tracks && data.tracks.length > 0) {
+        playMediaList(data.tracks, 0);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handlePlayArtist = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    try {
+      const allMedia = await mediaService.getAllMedia();
+      const artistTracks = allMedia.filter(m => m.artistId === id);
+      if (artistTracks.length > 0) {
+        playMediaList(artistTracks, 0);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -184,9 +243,17 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
             )
           ) : (
             <>
-              <div onClick={() => navigate('/favorites')} className={`hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'p-2 flex items-center gap-3')}`} title="Bài hát đã thích">
-                <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-gradient-to-br from-indigo-600 to-purple-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
+              <div onClick={() => handleItemClick('/favorites')} className={`group/item relative hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'p-2 flex items-center gap-3')}`} title="Bài hát đã thích">
+                <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-md bg-gradient-to-br from-indigo-600 to-purple-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
                   <Heart size={isExpanded ? 48 : 20} className="fill-white text-white shrink-0" />
+                  {isExpanded && (
+                    <button 
+                      onClick={handlePlayLiked}
+                      className="absolute bottom-2 right-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center text-black opacity-0 group-hover/item:opacity-100 hover:scale-105 transition-all shadow-lg translate-y-2 group-hover/item:translate-y-0 z-10"
+                    >
+                      <Play fill="currentColor" size={24} className="ml-1" />
+                    </button>
+                  )}
                 </div>
                 {!isCollapsed && (
                   <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
@@ -196,8 +263,8 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                 )}
               </div>
 
-              <div onClick={() => navigate('/shared-with-me')} className={`hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'p-2 flex items-center gap-3')}`} title="Trung tâm chia sẻ">
-                <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-gradient-to-br from-emerald-600 to-teal-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
+              <div onClick={() => handleItemClick('/shared-with-me')} className={`group/item relative hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'p-2 flex items-center gap-3')}`} title="Trung tâm chia sẻ">
+                <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-md bg-gradient-to-br from-emerald-600 to-teal-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
                   <Users size={isExpanded ? 48 : 20} className="text-white shrink-0" />
                 </div>
                 {!isCollapsed && (
@@ -214,15 +281,23 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
           {isAuthenticated && playlists.map(playlist => (
             <div 
               key={playlist.id}
-              onClick={() => navigate(`/playlist/${playlist.id}`)}
-              className={`hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'p-2 flex items-center gap-3')}`}
+              onClick={() => handleItemClick(`/playlist/${playlist.id}`)}
+              className={`group/item relative hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'p-2 flex items-center gap-3')}`}
               title={playlist.name}
             >
-              <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
+              <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
                 {playlist.coverUrl ? (
                   <img src={getImageUrl(playlist.coverUrl)} alt={playlist.name} className="w-full h-full object-cover shrink-0" />
                 ) : (
                   <Library size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
+                )}
+                {isExpanded && (
+                  <button 
+                    onClick={(e) => handlePlayPlaylist(e, playlist.id)}
+                    className="absolute bottom-2 right-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center text-black opacity-0 group-hover/item:opacity-100 hover:scale-105 transition-all shadow-lg translate-y-2 group-hover/item:translate-y-0 z-10"
+                  >
+                    <Play fill="currentColor" size={24} className="ml-1" />
+                  </button>
                 )}
               </div>
               {!isCollapsed && (
@@ -242,15 +317,23 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
               {albums.map(album => (
                 <div 
                   key={album.id}
-                  onClick={() => navigate(`/album/${album.id}`)}
-                  className={`hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'p-2 flex items-center gap-3')}`}
+                  onClick={() => handleItemClick(`/album/${album.id}`)}
+                  className={`group/item relative hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'p-2 flex items-center gap-3')}`}
                   title={album.title}
                 >
-                  <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
+                  <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
                     {album.coverUrl ? (
                       <img src={getImageUrl(album.coverUrl)} alt={album.title} className="w-full h-full object-cover shrink-0" />
                     ) : (
                       <Disc size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
+                    )}
+                    {isExpanded && (
+                      <button 
+                        onClick={(e) => handlePlayAlbum(e, album.id)}
+                        className="absolute bottom-2 right-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center text-black opacity-0 group-hover/item:opacity-100 hover:scale-105 transition-all shadow-lg translate-y-2 group-hover/item:translate-y-0 z-10"
+                      >
+                        <Play fill="currentColor" size={24} className="ml-1" />
+                      </button>
                     )}
                   </div>
                   {!isCollapsed && (
@@ -265,15 +348,23 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
               {isAuthenticated && artists.map(artist => (
                 <div 
                   key={artist.id}
-                  onClick={() => navigate(`/artist/${artist.id}`)}
-                  className={`hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'p-2 flex items-center gap-3')}`}
+                  onClick={() => handleItemClick(`/artist/${artist.id}`)}
+                  className={`group/item relative hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'p-2 flex items-center gap-3')}`}
                   title={artist.name}
                 >
-                  <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-full bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
+                  <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-full bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
                     {artist.avatarUrl ? (
                       <img src={getImageUrl(artist.avatarUrl)} alt={artist.name} className="w-full h-full object-cover shrink-0" />
                     ) : (
                       <Users size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
+                    )}
+                    {isExpanded && (
+                      <button 
+                        onClick={(e) => handlePlayArtist(e, artist.id)}
+                        className="absolute bottom-2 right-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center text-black opacity-0 group-hover/item:opacity-100 hover:scale-105 transition-all shadow-lg translate-y-2 group-hover/item:translate-y-0 z-10"
+                      >
+                        <Play fill="currentColor" size={24} className="ml-1" />
+                      </button>
                     )}
                   </div>
                   {!isCollapsed && (
