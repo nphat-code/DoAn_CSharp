@@ -102,9 +102,9 @@ export const TrackDetail = () => {
 
   return (
     <div 
-      className="flex flex-col h-full bg-black overflow-y-auto"
+      className="flex flex-col h-full bg-spotify-card overflow-y-auto"
       style={{
-        background: `linear-gradient(to bottom, ${bgColor} 0%, rgba(0,0,0,1) 70%)`
+        background: `linear-gradient(to bottom, ${bgColor} 0%, transparent 70%)`
       }}
     >
       {/* Header */}
@@ -166,7 +166,7 @@ export const TrackDetail = () => {
       </div>
 
       {/* Action Bar Background transition */}
-      <div className="bg-black/20 flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col">
         {/* ACTION BAR */}
         <div className="flex items-center gap-6 px-6 py-4">
         <button 

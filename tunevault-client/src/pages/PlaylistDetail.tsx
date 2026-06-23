@@ -249,14 +249,14 @@ export const PlaylistDetail = () => {
 
   return (
     <div
-      className="flex flex-col h-full bg-black relative"
+      className="flex flex-col h-full bg-spotify-card relative"
       style={{ overflowY: 'overlay' as any }}
     >
       {/* Background Gradient */}
       <div
         className="absolute top-0 left-0 w-full h-[500px] pointer-events-none z-0"
         style={{
-          background: `linear-gradient(to bottom, ${bgColor} 0%, rgba(0,0,0,1) 100%)`,
+          background: `linear-gradient(to bottom, ${bgColor} 0%, transparent 100%)`,
         }}
       />
       {/* Header */}
@@ -309,7 +309,7 @@ export const PlaylistDetail = () => {
       </div>
 
       {/* Content wrapper */}
-      <div className="flex-1 flex flex-col border-t border-white/10 pt-6 relative z-10 bg-black/20">
+      <div className="flex-1 flex flex-col border-t border-white/10 pt-6 relative z-10">
         {/* Controls */}
         <div className="flex items-center gap-6 mb-6 px-6">
           {playlist.tracks && playlist.tracks.length > 0 && (

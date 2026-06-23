@@ -266,7 +266,7 @@ export const AlbumDetail = () => {
   };
 
   return (
-    <div className="flex flex-col h-full relative bg-black overflow-hidden">
+    <div className="flex flex-col h-full relative bg-spotify-card overflow-hidden">
       {/* Background Gradient Layer */}
       <div
         ref={gradientRef}
@@ -336,7 +336,7 @@ export const AlbumDetail = () => {
         </div>
 
         {/* Content wrapper */}
-        <div className="flex-1 flex flex-col border-t border-white/10 pt-6 relative z-10 bg-black/20">
+        <div className="flex-1 flex flex-col border-t border-white/10 pt-6 relative z-10">
           {/* Controls */}
           <div className="flex items-center gap-6 mb-6 px-6">
             <button
