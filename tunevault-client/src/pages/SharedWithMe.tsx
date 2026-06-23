@@ -2,7 +2,7 @@ import { getImageUrl } from '../utils/imageUrl';
 import React, { useEffect, useState } from 'react';
 import { shareService } from '../services/shareService';
 import type { MediaShareDto } from '../services/shareService';
-import { Play, Music, Users, MessageCircle } from 'lucide-react';
+import { Music, Users, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { usePlayer } from '../context/PlayerContext';
 import { mediaService } from '../services/mediaService';
@@ -12,7 +12,7 @@ export const SharedWithMe: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'with-me' | 'by-me'>('with-me');
   const navigate = useNavigate();
-  const { playMediaList } = usePlayer();
+  const { playMediaList, currentMedia, isPlaying, togglePlayPause } = usePlayer();
 
   useEffect(() => {
     const fetchShares = async () => {
@@ -48,6 +48,18 @@ export const SharedWithMe: React.FC = () => {
         console.error("Lỗi phát nhạc:", err);
       }
     }
+  };
+
+  const handlePlayClick = (e: React.MouseEvent, share: MediaShareDto) => {
+    e.stopPropagation();
+    const type = share.mediaType.toLowerCase();
+    
+    if (type === 'track' && currentMedia?.id === share.mediaItemId) {
+      togglePlayPause();
+      return;
+    }
+    
+    handlePlay(share);
   };
 
   return (
@@ -87,7 +99,7 @@ export const SharedWithMe: React.FC = () => {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-0">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
           {shares.map(share => (
             <div key={share.id} className="bg-transparent p-3 rounded-xl hover:bg-[#282828] transition group cursor-pointer" onClick={() => handlePlay(share)}>
               <div className="flex items-center gap-3 mb-4 border-b border-white/5 pb-3">
@@ -114,9 +126,7 @@ export const SharedWithMe: React.FC = () => {
                     <Music size={48} />
                   </div>
                 )}
-                <div className="absolute right-2 bottom-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center text-black opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 shadow-xl z-10">
-                  <Play size={24} className="ml-1 fill-black" />
-                </div>
+                <button onClick={(e) => handlePlayClick(e, share)} className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl hover:scale-110 hover:bg-green-400 hover:shadow-2xl z-10 ${share.mediaType.toLowerCase() === 'track' && currentMedia?.id === share.mediaItemId ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}>{share.mediaType.toLowerCase() === 'track' && currentMedia?.id === share.mediaItemId && isPlaying ? (<svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor" className="text-black"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>) : (<svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor" className="ml-1 text-black"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>)}</button>
               </div>
 
               <h3 className="font-bold text-white mb-1 truncate text-lg">{share.mediaTitle}</h3>
@@ -135,3 +145,5 @@ export const SharedWithMe: React.FC = () => {
     </div>
   );
 };
+
+
