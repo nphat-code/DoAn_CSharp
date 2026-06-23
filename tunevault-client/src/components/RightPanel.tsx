@@ -525,9 +525,9 @@ export const RightPanel = ({ width }: RightPanelProps) => {
              className="w-full h-full object-cover scale-[1.3] transform-gpu" 
            />
          ) : currentMedia.coverUrl ? (
-           <img src={getImageUrl(currentMedia.coverUrl)} alt="Cover" className="w-full h-full object-cover scale-[1.3] transform-gpu" />
+           <img src={getImageUrl(currentMedia.coverUrl)} alt="Cover" className="w-full h-full object-cover scale-[1.3] transform-gpu blur-2xl opacity-40" />
          ) : (
-           <img src="https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62" alt="Cover" className="w-full h-full object-cover scale-[1.3] transform-gpu" />
+           <img src="https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62" alt="Cover" className="w-full h-full object-cover scale-[1.3] transform-gpu blur-2xl opacity-40" />
          )}
          
          {/* Top Fade */}
@@ -705,6 +705,17 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                  )}
                </div>
              </div>
+
+             {/* Cover Image for Audio */}
+             {currentMedia.mediaType !== 'Video' && (
+               <div className="flex-1 w-full px-4 py-2 flex items-center justify-center pointer-events-auto">
+                 <img 
+                   src={currentMedia.coverUrl ? getImageUrl(currentMedia.coverUrl) : "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62"} 
+                   alt="Cover" 
+                   className="w-full aspect-square object-cover rounded-lg shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
+                 />
+               </div>
+             )}
 
              {/* Overlaid Title and Action Buttons */}
              <div className="w-full p-4 flex items-end justify-between pointer-events-auto">
