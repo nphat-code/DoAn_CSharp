@@ -9,7 +9,7 @@ import { NotificationProvider } from '../context/NotificationContext';
 import { NowPlayingOverlay } from '../pages/NowPlaying';
 
 export const MainLayout = () => {
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === '/';
 
@@ -76,16 +76,19 @@ export const MainLayout = () => {
           
           {/* Vùng thân gồm Sidebar - MainContent - RightPanel */}
           <div className="flex-1 flex overflow-hidden relative">
-            <Sidebar isExpanded={isSidebarExpanded} onToggleExpand={() => setIsSidebarExpanded(!isSidebarExpanded)} width={sidebarWidth} />
+            <Sidebar isCollapsed={isSidebarCollapsed} onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)} width={sidebarWidth} />
             
             {/* Resizer Sidebar */}
+            {!isSidebarCollapsed && (
+              <div 
+                onMouseDown={startResizeSidebar}
+                className="w-2 cursor-col-resize z-50 flex-shrink-0 bg-transparent"
+                title="Kéo để thay đổi kích thước"
+              />
+            )}
+            
             <div 
-              onMouseDown={startResizeSidebar}
-                  className="w-2 cursor-col-resize z-50 flex-shrink-0 bg-transparent"
-                  title="Kéo để thay đổi kích thước"
-                />
-            <div 
-              className={`${isSidebarExpanded ? 'w-0 opacity-0 p-0 m-0' : 'flex-1 min-w-[300px]'} bg-spotify-card rounded-lg overflow-hidden relative shadow-2xl transition-all duration-300`}
+              className="flex-1 min-w-[300px] bg-spotify-card rounded-lg overflow-hidden relative shadow-2xl transition-all duration-300"
             >
               {isHome && (
                 <div 
