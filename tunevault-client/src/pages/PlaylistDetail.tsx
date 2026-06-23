@@ -254,7 +254,7 @@ export const PlaylistDetail = () => {
     >
       {/* Background Gradient */}
       <div
-        className="absolute top-0 left-0 w-full h-[500px] pointer-events-none z-0"
+        className="absolute top-0 left-0 w-full h-[340px] pointer-events-none z-0"
         style={{
           background: `linear-gradient(to bottom, ${bgColor} 0%, transparent 100%)`,
         }}
@@ -309,7 +309,7 @@ export const PlaylistDetail = () => {
       </div>
 
       {/* Content wrapper */}
-      <div className="flex-1 flex flex-col border-t border-white/10 pt-6 relative z-10">
+      <div className="flex-1 flex flex-col border-t border-white/10 pt-6 relative z-10 bg-black/20">
         {/* Controls */}
         <div className="flex items-center gap-6 mb-6 px-6">
           {playlist.tracks && playlist.tracks.length > 0 && (

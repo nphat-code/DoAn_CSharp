@@ -206,7 +206,7 @@ export const ArtistDetail = () => {
         ref={gradientRef}
         className="absolute top-0 left-0 w-full pointer-events-none z-0"
         style={{
-          height: '500px',
+          height: '400px',
           backgroundImage: `linear-gradient(to bottom, ${bgColor.replace(/([\d.]+)\)/, '0.9)')} 0%, transparent 100%)`
         }}
       />
@@ -257,7 +257,7 @@ export const ArtistDetail = () => {
         </div>
 
         {/* Content wrapper */}
-        <div className="flex-1 flex flex-col pt-6 relative z-10">
+        <div className="flex-1 flex flex-col pt-6 relative z-10 bg-black/20">
           {/* Controls */}
           <div className="flex items-center gap-6 mb-8 px-6">
             <button
