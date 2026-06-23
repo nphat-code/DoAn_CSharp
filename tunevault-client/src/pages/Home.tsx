@@ -90,6 +90,7 @@ export const Home = () => {
         const tracksToPlay = albumDetail.tracks.map(t => ({
           ...t,
           albumId: albumId,
+          isAlbumContext: true,
           coverUrl: t.coverUrl || albumDetail.coverUrl,
           artistName: t.artistName || albumDetail.artistName
         }));
@@ -176,9 +177,9 @@ export const Home = () => {
                     )}
                     <button 
                       onClick={(e) => handlePlayAlbum(e, album.id)}
-                      className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.albumId === album.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}
+                      className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.albumId === album.id && currentMedia?.isAlbumContext ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}
                     >
-                      {currentMedia?.albumId === album.id && isPlaying ? (
+                      {currentMedia?.albumId === album.id && currentMedia?.isAlbumContext && isPlaying ? (
                         <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
                       ) : (
                         <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>

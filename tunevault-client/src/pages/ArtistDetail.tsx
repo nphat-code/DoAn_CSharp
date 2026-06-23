@@ -137,7 +137,8 @@ export const ArtistDetail = () => {
 
   const handlePlayMedia = (index: number) => {
     if (tracks.length === 0) return;
-    playMediaList(tracks, index);
+    const tracksToPlay = tracks.map(t => ({...t, isArtistContext: true, artistId: id}));
+    playMediaList(tracksToPlay, index);
   };
 
   const isCurrentArtistTrackPlaying = currentMedia && tracks.some(t => t.id === currentMedia.id);
@@ -147,7 +148,7 @@ export const ArtistDetail = () => {
     if (tracks.length === 0) return;
     if (isCurrentArtistTrackPlaying) {
       if (queue.length <= 1) {
-        updateQueueContext(tracks, currentMedia.id);
+        updateQueueContext(tracks.map(t => ({...t, isArtistContext: true, artistId: id})), currentMedia.id);
       }
       togglePlayPause();
     } else {

@@ -25,6 +25,8 @@ export interface MediaItemDto {
   albumTitle?: string;
   playlistId?: string;
   isLikedContext?: boolean;
+  isAlbumContext?: boolean;
+  isArtistContext?: boolean;
 }
 
 export interface LoginResponseDto {

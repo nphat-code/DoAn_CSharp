@@ -119,7 +119,8 @@ export const Search = () => {
         const allMedia = await mediaService.getAllMedia();
         const artistTracks = allMedia.filter(m => m.artistId === item.id).map(t => ({
           ...t,
-          artistId: item.id
+          artistId: item.id,
+          isArtistContext: true
         }));
         if (artistTracks.length > 0) {
           playMediaList(artistTracks, 0);
@@ -136,6 +137,7 @@ export const Search = () => {
           const albumTracks = albumDetail.tracks.map(t => ({
             ...t,
             albumId: item.id,
+            isAlbumContext: true,
             coverUrl: t.coverUrl || albumDetail.coverUrl,
             artistName: t.artistName || albumDetail.artistName
           }));
@@ -381,8 +383,8 @@ export const Search = () => {
     }
 
     const isPlayingRow = 
-      (type === 'artist' && currentMedia?.artistId === id) || 
-      (type === 'album' && currentMedia?.albumId === id) ||
+      (type === 'artist' && currentMedia?.artistId === id && (currentMedia as any)?.isArtistContext) || 
+      (type === 'album' && currentMedia?.albumId === id && (currentMedia as any)?.isAlbumContext) ||
       (type === 'playlist' && (currentMedia as any)?.playlistId === id);
 
     return (

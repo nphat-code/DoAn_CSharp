@@ -164,6 +164,8 @@ export const AlbumDetail = () => {
     if (!album || !album.tracks) return;
     const tracksWithCover = album.tracks.map(t => ({
       ...t,
+      albumId: album.id,
+      isAlbumContext: true,
       coverUrl: t.coverUrl || album.coverUrl,
       artistName: t.artistName || album.artistName,
       artistAvatarUrl: t.artistAvatarUrl || album.artistImageUrl
@@ -182,6 +184,8 @@ export const AlbumDetail = () => {
         // We were playing a single track, switch queue context to the album
         updateQueueContext(album.tracks.map(t => ({
           ...t,
+          albumId: album.id,
+          isAlbumContext: true,
           coverUrl: t.coverUrl || album.coverUrl,
           artistName: t.artistName || album.artistName,
           artistAvatarUrl: t.artistAvatarUrl || album.artistImageUrl

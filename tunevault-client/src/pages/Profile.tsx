@@ -331,7 +331,7 @@ export const Profile = () => {
             </div>
             <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-0 -mx-6">
               {topArtists.slice(0, 3).map((artist, idx) => {
-                const isPlayingRow = currentMedia?.artistId === artist.id;
+                const isPlayingRow = currentMedia?.artistId === artist.id && (currentMedia as any).isArtistContext;
                 return (
                   <div
                     key={idx}

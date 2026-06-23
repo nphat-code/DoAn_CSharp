@@ -36,7 +36,7 @@ export const TopArtists = () => {
     e.stopPropagation();
     if (!artistId) return;
 
-    if (currentMedia?.artistId === artistId) {
+    if (currentMedia?.artistId === artistId && (currentMedia as any)?.isArtistContext) {
       togglePlayPause();
       return;
     }
@@ -45,7 +45,8 @@ export const TopArtists = () => {
       const allMedia = await mediaService.getAllMedia();
       const artistTracks = allMedia.filter(m => m.artistId === artistId).map(t => ({
         ...t,
-        artistId: artistId
+        artistId: artistId,
+        isArtistContext: true
       }));
       if (artistTracks.length > 0) {
         playMediaList(artistTracks, 0);
@@ -67,7 +68,7 @@ export const TopArtists = () => {
       </div>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-0 -mx-6 px-6">
         {topArtists.map((artist, idx) => {
-          const isPlayingRow = currentMedia?.artistId === artist.id;
+          const isPlayingRow = currentMedia?.artistId === artist.id && (currentMedia as any)?.isArtistContext;
           return (
             <div
               key={idx}
