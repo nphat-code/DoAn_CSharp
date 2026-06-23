@@ -37,10 +37,15 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
 
   const handlePlayLiked = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (currentMedia?.isLikedContext) {
+      togglePlayPause();
+      return;
+    }
     try {
       const data = await mediaService.getFavorites();
       if (data && data.length > 0) {
-        playMediaList(data, 0);
+        const tracksToPlay = data.map((t: any) => ({ ...t, isLikedContext: true }));
+        playMediaList(tracksToPlay, 0);
       }
     } catch (error) {
       console.error(error);
@@ -49,10 +54,15 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
 
   const handlePlayPlaylist = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
+    if (currentMedia?.playlistId === id) {
+      togglePlayPause();
+      return;
+    }
     try {
       const data = await playlistService.getPlaylistDetails(id);
       if (data && data.tracks && data.tracks.length > 0) {
-        playMediaList(data.tracks, 0);
+        const tracksToPlay = data.tracks.map((t: any) => ({ ...t, playlistId: id }));
+        playMediaList(tracksToPlay, 0);
       }
     } catch (error) {
       console.error(error);
@@ -77,6 +87,10 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
 
   const handlePlayArtist = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
+    if (currentMedia?.artistId === id) {
+      togglePlayPause();
+      return;
+    }
     try {
       const allMedia = await mediaService.getAllMedia();
       const artistTracks = allMedia.filter(m => m.artistId === id);
@@ -251,9 +265,13 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                   {isExpanded && (
                     <button 
                       onClick={handlePlayLiked}
-                      className="absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black opacity-0 group-hover/item:opacity-100 transition-all duration-200 shadow-xl hover:scale-110 hover:bg-green-400 hover:shadow-2xl translate-y-2 group-hover/item:translate-y-0 z-20"
+                      className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.isLikedContext ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
                     >
-                      <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                      {currentMedia?.isLikedContext && isPlaying ? (
+                        <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+                      ) : (
+                        <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                      )}
                     </button>
                   )}
                 </div>
@@ -296,9 +314,13 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                 {isExpanded && (
                   <button 
                     onClick={(e) => handlePlayPlaylist(e, playlist.id)}
-                    className="absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black opacity-0 group-hover/item:opacity-100 transition-all duration-200 shadow-xl hover:scale-110 hover:bg-green-400 hover:shadow-2xl translate-y-2 group-hover/item:translate-y-0 z-20"
+                    className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.playlistId === playlist.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
                   >
-                    <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                    {currentMedia?.playlistId === playlist.id && isPlaying ? (
+                      <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+                    ) : (
+                      <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                    )}
                   </button>
                 )}
               </div>
@@ -367,9 +389,13 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                     {isExpanded && (
                       <button 
                         onClick={(e) => handlePlayArtist(e, artist.id)}
-                        className="absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black opacity-0 group-hover/item:opacity-100 transition-all duration-200 shadow-xl hover:scale-110 hover:bg-green-400 hover:shadow-2xl translate-y-2 group-hover/item:translate-y-0 z-20"
+                        className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.artistId === artist.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
                       >
-                        <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                        {currentMedia?.artistId === artist.id && isPlaying ? (
+                          <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+                        ) : (
+                          <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                        )}
                       </button>
                     )}
                   </div>

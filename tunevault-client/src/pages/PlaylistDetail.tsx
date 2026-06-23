@@ -242,7 +242,8 @@ export const PlaylistDetail = () => {
       }
       togglePlayPause();
     } else {
-      playMediaList(playlist.tracks, 0);
+      const tracksToPlay = playlist.tracks.map(t => ({ ...t, playlistId: playlist.id }));
+      playMediaList(tracksToPlay, 0);
     }
   };
 
@@ -411,7 +412,7 @@ export const PlaylistDetail = () => {
                   albumTitle: track.albumTitle || track.title
                 }}
                 index={index}
-                tracks={playlist.tracks}
+                tracks={playlist.tracks.map(t => ({ ...t, playlistId: playlist.id }))}
                 isFavorited={favoritesIds.has(track.id)}
                 onToggleFavorite={() => handleToggleFavorite(undefined, track.id)}
                 onShare={(id: string, title: string) => {
@@ -453,7 +454,8 @@ export const PlaylistDetail = () => {
                       if (isPlayingTrack) {
                         togglePlayPause();
                       } else {
-                        playMediaList(addResults, idx);
+                        const tracksToPlay = addResults.map(t => ({ ...t, playlistId: playlist.id }));
+                        playMediaList(tracksToPlay, idx);
                       }
                     }}
                   >
@@ -470,7 +472,8 @@ export const PlaylistDetail = () => {
                           if (isPlayingTrack) {
                             togglePlayPause();
                           } else {
-                            playMediaList(addResults, idx);
+                            const tracksToPlay = addResults.map(t => ({ ...t, playlistId: playlist.id }));
+                        playMediaList(tracksToPlay, idx);
                           }
                         }}>
                           {isPlayingTrack && isPlaying ? (

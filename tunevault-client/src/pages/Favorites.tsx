@@ -111,7 +111,8 @@ export const Favorites = () => {
       }
       togglePlayPause();
     } else {
-      playMediaList(favorites, 0);
+      const tracksToPlay = favorites.map(t => ({ ...t, isLikedContext: true }));
+      playMediaList(tracksToPlay, 0);
     }
   };
 
@@ -189,7 +190,7 @@ export const Favorites = () => {
                 key={track.id}
                 track={track}
                 index={index}
-                tracks={favorites}
+                tracks={favorites.map(t => ({ ...t, isLikedContext: true }))}
                 isFavorited={true}
                 onToggleFavorite={() => handleToggleFavorite(undefined, track)}
                 onShare={(id, title) => {

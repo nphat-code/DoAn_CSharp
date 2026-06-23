@@ -23,6 +23,8 @@ export interface MediaItemDto {
   artistId?: string;
   albumId?: string;
   albumTitle?: string;
+  playlistId?: string;
+  isLikedContext?: boolean;
 }
 
 export interface LoginResponseDto {
