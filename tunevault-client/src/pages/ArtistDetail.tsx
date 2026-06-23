@@ -6,7 +6,7 @@ import { artistService, type ArtistDto } from '../services/artistService';
 import { mediaService } from '../services/mediaService';
 import type { MediaItemDto } from '../types';
 import { usePlayer } from '../context/PlayerContext';
-import { Play, MoreHorizontal, Share2 } from 'lucide-react';
+import { Play, Pause, MoreHorizontal, Share2 } from 'lucide-react';
 import { ShareMediaModal } from '../components/ShareMediaModal';
 import { TrackListRow } from '../components/TrackListRow';
 
@@ -265,11 +265,9 @@ export const ArtistDetail = () => {
               className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center hover:scale-105 transition hover:bg-green-400 shadow-xl"
             >
               {isArtistPlaying ? (
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" className="text-black ml-0">
-                  <path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path>
-                </svg>
+                <Pause size={28} fill="currentColor" className="text-black" />
               ) : (
-                <Play size={24} className="text-black fill-black ml-1" />
+                <Play size={28} fill="currentColor" className="text-black ml-1" />
               )}
             </button>
             <button
