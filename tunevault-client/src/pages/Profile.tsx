@@ -336,7 +336,7 @@ export const Profile = () => {
                   <div
                     key={idx}
                     onClick={() => { if (artist.id) navigate(`/artist/${artist.id}`); }}
-                    className="p-2 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center"
+                    className="p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center"
                   >
                     <div className="relative w-full aspect-square mb-3">
                       <div className="w-full h-full shadow-lg rounded-full bg-zinc-800 shrink-0 relative overflow-hidden">
@@ -421,7 +421,7 @@ export const Profile = () => {
               {playlists.slice(0, 3).map(playlist => (
                 <div 
                   key={playlist.id} 
-                  className="p-2 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
+                  className="p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
                   onClick={() => navigate(`/playlist/${playlist.id}`)}
                 >
                   <div className="relative w-full aspect-square mb-4 shadow-lg rounded-md bg-zinc-800 shrink-0">
@@ -470,7 +470,7 @@ export const Profile = () => {
               {following.slice(0, 3).map(f => (
                 <div
                   key={f.id}
-                  className="p-2 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
+                  className="p-3 rounded-md hover:bg-[#282828] transition-colors group cursor-pointer flex flex-col items-center overflow-hidden"
                   onClick={() => navigate(`/user/${f.id}`)}
                 >
                   <div className="relative w-full aspect-square mb-3 shadow-lg rounded-full bg-zinc-800 shrink-0">

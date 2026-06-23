@@ -259,7 +259,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
             )
           ) : (
             <>
-              <div onClick={() => handleItemClick('/favorites')} className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-2' : 'p-2 flex items-center gap-3')}`} title="Bài hát đã thích">
+              <div onClick={() => handleItemClick('/favorites')} className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`} title="Bài hát đã thích">
                 <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-md bg-gradient-to-br from-indigo-600 to-purple-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
                   <Heart size={isExpanded ? 48 : 20} className="fill-white text-white shrink-0" />
                   {isExpanded && (
@@ -283,7 +283,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                 )}
               </div>
 
-              <div onClick={() => handleItemClick('/shared-with-me')} className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-2' : 'p-2 flex items-center gap-3')}`} title="Trung tâm chia sẻ">
+              <div onClick={() => handleItemClick('/shared-with-me')} className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`} title="Trung tâm chia sẻ">
                 <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-md bg-gradient-to-br from-emerald-600 to-teal-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
                   <Users size={isExpanded ? 48 : 20} className="text-white shrink-0" />
                 </div>
@@ -302,7 +302,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
             <div 
               key={playlist.id}
               onClick={() => handleItemClick(`/playlist/${playlist.id}`)}
-              className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-2' : 'p-2 flex items-center gap-3')}`}
+              className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`}
               title={playlist.name}
             >
               <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
@@ -342,7 +342,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                 <div 
                   key={album.id}
                   onClick={() => handleItemClick(`/album/${album.id}`)}
-                  className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-2' : 'p-2 flex items-center gap-3')}`}
+                  className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`}
                   title={album.title}
                 >
                   <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
@@ -377,7 +377,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                 <div 
                   key={artist.id}
                   onClick={() => handleItemClick(`/artist/${artist.id}`)}
-                  className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-2' : 'p-2 flex items-center gap-3')}`}
+                  className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`}
                   title={artist.name}
                 >
                   <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} flex-shrink-0`}>

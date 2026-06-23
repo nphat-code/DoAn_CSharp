@@ -164,7 +164,7 @@ export const Home = () => {
                 <div 
                   key={album.id}
                   onClick={() => navigate(`/album/${album.id}`)}
-                  className={`p-2 rounded-md bg-transparent hover:bg-[#282828] transition cursor-pointer group relative flex flex-col ${activeTab === 'all' ? 'min-w-[180px] w-[180px] flex-shrink-0' : ''}`}
+                  className={`p-3 rounded-md bg-transparent hover:bg-[#282828] transition cursor-pointer group relative flex flex-col ${activeTab === 'all' ? 'min-w-[180px] w-[180px] flex-shrink-0' : ''}`}
                 >
                   <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center relative overflow-hidden group-hover:shadow-xl transition">
                     {album.coverUrl ? (
@@ -224,7 +224,7 @@ export const Home = () => {
               <div 
                 key={track.id}
                 onClick={() => playMediaList(arr, index)}
-                className={`p-2 rounded-md bg-transparent hover:bg-[#282828] transition cursor-pointer group relative ${activeTab === 'all' ? 'min-w-[180px] w-[180px] flex-shrink-0' : ''}`}
+                className={`p-3 rounded-md bg-transparent hover:bg-[#282828] transition cursor-pointer group relative ${activeTab === 'all' ? 'min-w-[180px] w-[180px] flex-shrink-0' : ''}`}
               >
                 <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center group-hover:shadow-xl transition relative overflow-hidden">
                   {track.coverUrl ? (

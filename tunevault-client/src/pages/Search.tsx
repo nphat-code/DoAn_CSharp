@@ -389,7 +389,7 @@ export const Search = () => {
       <div 
         key={`${type}-${id}`}
         onClick={onClick}
-        className="p-2 rounded-md bg-transparent hover:bg-[#282828] transition cursor-pointer group relative flex flex-col"
+        className="p-3 rounded-md bg-transparent hover:bg-[#282828] transition cursor-pointer group relative flex flex-col"
       >
         <div className="w-full aspect-square mb-3 relative">
           <div className={`w-full h-full bg-zinc-700 shadow-lg flex items-center justify-center relative overflow-hidden group-hover:shadow-xl transition ${isCircular ? 'rounded-full' : 'rounded-md'}`}>
