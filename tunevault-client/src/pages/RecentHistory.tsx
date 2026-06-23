@@ -1,6 +1,6 @@
 import { getImageUrl } from '../utils/imageUrl';
 import { useState, useEffect } from 'react';
-import { Clock, Music } from 'lucide-react';
+import { Music, Play, Pause } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { mediaService } from '../services/mediaService';
 import { usePlayer } from '../context/PlayerContext';
@@ -53,9 +53,6 @@ export const RecentHistory = () => {
   return (
     <div className="p-6 md:p-8 flex-1 overflow-y-auto">
       <div className="flex items-center gap-4 mb-8">
-        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
-          <Clock size={32} className="text-white" />
-        </div>
         <div>
           <h1 className="text-4xl font-black text-white tracking-tight mb-2">Gần đây</h1>
           <p className="text-zinc-400 font-medium text-sm">10 bài hát bạn đã nghe gần đây nhất</p>
@@ -88,24 +85,22 @@ export const RecentHistory = () => {
                       </div>
                     )}
                   </div>
-                  <div className={`absolute inset-0 bg-black/40 flex items-center justify-center transition rounded-md ${currentMedia?.id === track.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (currentMedia?.id === track.id) {
-                          togglePlayPause();
-                        } else {
-                          playMediaList(history.map(h => h.mediaItem), index);
-                        }
-                      }}
-                      className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-black shadow-xl hover:scale-105 hover:bg-green-400"
-                    >
-                      {currentMedia?.id === track.id && isPlaying ? (
-                        <svg height="16" width="16" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
-                      ) : (
-                        <svg height="16" width="16" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
-                      )}
-                    </button>
+                  <div 
+                    className={`absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity rounded-md ${currentMedia?.id === track.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (currentMedia?.id === track.id) {
+                        togglePlayPause();
+                      } else {
+                        playMediaList(history.map(h => h.mediaItem), index);
+                      }
+                    }}
+                  >
+                    {currentMedia?.id === track.id && isPlaying ? (
+                      <Pause size={16} fill="currentColor" className="text-white" />
+                    ) : (
+                      <Play size={16} fill="currentColor" className="text-white ml-1" />
+                    )}
                   </div>
                 </div>
                 
