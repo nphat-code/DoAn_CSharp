@@ -16,10 +16,9 @@ interface SidebarProps {
   onToggleCollapse?: () => void;
   isExpanded?: boolean;
   onToggleExpand?: () => void;
-  width?: number;
 }
 
-export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = false, onToggleExpand, width }: SidebarProps) => {
+export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = false, onToggleExpand }: SidebarProps) => {
   const [albums, setAlbums] = useState<AlbumDto[]>([]);
   const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
   const [artists, setArtists] = useState<any[]>([]);
@@ -164,14 +163,13 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
 
   return (
     <div 
-      className={`${isExpanded ? 'flex-1' : ''} bg-spotify-card rounded-lg flex flex-col overflow-hidden h-full transition-all duration-300 group`}
-      style={isCollapsed ? { width: '72px', minWidth: '72px' } : (!isExpanded ? { width: width ? `${width}px` : '420px', minWidth: '280px' } : {})}
+      className="bg-spotify-card rounded-lg flex flex-col overflow-hidden h-full w-full group"
     >
       {/* Header */}
       <div className="p-4 flex flex-col gap-4 shadow-sm">
         {isCollapsed ? (
           <div className="flex flex-col items-center justify-center gap-4 group">
-            <button onClick={onToggleCollapse} className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition text-spotify-lighttext" title="Mở rộng Thư viện">
+            <button onClick={onToggleCollapse} className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition text-spotify-lighttext" title="Mở thư viện">
               <ArrowRight size={24} />
             </button>
             {isAuthenticated && (
@@ -198,7 +196,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                     <Plus size={20} />
                   </button>
                 )}
-                <button onClick={onToggleExpand} className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition" title={isExpanded ? "Thu nhỏ Thư viện" : "Mở rộng thư viện dạng thẻ"}>
+                <button onClick={onToggleExpand} className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition" title={isExpanded ? "Thu nhỏ Thư viện" : "Mở rộng thư viện"}>
                   {isExpanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
                 </button>
               </div>
