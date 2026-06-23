@@ -2,7 +2,7 @@ import { getImageUrl } from '../utils/imageUrl';
 import { useEffect, useState } from 'react';
 import { FastAverageColor } from 'fast-average-color';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Play, Pause, MoreHorizontal, Download } from 'lucide-react';
+import { MoreHorizontal, Download } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import type { MediaItemDto } from '../types';
 import { usePlayer } from '../context/PlayerContext';
@@ -175,7 +175,15 @@ export const TrackDetail = () => {
           onClick={handlePlayClick}
           className="w-14 h-14 bg-green-500 hover:bg-green-400 text-black rounded-full flex items-center justify-center transition hover:scale-105 shadow-xl shrink-0"
         >
-          {isCurrentTrack && isPlaying ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" className="ml-1" />}
+          {isCurrentTrack && isPlaying ? (
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" className="text-black">
+              <path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path>
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" className="text-black ml-1">
+              <path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path>
+            </svg>
+          )}
         </button>
 
         <button 
