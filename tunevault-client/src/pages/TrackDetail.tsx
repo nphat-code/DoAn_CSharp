@@ -8,6 +8,7 @@ import type { MediaItemDto } from '../types';
 import { usePlayer } from '../context/PlayerContext';
 import { formatDuration } from '../utils/format';
 import { TrackDropdownMenu } from '../components/TrackDropdownMenu';
+import { ShareMediaModal } from '../components/ShareMediaModal';
 
 export const TrackDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,6 +16,7 @@ export const TrackDetail = () => {
   const [track, setTrack] = useState<MediaItemDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [isFav, setIsFav] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [bgColor, setBgColor] = useState<string>('rgba(17, 94, 89, 0.8)'); // Fallback teal
   const { playMedia, currentMedia, isPlaying, togglePlayPause, setIsFavorited } = usePlayer();
 
@@ -207,8 +209,10 @@ export const TrackDetail = () => {
           track={track} 
           isFavorited={isFav} 
           onToggleFavorite={handleFavoriteClick} 
+          onShare={() => setShowShareModal(true)}
           iconSize={32} 
           alwaysShow={true} 
+          subMenuDirection="right"
         />
         </div>
 
@@ -226,6 +230,16 @@ export const TrackDetail = () => {
            </div>
         </div>
       </div>
+
+      {/* Share Modal */}
+      {showShareModal && track && (
+        <ShareMediaModal
+          mediaId={track.id}
+          mediaType="track"
+          mediaTitle={track.title}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
     </div>
   );
 };

@@ -20,6 +20,7 @@ interface TrackDropdownMenuProps {
   className?: string; // Optional custom styling for the 3-dots button wrapper
   iconSize?: number;
   alwaysShow?: boolean;
+  subMenuDirection?: 'left' | 'right';
 }
 
 export const TrackDropdownMenu = ({
@@ -33,7 +34,8 @@ export const TrackDropdownMenu = ({
   onRemoveFromAlbum,
   className = "",
   iconSize = 18,
-  alwaysShow = false
+  alwaysShow = false,
+  subMenuDirection = 'left'
 }: TrackDropdownMenuProps) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -79,7 +81,7 @@ export const TrackDropdownMenu = ({
       {isOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={handleClose}></div>
-          <div className={`absolute right-0 ${openUpwards ? 'bottom-full mb-1' : 'top-full mt-1'} w-max min-w-[240px] bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10`}>
+          <div className={`absolute ${subMenuDirection === 'right' ? 'left-0' : 'right-0'} ${openUpwards ? 'bottom-full mb-1' : 'top-full mt-1'} w-max min-w-[240px] bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10`}>
             
             {onRemoveFromPlaylist && (
               <button
@@ -109,7 +111,7 @@ export const TrackDropdownMenu = ({
               </button>
 
               {showPlaylistMenu && (
-                <div className={`absolute ${openUpwards ? 'bottom-0' : 'top-0'} right-full mr-1 w-56 bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 max-h-64 overflow-y-auto custom-scrollbar`}>
+                <div className={`absolute ${openUpwards ? 'bottom-0' : 'top-0'} ${subMenuDirection === 'right' ? 'left-full ml-1' : 'right-full mr-1'} w-56 bg-[#282828] rounded shadow-xl py-1 z-[100] border border-white/10 max-h-64 overflow-y-auto custom-scrollbar`}>
                   {playlists.length === 0 ? (
                     <div className="px-4 py-2 text-sm text-zinc-500">Chưa có danh sách phát</div>
                   ) : (
