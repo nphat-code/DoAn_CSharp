@@ -1,5 +1,5 @@
 import { getImageUrl } from '../utils/imageUrl';
-import { Library, Plus, ArrowRight, Search, List, Heart, Users, Disc } from 'lucide-react';
+import { Library, Plus, ArrowRight, Search, List, Heart, Users, Disc, ArrowLeft } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -103,7 +103,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, width }: Sideba
 
   return (
     <div 
-      className="bg-spotify-card rounded-lg flex flex-col overflow-hidden h-full transition-all duration-300"
+      className="bg-spotify-card rounded-lg flex flex-col overflow-hidden h-full transition-all duration-300 group"
       style={isCollapsed ? { width: '72px', minWidth: '72px' } : { width: width ? `${width}px` : '420px', minWidth: '280px' }}
     >
       {/* Header */}
@@ -121,11 +121,13 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, width }: Sideba
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between group">
-              <div className="flex items-center gap-2">
-                <button onClick={onToggleCollapse} className="opacity-0 group-hover:opacity-100 p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition text-spotify-lighttext shrink-0" title="Thu gọn Thư viện">
-                  <Library size={20} />
-                </button>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="w-0 opacity-0 group-hover:w-10 group-hover:opacity-100 overflow-hidden transition-all duration-300 flex items-center justify-center shrink-0">
+                  <button onClick={onToggleCollapse} className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition text-spotify-lighttext shrink-0" title="Thu gọn Thư viện">
+                    <ArrowLeft size={20} />
+                  </button>
+                </div>
                 <span className="text-spotify-lighttext font-bold text-base hover:text-white transition cursor-pointer" onClick={onToggleCollapse}>Thư viện</span>
               </div>
               
