@@ -18,6 +18,8 @@ interface TrackDropdownMenuProps {
   onRemoveFromAlbum?: (trackId: string) => void;
   
   className?: string; // Optional custom styling for the 3-dots button wrapper
+  iconSize?: number;
+  alwaysShow?: boolean;
 }
 
 export const TrackDropdownMenu = ({
@@ -29,7 +31,9 @@ export const TrackDropdownMenu = ({
   showGoToAlbum = true,
   onRemoveFromPlaylist,
   onRemoveFromAlbum,
-  className = ""
+  className = "",
+  iconSize = 18,
+  alwaysShow = false
 }: TrackDropdownMenuProps) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -66,10 +70,10 @@ export const TrackDropdownMenu = ({
     <div className={`relative flex items-center ${className}`}>
       <button
         onClick={handleOpenDropdown}
-        className={`text-[#b3b3b3] hover:text-white transition ${isOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+        className={`text-[#b3b3b3] hover:text-white transition ${isOpen || alwaysShow ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
         title="Tùy chọn khác"
       >
-        <MoreHorizontal size={18} />
+        <MoreHorizontal size={iconSize} />
       </button>
 
       {isOpen && (

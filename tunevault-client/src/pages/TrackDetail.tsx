@@ -2,11 +2,12 @@ import { getImageUrl } from '../utils/imageUrl';
 import { useEffect, useState } from 'react';
 import { FastAverageColor } from 'fast-average-color';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MoreHorizontal, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import type { MediaItemDto } from '../types';
 import { usePlayer } from '../context/PlayerContext';
 import { formatDuration } from '../utils/format';
+import { TrackDropdownMenu } from '../components/TrackDropdownMenu';
 
 export const TrackDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -202,9 +203,13 @@ export const TrackDetail = () => {
            <Download size={32} />
         </button>
 
-        <button className="text-zinc-400 hover:text-white transition" title="Khác">
-          <MoreHorizontal size={32} />
-        </button>
+        <TrackDropdownMenu 
+          track={track} 
+          isFavorited={isFav} 
+          onToggleFavorite={handleFavoriteClick} 
+          iconSize={32} 
+          alwaysShow={true} 
+        />
         </div>
 
         {/* Lời bài hát Section (Lyrics Placeholder) */}
