@@ -223,7 +223,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
         )}
 
         {/* List */}
-        <div className={`pb-4 ${isCollapsed ? 'flex flex-col items-center gap-4 w-full' : (isExpanded ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 px-2 mt-4" : "flex flex-col gap-1")}`}>
+        <div className={`pb-4 ${isCollapsed ? 'flex flex-col items-center gap-4 w-full' : (isExpanded ? "grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4 px-4 mt-4" : "flex flex-col gap-1")}`}>
           {!isAuthenticated ? (
             !isCollapsed && (
               <div className="flex bg-[#242424] rounded-lg p-4 mx-2 my-2 flex-col items-start gap-4">
