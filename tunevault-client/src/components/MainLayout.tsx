@@ -16,6 +16,7 @@ export const MainLayout = () => {
 
   const [sidebarWidth, setSidebarWidth] = useState(420);
   const [rightPanelWidth, setRightPanelWidth] = useState(420);
+  const [isResizing, setIsResizing] = useState(false);
   
   const scrollRef = useRef<HTMLElement>(null);
   const gradientRef = useRef<HTMLDivElement>(null);
@@ -30,6 +31,7 @@ export const MainLayout = () => {
     e.preventDefault();
     const startX = e.clientX;
     const startWidth = sidebarWidth;
+    setIsResizing(true);
 
     const onMouseMove = (moveEvent: MouseEvent) => {
       const newWidth = Math.min(Math.max(200, startWidth + (moveEvent.clientX - startX)), 420);
@@ -40,6 +42,7 @@ export const MainLayout = () => {
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
       document.body.style.cursor = 'default';
+      setIsResizing(false);
     };
 
     document.addEventListener('mousemove', onMouseMove);
@@ -51,6 +54,7 @@ export const MainLayout = () => {
     e.preventDefault();
     const startX = e.clientX;
     const startWidth = rightPanelWidth;
+    setIsResizing(true);
 
     const onMouseMove = (moveEvent: MouseEvent) => {
       const newWidth = Math.min(Math.max(250, startWidth - (moveEvent.clientX - startX)), 420);
@@ -61,6 +65,7 @@ export const MainLayout = () => {
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
       document.body.style.cursor = 'default';
+      setIsResizing(false);
     };
 
     document.addEventListener('mousemove', onMouseMove);
@@ -79,7 +84,7 @@ export const MainLayout = () => {
           <div className="flex-1 flex overflow-hidden relative">
             {/* Wrapper cho Sidebar để xử lý hiệu ứng mở rộng (overlay lên trên MainContent) */}
             <div 
-              className={`transition-all duration-300 flex-shrink-0 overflow-hidden ${isSidebarExpanded ? 'absolute top-0 bottom-0 left-0 z-40' : 'relative h-full'}`}
+              className={`${isResizing ? '' : 'transition-all duration-300'} flex-shrink-0 overflow-hidden ${isSidebarExpanded ? 'absolute top-0 bottom-0 left-0 z-40' : 'relative h-full'}`}
               style={{ 
                 width: isSidebarExpanded ? `calc(100% - ${rightPanelWidth}px - 8px)` : (isSidebarCollapsed ? '72px' : `${sidebarWidth}px`),
                 minWidth: isSidebarCollapsed ? '72px' : '280px'
@@ -87,7 +92,7 @@ export const MainLayout = () => {
             >
               <div 
                 className="h-full"
-                style={isSidebarExpanded ? { width: `calc(100vw - ${rightPanelWidth + 24}px)` } : { width: '100%' }}
+                style={{ width: '100%' }}
               >
                 <Sidebar 
                   isCollapsed={isSidebarCollapsed} 
