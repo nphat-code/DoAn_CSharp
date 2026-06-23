@@ -1,5 +1,5 @@
 import { getImageUrl } from '../utils/imageUrl';
-import { Library, Plus, ArrowRight, Search, List, Heart, Users, Disc, ArrowLeft } from 'lucide-react';
+import { Library, Plus, ArrowRight, Search, List, Heart, Users, Disc, ArrowLeft, Maximize2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -111,7 +111,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, width }: Sideba
         {isCollapsed ? (
           <div className="flex flex-col items-center justify-center gap-4 group">
             <button onClick={onToggleCollapse} className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition text-spotify-lighttext" title="Mở rộng Thư viện">
-              <Library size={24} />
+              <ArrowRight size={24} />
             </button>
             {isAuthenticated && (
               <button onClick={submitCreatePlaylistAuto} className="p-2 bg-zinc-800 hover:bg-zinc-700 hover:text-white rounded-full transition text-spotify-lighttext" title="Tạo playlist mới">
@@ -137,8 +137,8 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, width }: Sideba
                     <Plus size={20} />
                   </button>
                 )}
-                <button className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition" title="Mở rộng thêm">
-                  <ArrowRight size={20} />
+                <button onClick={() => navigate('/library')} className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition" title="Mở rộng thư viện dạng thẻ">
+                  <Maximize2 size={18} />
                 </button>
               </div>
             </div>
