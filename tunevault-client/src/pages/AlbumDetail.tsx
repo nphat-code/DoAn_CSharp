@@ -280,7 +280,7 @@ export const AlbumDetail = () => {
       {/* Scrollable Content Layer */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto relative z-10 w-full scrollbar-hide"
+        className="h-full overflow-y-auto relative z-10 w-full scrollbar-hide grid grid-rows-[auto_1fr]"
         onScroll={handleScroll}
       >
         {/* Header */}
@@ -336,7 +336,7 @@ export const AlbumDetail = () => {
         </div>
 
         {/* Content wrapper */}
-        <div className="flex-1 flex flex-col border-t border-white/10 pt-6 relative z-10 bg-black/20">
+        <div className="w-full h-full border-t border-white/10 pt-6 relative z-10 bg-black/20">
           {/* Controls */}
           <div className="flex items-center gap-6 mb-6 px-6">
             <button

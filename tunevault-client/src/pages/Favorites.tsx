@@ -119,7 +119,7 @@ export const Favorites = () => {
   if (loading) return <div className="p-6 text-white">Đang tải danh sách bài hát đã thích...</div>;
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-[#4A30A4] to-[#121212] overflow-y-auto scrollbar-hide">
+    <div className="h-full bg-gradient-to-b from-[#4A30A4] to-[#121212] overflow-y-auto scrollbar-hide grid grid-rows-[auto_1fr]">
       {/* Header */}
       <div 
         className="flex items-end gap-6 px-6 pb-6 shrink-0"
@@ -148,7 +148,7 @@ export const Favorites = () => {
       </div>
 
       {/* Content wrapper */}
-      <div className="flex-1 flex flex-col bg-gradient-to-b from-black/20 to-black/60 border-t border-white/10 pt-6 px-6">
+      <div className="w-full h-full bg-gradient-to-b from-black/20 to-black/60 border-t border-white/10 pt-6 px-6">
 
         {/* Controls */}
         <div className="flex items-center gap-6 mb-6">

@@ -249,7 +249,7 @@ export const PlaylistDetail = () => {
 
   return (
     <div
-      className="flex flex-col h-full bg-spotify-card relative scrollbar-hide"
+      className="h-full bg-spotify-card relative scrollbar-hide grid grid-rows-[auto_1fr]"
       style={{ overflowY: 'overlay' as any }}
     >
       {/* Background Gradient */}
@@ -309,7 +309,7 @@ export const PlaylistDetail = () => {
       </div>
 
       {/* Content wrapper */}
-      <div className="flex-1 flex flex-col border-t border-white/10 pt-6 relative z-10 bg-black/20">
+      <div className="w-full h-full border-t border-white/10 pt-6 relative z-10 bg-black/20">
         {/* Controls */}
         <div className="flex items-center gap-6 mb-6 px-6">
           {playlist.tracks && playlist.tracks.length > 0 && (
