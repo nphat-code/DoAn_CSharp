@@ -1,5 +1,5 @@
 import { getImageUrl } from '../utils/imageUrl';
-import { Library, Plus, ArrowRight, Search, List, Heart, Users, Disc, ArrowLeft, Maximize2 } from 'lucide-react';
+import { Library, Plus, ArrowRight, Search, List, Heart, Users, Disc, ArrowLeft, Maximize2, Minimize2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,10 +12,12 @@ import { artistService } from '../services/artistService';
 interface SidebarProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  isExpanded?: boolean;
+  onToggleExpand?: () => void;
   width?: number;
 }
 
-export const Sidebar = ({ isCollapsed = false, onToggleCollapse, width }: SidebarProps) => {
+export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = false, onToggleExpand, width }: SidebarProps) => {
   const [albums, setAlbums] = useState<AlbumDto[]>([]);
   const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
   const [artists, setArtists] = useState<any[]>([]);
@@ -103,8 +105,8 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, width }: Sideba
 
   return (
     <div 
-      className="bg-spotify-card rounded-lg flex flex-col overflow-hidden h-full transition-all duration-300 group"
-      style={isCollapsed ? { width: '72px', minWidth: '72px' } : { width: width ? `${width}px` : '420px', minWidth: '280px' }}
+      className={`${isExpanded ? 'flex-1' : ''} bg-spotify-card rounded-lg flex flex-col overflow-hidden h-full transition-all duration-300 group`}
+      style={isCollapsed ? { width: '72px', minWidth: '72px' } : (!isExpanded ? { width: width ? `${width}px` : '420px', minWidth: '280px' } : {})}
     >
       {/* Header */}
       <div className="p-4 flex flex-col gap-4 shadow-sm">
@@ -137,8 +139,8 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, width }: Sideba
                     <Plus size={20} />
                   </button>
                 )}
-                <button onClick={() => navigate('/library')} className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition" title="Mở rộng thư viện dạng thẻ">
-                  <Maximize2 size={18} />
+                <button onClick={onToggleExpand} className="p-2 hover:bg-spotify-hover2 hover:text-white rounded-full transition" title={isExpanded ? "Thu nhỏ Thư viện" : "Mở rộng thư viện dạng thẻ"}>
+                  {isExpanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
                 </button>
               </div>
             </div>
@@ -153,7 +155,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, width }: Sideba
 
       {/* Playlist Content */}
       <div className={`flex-1 overflow-y-auto px-2 ${isCollapsed ? 'flex flex-col items-center' : ''} scrollbar-hide hover:scrollbar-default`}>
-        {!isCollapsed && (
+        {!isCollapsed && !isExpanded && (
           <div className="flex items-center justify-between px-2 py-2 mb-2 text-spotify-lighttext">
             <button className="p-1.5 hover:bg-spotify-hover2 rounded-full transition"><Search size={18} /></button>
             <button className="flex items-center gap-1.5 text-sm font-medium hover:text-white transition group">
@@ -164,7 +166,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, width }: Sideba
         )}
 
         {/* List */}
-        <div className={`pb-4 ${isCollapsed ? 'flex flex-col items-center gap-4 w-full' : 'flex flex-col gap-1'}`}>
+        <div className={`pb-4 ${isCollapsed ? 'flex flex-col items-center gap-4 w-full' : (isExpanded ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 px-2 mt-4" : "flex flex-col gap-1")}`}>
           {!isAuthenticated ? (
             !isCollapsed && (
               <div className="flex bg-[#242424] rounded-lg p-4 mx-2 my-2 flex-col items-start gap-4">
@@ -182,24 +184,24 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, width }: Sideba
             )
           ) : (
             <>
-              <div onClick={() => navigate('/favorites')} className={`hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : 'p-2 flex items-center gap-3'}`} title="Bài hát đã thích">
-                <div className="w-12 h-12 rounded-md bg-gradient-to-br from-indigo-600 to-purple-400 flex-shrink-0 flex items-center justify-center shadow-md">
-                  <Heart size={20} className="fill-white text-white shrink-0" />
+              <div onClick={() => navigate('/favorites')} className={`hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'p-2 flex items-center gap-3')}`} title="Bài hát đã thích">
+                <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-gradient-to-br from-indigo-600 to-purple-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
+                  <Heart size={isExpanded ? 48 : 20} className="fill-white text-white shrink-0" />
                 </div>
                 {!isCollapsed && (
-                  <div className="flex flex-col w-full overflow-hidden">
+                  <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
                     <span className="text-base text-white font-semibold truncate">Bài hát đã thích</span>
                     <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • {likedTracksCount} bài hát</span>
                   </div>
                 )}
               </div>
 
-              <div onClick={() => navigate('/shared-with-me')} className={`hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : 'p-2 flex items-center gap-3'}`} title="Trung tâm chia sẻ">
-                <div className="w-12 h-12 rounded-md bg-gradient-to-br from-emerald-600 to-teal-400 flex-shrink-0 flex items-center justify-center shadow-md">
-                  <Users size={20} className="text-white shrink-0" />
+              <div onClick={() => navigate('/shared-with-me')} className={`hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'p-2 flex items-center gap-3')}`} title="Trung tâm chia sẻ">
+                <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-gradient-to-br from-emerald-600 to-teal-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
+                  <Users size={isExpanded ? 48 : 20} className="text-white shrink-0" />
                 </div>
                 {!isCollapsed && (
-                  <div className="flex flex-col w-full overflow-hidden">
+                  <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
                     <span className="text-base text-white font-semibold truncate">Trung tâm chia sẻ</span>
                     <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • Bạn bè</span>
                   </div>
@@ -213,18 +215,18 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, width }: Sideba
             <div 
               key={playlist.id}
               onClick={() => navigate(`/playlist/${playlist.id}`)}
-              className={`hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : 'p-2 flex items-center gap-3'}`}
+              className={`hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'p-2 flex items-center gap-3')}`}
               title={playlist.name}
             >
-              <div className="w-12 h-12 rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden">
+              <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
                 {playlist.coverUrl ? (
                   <img src={getImageUrl(playlist.coverUrl)} alt={playlist.name} className="w-full h-full object-cover shrink-0" />
                 ) : (
-                  <Library size={20} className="text-zinc-500 shrink-0" />
+                  <Library size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
                 )}
               </div>
               {!isCollapsed && (
-                <div className="flex flex-col overflow-hidden w-full">
+                <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
                   <span className="text-base text-white font-semibold truncate">{playlist.name}</span>
                   <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • Bạn</span>
                 </div>
@@ -241,41 +243,41 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, width }: Sideba
                 <div 
                   key={album.id}
                   onClick={() => navigate(`/album/${album.id}`)}
-                  className={`hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : 'p-2 flex items-center gap-3'}`}
+                  className={`hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'p-2 flex items-center gap-3')}`}
                   title={album.title}
                 >
-                  <div className="w-12 h-12 rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden">
+                  <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
                     {album.coverUrl ? (
                       <img src={getImageUrl(album.coverUrl)} alt={album.title} className="w-full h-full object-cover shrink-0" />
                     ) : (
-                      <Disc size={20} className="text-zinc-500 shrink-0" />
+                      <Disc size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
                     )}
                   </div>
                   {!isCollapsed && (
-                    <div className="flex flex-col overflow-hidden w-full">
+                    <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
                       <span className="text-base text-white font-semibold truncate">{album.title}</span>
-                      <span className="text-sm text-spotify-lighttext font-medium truncate">Album • {album.artistName}</span>
+                      <span className="text-sm text-spotify-lighttext font-medium truncate">Album • {album.artistName || 'Nhiều nghệ sĩ'}</span>
                     </div>
                   )}
                 </div>
               ))}
               {/* Artists */}
-              {artists.map(artist => (
+              {isAuthenticated && artists.map(artist => (
                 <div 
                   key={artist.id}
                   onClick={() => navigate(`/artist/${artist.id}`)}
-                  className={`hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : 'p-2 flex items-center gap-3'}`}
+                  className={`hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'p-2 flex items-center gap-3')}`}
                   title={artist.name}
                 >
-                  <div className="w-12 h-12 rounded-full bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden">
+                  <div className={`${isExpanded ? 'w-full aspect-square mb-2' : 'w-12 h-12'} rounded-full bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
                     {artist.avatarUrl ? (
                       <img src={getImageUrl(artist.avatarUrl)} alt={artist.name} className="w-full h-full object-cover shrink-0" />
                     ) : (
-                      <Users size={20} className="text-zinc-500 shrink-0" />
+                      <Users size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
                     )}
                   </div>
                   {!isCollapsed && (
-                    <div className="flex flex-col overflow-hidden w-full">
+                    <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
                       <span className="text-base text-white font-semibold truncate">{artist.name}</span>
                       <span className="text-sm text-spotify-lighttext font-medium truncate">Nghệ sĩ</span>
                     </div>

@@ -10,6 +10,7 @@ import { NowPlayingOverlay } from '../pages/NowPlaying';
 
 export const MainLayout = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === '/';
 
@@ -76,10 +77,22 @@ export const MainLayout = () => {
           
           {/* Vùng thân gồm Sidebar - MainContent - RightPanel */}
           <div className="flex-1 flex overflow-hidden relative">
-            <Sidebar isCollapsed={isSidebarCollapsed} onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)} width={sidebarWidth} />
+            <Sidebar 
+              isCollapsed={isSidebarCollapsed} 
+              onToggleCollapse={() => {
+                setIsSidebarCollapsed(!isSidebarCollapsed);
+                if (isSidebarExpanded) setIsSidebarExpanded(false);
+              }}
+              isExpanded={isSidebarExpanded}
+              onToggleExpand={() => {
+                setIsSidebarExpanded(!isSidebarExpanded);
+                if (isSidebarCollapsed) setIsSidebarCollapsed(false);
+              }}
+              width={isSidebarExpanded ? undefined : sidebarWidth} 
+            />
             
             {/* Resizer Sidebar */}
-            {!isSidebarCollapsed && (
+            {!isSidebarCollapsed && !isSidebarExpanded && (
               <div 
                 onMouseDown={startResizeSidebar}
                 className="w-2 cursor-col-resize z-50 flex-shrink-0 bg-transparent"
@@ -88,7 +101,7 @@ export const MainLayout = () => {
             )}
             
             <div 
-              className="flex-1 min-w-[300px] bg-spotify-card rounded-lg overflow-hidden relative shadow-2xl transition-all duration-300"
+              className={`flex-1 min-w-[300px] bg-spotify-card rounded-lg overflow-hidden relative shadow-2xl transition-all duration-300 ${isSidebarExpanded ? 'w-0 opacity-0 min-w-0 p-0 m-0 border-none hidden' : ''}`}
             >
               {isHome && (
                 <div 
