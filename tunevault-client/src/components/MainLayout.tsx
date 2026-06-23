@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { PlayerBar } from './PlayerBar';
@@ -20,6 +20,12 @@ export const MainLayout = () => {
   
   const scrollRef = useRef<HTMLElement>(null);
   const gradientRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isSidebarExpanded) {
+      setIsSidebarExpanded(false);
+    }
+  }, [location.pathname]);
 
   const handleScroll = () => {
     if (scrollRef.current && gradientRef.current) {
