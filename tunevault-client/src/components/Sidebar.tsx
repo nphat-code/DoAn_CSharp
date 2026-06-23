@@ -380,12 +380,14 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                   className={`group/item relative hover:bg-spotify-hover rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-zinc-800/40 p-4' : 'p-2 flex items-center gap-3')}`}
                   title={artist.name}
                 >
-                  <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-full bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
-                    {artist.avatarUrl ? (
-                      <img src={getImageUrl(artist.avatarUrl)} alt={artist.name} className="w-full h-full object-cover shrink-0" />
-                    ) : (
-                      <Users size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
-                    )}
+                  <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} flex-shrink-0`}>
+                    <div className="w-full h-full rounded-full bg-spotify-hover2 shadow-md flex items-center justify-center overflow-hidden">
+                      {artist.avatarUrl ? (
+                        <img src={getImageUrl(artist.avatarUrl)} alt={artist.name} className="w-full h-full object-cover shrink-0" />
+                      ) : (
+                        <Users size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
+                      )}
+                    </div>
                     {isExpanded && (
                       <button 
                         onClick={(e) => handlePlayArtist(e, artist.id)}
