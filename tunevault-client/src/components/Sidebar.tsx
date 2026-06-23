@@ -1,5 +1,5 @@
 import { getImageUrl } from '../utils/imageUrl';
-import { Library, Plus, ArrowRight, Search, List, Heart, Users, Disc, ArrowLeft, Maximize2, Minimize2 } from 'lucide-react';
+import { Library, Plus, ArrowRight, Search, List, Heart, Users, Disc, ArrowLeft, Maximize2, Minimize2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -24,6 +24,9 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
   const [artists, setArtists] = useState<any[]>([]);
   const [likedTracksCount, setLikedTracksCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState<'all' | 'playlist' | 'album' | 'artist'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const isAuthenticated = !!localStorage.getItem('token');
   const navigate = useNavigate();
   const { currentMedia, isPlaying, togglePlayPause, playMediaList } = usePlayer();
@@ -222,7 +225,20 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
 
             {/* Filters */}
             <div className="flex gap-2 text-sm font-medium mt-1">
-              <button className="px-3 py-1.5 bg-spotify-hover2 text-white rounded-full transition">Playlist</button>
+              {activeFilter !== 'all' && (
+                <button onClick={() => setActiveFilter('all')} className="w-8 h-8 flex items-center justify-center bg-zinc-800 text-white rounded-full transition hover:bg-zinc-700 shrink-0">
+                  <X size={16} />
+                </button>
+              )}
+              {(activeFilter === 'all' || activeFilter === 'playlist') && (
+                <button onClick={() => setActiveFilter('playlist')} className={`px-3 py-1.5 rounded-full transition whitespace-nowrap ${activeFilter === 'playlist' ? 'bg-white text-black' : 'bg-spotify-hover2 text-white hover:bg-zinc-700'}`}>Danh sách phát</button>
+              )}
+              {(activeFilter === 'all' || activeFilter === 'artist') && (
+                <button onClick={() => setActiveFilter('artist')} className={`px-3 py-1.5 rounded-full transition whitespace-nowrap ${activeFilter === 'artist' ? 'bg-white text-black' : 'bg-spotify-hover2 text-white hover:bg-zinc-700'}`}>Nghệ sĩ</button>
+              )}
+              {(activeFilter === 'all' || activeFilter === 'album') && (
+                <button onClick={() => setActiveFilter('album')} className={`px-3 py-1.5 rounded-full transition whitespace-nowrap ${activeFilter === 'album' ? 'bg-white text-black' : 'bg-spotify-hover2 text-white hover:bg-zinc-700'}`}>Album</button>
+              )}
             </div>
           </>
         )}
@@ -230,191 +246,232 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
 
       {/* Playlist Content */}
       <div className={`flex-1 overflow-y-auto px-2 ${isCollapsed ? 'flex flex-col items-center' : ''} scrollbar-hide hover:scrollbar-default`}>
-        {!isCollapsed && !isExpanded && (
-          <div className="flex items-center justify-between px-2 py-2 mb-2 text-spotify-lighttext">
-            <button className="p-1.5 hover:bg-spotify-hover2 rounded-full transition"><Search size={18} /></button>
-            <button className="flex items-center gap-1.5 text-sm font-medium hover:text-white transition group">
-              <span>Gần đây</span>
-              <List size={18} className="group-hover:text-white" />
-            </button>
-          </div>
-        )}
+        {(() => {
+          const showPlaylists = activeFilter === 'all' || activeFilter === 'playlist';
+          const showAlbums = activeFilter === 'all' || activeFilter === 'album';
+          const showArtists = activeFilter === 'all' || activeFilter === 'artist';
 
-        {/* List */}
-        <div className={`pb-4 ${isCollapsed ? 'flex flex-col items-center gap-4 w-full' : (isExpanded ? "grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-0 px-4 mt-4" : "flex flex-col gap-1")}`}>
-          {!isAuthenticated ? (
-            !isCollapsed && (
-              <div className="flex bg-[#242424] rounded-lg p-4 mx-2 my-2 flex-col items-start gap-4">
-                <div className="flex flex-col gap-1">
-                  <span className="text-white font-bold text-base">Tạo danh sách phát đầu tiên của bạn</span>
-                  <span className="text-white font-medium text-sm">Rất dễ, chúng tôi sẽ giúp bạn</span>
-                </div>
-                <button 
-                  onClick={() => navigate('/login')}
-                  className="bg-white text-black font-bold px-4 py-1.5 rounded-full text-sm hover:scale-105 transition"
-                >
-                  Tạo danh sách phát
-                </button>
-              </div>
-            )
-          ) : (
+          const filteredPlaylists = playlists.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
+          const filteredAlbums = albums.filter(a => a.title.toLowerCase().includes(searchQuery.toLowerCase()));
+          const filteredArtists = artists.filter(a => a.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+          const showLiked = showPlaylists && 'bài hát đã thích'.includes(searchQuery.toLowerCase());
+          const showShared = showPlaylists && 'trung tâm chia sẻ'.includes(searchQuery.toLowerCase());
+
+          return (
             <>
-              <div onClick={() => handleItemClick('/favorites')} className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`} title="Bài hát đã thích">
-                <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-md bg-gradient-to-br from-indigo-600 to-purple-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
-                  <Heart size={isExpanded ? 48 : 20} className="fill-white text-white shrink-0" />
-                  {isExpanded && (
-                    <button 
-                      onClick={handlePlayLiked}
-                      className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.isLikedContext ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
-                    >
-                      {currentMedia?.isLikedContext && isPlaying ? (
-                        <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
-                      ) : (
-                        <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
-                      )}
+              {!isCollapsed && (
+                <div className="flex items-center justify-between px-2 py-2 mb-2 text-spotify-lighttext h-10 mt-2">
+                  <div className={`flex items-center transition-all overflow-hidden ${isSearchOpen ? 'bg-zinc-800 rounded-md w-full px-2 py-1.5' : 'w-8 h-8 justify-center bg-transparent hover:bg-spotify-hover2 rounded-full'}`}>
+                     <button onClick={() => setIsSearchOpen(true)} className="shrink-0"><Search size={18} /></button>
+                     {isSearchOpen && (
+                       <>
+                         <input 
+                           type="text" 
+                           autoFocus
+                           placeholder="Tìm kiếm trong Thư viện"
+                           value={searchQuery}
+                           onChange={(e) => setSearchQuery(e.target.value)}
+                           onBlur={() => { if (!searchQuery) setIsSearchOpen(false); }}
+                           className="bg-transparent text-sm text-white px-2 outline-none w-full"
+                         />
+                         {searchQuery && (
+                           <button onClick={() => setSearchQuery('')} className="shrink-0 hover:text-white"><X size={16} /></button>
+                         )}
+                       </>
+                     )}
+                  </div>
+                  {!isSearchOpen && (
+                    <button className="flex items-center gap-1.5 text-sm font-medium hover:text-white transition group shrink-0 ml-auto">
+                      <span>Gần đây</span>
+                      <List size={18} className="group-hover:text-white" />
                     </button>
                   )}
                 </div>
-                {!isCollapsed && (
-                  <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
-                    <span className="text-base text-white font-semibold truncate">Bài hát đã thích</span>
-                    <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • {likedTracksCount} bài hát</span>
-                  </div>
-                )}
-              </div>
-
-              <div onClick={() => handleItemClick('/shared-with-me')} className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`} title="Trung tâm chia sẻ">
-                <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-md bg-gradient-to-br from-emerald-600 to-teal-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
-                  <Users size={isExpanded ? 48 : 20} className="text-white shrink-0" />
-                </div>
-                {!isCollapsed && (
-                  <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
-                    <span className="text-base text-white font-semibold truncate">Trung tâm chia sẻ</span>
-                    <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • Bạn bè</span>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-          
-          {/* User Playlists */}
-          {isAuthenticated && playlists.map(playlist => (
-            <div 
-              key={playlist.id}
-              onClick={() => handleItemClick(`/playlist/${playlist.id}`)}
-              className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`}
-              title={playlist.name}
-            >
-              <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
-                {playlist.coverUrl ? (
-                  <img src={getImageUrl(playlist.coverUrl)} alt={playlist.name} className="w-full h-full object-cover shrink-0" />
-                ) : (
-                  <Library size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
-                )}
-                {isExpanded && (
-                  <button 
-                    onClick={(e) => handlePlayPlaylist(e, playlist.id)}
-                    className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.playlistId === playlist.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
-                  >
-                    {currentMedia?.playlistId === playlist.id && isPlaying ? (
-                      <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
-                    ) : (
-                      <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
-                    )}
-                  </button>
-                )}
-              </div>
-              {!isCollapsed && (
-                <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
-                  <span className="text-base text-white font-semibold truncate">{playlist.name}</span>
-                  <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • Bạn</span>
-                </div>
               )}
-            </div>
-          ))}
-          
-          {/* Albums */}
-          {loading ? (
-            !isCollapsed && <div className="p-4 text-center text-zinc-500 text-sm w-full">Đang tải thư viện...</div>
-          ) : (
-            <>
-              {albums.map(album => (
-                <div 
-                  key={album.id}
-                  onClick={() => handleItemClick(`/album/${album.id}`)}
-                  className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`}
-                  title={album.title}
-                >
-                  <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
-                    {album.coverUrl ? (
-                      <img src={getImageUrl(album.coverUrl)} alt={album.title} className="w-full h-full object-cover shrink-0" />
-                    ) : (
-                      <Disc size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
-                    )}
-                    {isExpanded && (
+
+              {/* List */}
+              <div className={`pb-4 ${isCollapsed ? 'flex flex-col items-center gap-4 w-full' : (isExpanded ? "grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-0 px-4 mt-2" : "flex flex-col gap-1")}`}>
+                {!isAuthenticated ? (
+                  !isCollapsed && (
+                    <div className="flex bg-[#242424] rounded-lg p-4 mx-2 my-2 flex-col items-start gap-4">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-white font-bold text-base">Tạo danh sách phát đầu tiên của bạn</span>
+                        <span className="text-white font-medium text-sm">Rất dễ, chúng tôi sẽ giúp bạn</span>
+                      </div>
                       <button 
-                        onClick={(e) => handlePlayAlbum(e, album.id)}
-                        className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.albumId === album.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
+                        onClick={() => navigate('/login')}
+                        className="bg-white text-black font-bold px-4 py-1.5 rounded-full text-sm hover:scale-105 transition"
                       >
-                        {currentMedia?.albumId === album.id && isPlaying ? (
-                          <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
-                        ) : (
-                          <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
-                        )}
+                        Tạo danh sách phát
                       </button>
-                    )}
-                  </div>
-                  {!isCollapsed && (
-                    <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
-                      <span className="text-base text-white font-semibold truncate">{album.title}</span>
-                      <span className="text-sm text-spotify-lighttext font-medium truncate">Album • {album.artistName || 'Nhiều nghệ sĩ'}</span>
                     </div>
-                  )}
-                </div>
-              ))}
-              {/* Artists */}
-              {isAuthenticated && artists.map(artist => (
-                <div 
-                  key={artist.id}
-                  onClick={() => handleItemClick(`/artist/${artist.id}`)}
-                  className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`}
-                  title={artist.name}
-                >
-                  <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} flex-shrink-0`}>
-                    <div className="w-full h-full rounded-full bg-spotify-hover2 shadow-md flex items-center justify-center overflow-hidden">
-                      {artist.avatarUrl ? (
-                        <img src={getImageUrl(artist.avatarUrl)} alt={artist.name} className="w-full h-full object-cover shrink-0" />
+                  )
+                ) : (
+                  <>
+                    {showLiked && (
+                      <div onClick={() => handleItemClick('/favorites')} className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`} title="Bài hát đã thích">
+                        <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-md bg-gradient-to-br from-indigo-600 to-purple-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
+                          <Heart size={isExpanded ? 48 : 20} className="fill-white text-white shrink-0" />
+                          {isExpanded && (
+                            <button 
+                              onClick={handlePlayLiked}
+                              className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.isLikedContext ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
+                            >
+                              {currentMedia?.isLikedContext && isPlaying ? (
+                                <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+                              ) : (
+                                <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                              )}
+                            </button>
+                          )}
+                        </div>
+                        {!isCollapsed && (
+                          <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
+                            <span className="text-base text-white font-semibold truncate">Bài hát đã thích</span>
+                            <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • {likedTracksCount} bài hát</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {showShared && (
+                      <div onClick={() => handleItemClick('/shared-with-me')} className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`} title="Trung tâm chia sẻ">
+                        <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-md bg-gradient-to-br from-emerald-600 to-teal-400 flex-shrink-0 flex items-center justify-center shadow-md`}>
+                          <Users size={isExpanded ? 48 : 20} className="text-white shrink-0" />
+                        </div>
+                        {!isCollapsed && (
+                          <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
+                            <span className="text-base text-white font-semibold truncate">Trung tâm chia sẻ</span>
+                            <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • Bạn bè</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+                
+                {/* User Playlists */}
+                {isAuthenticated && showPlaylists && filteredPlaylists.map(playlist => (
+                  <div 
+                    key={playlist.id}
+                    onClick={() => handleItemClick(`/playlist/${playlist.id}`)}
+                    className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`}
+                    title={playlist.name}
+                  >
+                    <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
+                      {playlist.coverUrl ? (
+                        <img src={getImageUrl(playlist.coverUrl)} alt={playlist.name} className="w-full h-full object-cover shrink-0" />
                       ) : (
-                        <Users size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
+                        <Library size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
+                      )}
+                      {isExpanded && (
+                        <button 
+                          onClick={(e) => handlePlayPlaylist(e, playlist.id)}
+                          className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.playlistId === playlist.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
+                        >
+                          {currentMedia?.playlistId === playlist.id && isPlaying ? (
+                            <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+                          ) : (
+                            <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                          )}
+                        </button>
                       )}
                     </div>
-                    {isExpanded && (
-                      <button 
-                        onClick={(e) => handlePlayArtist(e, artist.id)}
-                        className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.artistId === artist.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
-                      >
-                        {currentMedia?.artistId === artist.id && isPlaying ? (
-                          <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
-                        ) : (
-                          <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
-                        )}
-                      </button>
+                    {!isCollapsed && (
+                      <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
+                        <span className="text-base text-white font-semibold truncate">{playlist.name}</span>
+                        <span className="text-sm text-spotify-lighttext font-medium truncate">Danh sách phát • Bạn</span>
+                      </div>
                     )}
                   </div>
-                  {!isCollapsed && (
-                    <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
-                      <span className="text-base text-white font-semibold truncate">{artist.name}</span>
-                      <span className="text-sm text-spotify-lighttext font-medium truncate">Nghệ sĩ</span>
-                    </div>
-                  )}
-                </div>
-              ))}
-              {albums.length === 0 && playlists.length === 0 && artists.length === 0 && isAuthenticated && !isCollapsed && (
-                 <div className="p-4 text-center text-zinc-500 text-sm w-full">Thư viện trống.</div>
-              )}
+                ))}
+                
+                {/* Albums */}
+                {loading ? (
+                  !isCollapsed && <div className="p-4 text-center text-zinc-500 text-sm w-full">Đang tải thư viện...</div>
+                ) : (
+                  <>
+                    {showAlbums && filteredAlbums.map(album => (
+                      <div 
+                        key={album.id}
+                        onClick={() => handleItemClick(`/album/${album.id}`)}
+                        className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`}
+                        title={album.title}
+                      >
+                        <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} rounded-md bg-spotify-hover2 flex-shrink-0 shadow-md flex items-center justify-center overflow-hidden`}>
+                          {album.coverUrl ? (
+                            <img src={getImageUrl(album.coverUrl)} alt={album.title} className="w-full h-full object-cover shrink-0" />
+                          ) : (
+                            <Disc size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
+                          )}
+                          {isExpanded && (
+                            <button 
+                              onClick={(e) => handlePlayAlbum(e, album.id)}
+                              className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.albumId === album.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
+                            >
+                              {currentMedia?.albumId === album.id && isPlaying ? (
+                                <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+                              ) : (
+                                <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                              )}
+                            </button>
+                          )}
+                        </div>
+                        {!isCollapsed && (
+                          <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
+                            <span className="text-base text-white font-semibold truncate">{album.title}</span>
+                            <span className="text-sm text-spotify-lighttext font-medium truncate">Album • {album.artistName || 'Nhiều nghệ sĩ'}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    {/* Artists */}
+                    {isAuthenticated && showArtists && filteredArtists.map(artist => (
+                      <div 
+                        key={artist.id}
+                        onClick={() => handleItemClick(`/artist/${artist.id}`)}
+                        className={`group/item relative hover:bg-[#282828] rounded-md cursor-pointer transition ${isCollapsed ? 'p-0 w-12 h-12 flex justify-center items-center shrink-0' : (isExpanded ? 'flex flex-col items-start gap-3 bg-transparent p-3' : 'p-2 flex items-center gap-3')}`}
+                        title={artist.name}
+                      >
+                        <div className={`${isExpanded ? 'w-full aspect-square mb-2 relative' : 'w-12 h-12 relative'} flex-shrink-0`}>
+                          <div className="w-full h-full rounded-full bg-spotify-hover2 shadow-md flex items-center justify-center overflow-hidden">
+                            {artist.avatarUrl ? (
+                              <img src={getImageUrl(artist.avatarUrl)} alt={artist.name} className="w-full h-full object-cover shrink-0" />
+                            ) : (
+                              <Users size={isExpanded ? 48 : 20} className="text-zinc-500 shrink-0" />
+                            )}
+                          </div>
+                          {isExpanded && (
+                            <button 
+                              onClick={(e) => handlePlayArtist(e, artist.id)}
+                              className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.artistId === artist.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover/item:opacity-100 translate-y-2 group-hover/item:translate-y-0'}`}
+                            >
+                              {currentMedia?.artistId === artist.id && isPlaying ? (
+                                <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+                              ) : (
+                                <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                              )}
+                            </button>
+                          )}
+                        </div>
+                        {!isCollapsed && (
+                          <div className={`flex-col overflow-hidden w-full ${isExpanded ? 'flex' : 'flex'}`}>
+                            <span className="text-base text-white font-semibold truncate">{artist.name}</span>
+                            <span className="text-sm text-spotify-lighttext font-medium truncate">Nghệ sĩ</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    {filteredAlbums.length === 0 && filteredPlaylists.length === 0 && filteredArtists.length === 0 && isAuthenticated && !isCollapsed && (
+                       <div className="p-4 text-center text-zinc-500 text-sm w-full">Không tìm thấy kết quả.</div>
+                    )}
+                  </>
+                )}
+              </div>
             </>
-          )}
-        </div>
+          );
+        })()}
       </div>
     </div>
   );
