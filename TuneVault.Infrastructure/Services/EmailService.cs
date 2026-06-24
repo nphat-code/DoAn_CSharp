@@ -1,6 +1,5 @@
-using MimeKit;
-using MailKit.Net.Smtp;
-using MailKit.Security;
+using System.Text;
+using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using TuneVault.Application.Interfaces;
 
@@ -8,37 +7,36 @@ namespace TuneVault.Infrastructure.Services;
 
 public class EmailService(IConfiguration configuration) : IEmailService
 {
+    private static readonly HttpClient _httpClient = new HttpClient();
+
     public async Task SendEmailAsync(string toEmail, string subject, string body, CancellationToken cancellationToken)
     {
-        var smtpServer = configuration["EmailSettings:SmtpServer"] ?? "smtp.gmail.com";
-        var senderEmail = configuration["EmailSettings:SenderEmail"] ?? "ntphat.131106@gmail.com";
-        var senderName = configuration["EmailSettings:SenderName"] ?? "TuneVault";
-        var appPassword = configuration["EmailSettings:AppPassword"];
+        // URL Web App của Google Apps Script (bạn lấy ở bước deploy)
+        var scriptUrl = configuration["EmailSettings:GoogleScriptUrl"];
 
-        if (string.IsNullOrEmpty(appPassword))
+        if (string.IsNullOrEmpty(scriptUrl))
         {
-            throw new Exception("Vui lòng cấu hình AppPassword cho EmailSettings trong appsettings.json.");
+            throw new Exception("Vui lòng cấu hình GoogleScriptUrl cho EmailSettings.");
         }
 
-        var message = new MimeMessage();
-        message.From.Add(new MailboxAddress(senderName, senderEmail));
-        message.To.Add(new MailboxAddress("", toEmail));
-        message.Subject = subject;
-
-        message.Body = new TextPart("plain")
+        var payload = new
         {
-            Text = body
+            to = toEmail,
+            subject = subject,
+            body = body.Replace("\n", "<br>") // Đổi văn bản thuần thành HTML
         };
 
-        using var client = new SmtpClient();
-        
-        // Fix lỗi IPv6 Blackhole trên .NET Core: Ép buộc dùng IPv4 để kết nối tới Google
-        using var socket = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp);
-        await socket.ConnectAsync(smtpServer, 465, cancellationToken);
+        var request = new HttpRequestMessage(HttpMethod.Post, scriptUrl)
+        {
+            Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json")
+        };
 
-        await client.ConnectAsync(socket, smtpServer, 465, SecureSocketOptions.SslOnConnect, cancellationToken);
-        await client.AuthenticateAsync(senderEmail, appPassword, cancellationToken);
-        await client.SendAsync(message, cancellationToken);
-        await client.DisconnectAsync(true, cancellationToken);
+        var response = await _httpClient.SendAsync(request, cancellationToken);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        if (!response.IsSuccessStatusCode || responseContent.Contains("\"success\":false"))
+        {
+            throw new Exception($"Lỗi gửi mail qua Google Script: {responseContent}");
+        }
     }
 }
