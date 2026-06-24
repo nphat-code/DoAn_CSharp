@@ -9,10 +9,20 @@ import { NotificationProvider } from '../context/NotificationContext';
 import { NowPlayingOverlay } from '../pages/NowPlaying';
 
 export const MainLayout = () => {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(window.innerWidth <= 1100);
+  const MIN_SIDEBAR_WIDTH = 280;
+  const MIN_RIGHT_PANEL_WIDTH = 280;
+  const MIN_CENTER_WIDTH = 500;
+  const COLLAPSED_SIDEBAR_WIDTH = 72;
+  const CRITICAL_WIDTH = MIN_CENTER_WIDTH + MIN_SIDEBAR_WIDTH + MIN_RIGHT_PANEL_WIDTH;
+
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(window.innerWidth < CRITICAL_WIDTH);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === '/';
+
+  const [preferredSidebarWidth, setPreferredSidebarWidth] = useState(420);
+  const [preferredRightPanelWidth, setPreferredRightPanelWidth] = useState(420);
 
   const [sidebarWidth, setSidebarWidth] = useState(420);
   const [rightPanelWidth, setRightPanelWidth] = useState(420);
@@ -23,21 +33,48 @@ export const MainLayout = () => {
   const prevWidthRef = useRef(window.innerWidth);
 
   useEffect(() => {
-    const handleResize = () => {
-      const currentWidth = window.innerWidth;
-      
-      if (currentWidth <= 1100 && prevWidthRef.current > 1100) {
-        setIsSidebarCollapsed(true);
-      } else if (currentWidth > 1100 && prevWidthRef.current <= 1100) {
-        setIsSidebarCollapsed(false);
-      }
-      
-      prevWidthRef.current = currentWidth;
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    const onResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, []);
+
+  useEffect(() => {
+    const currentWindowWidth = windowWidth;
+    let availableSides = currentWindowWidth - MIN_CENTER_WIDTH;
+
+    if (availableSides >= MIN_SIDEBAR_WIDTH + MIN_RIGHT_PANEL_WIDTH) {
+      if (preferredSidebarWidth + preferredRightPanelWidth <= availableSides) {
+        setSidebarWidth(preferredSidebarWidth);
+        setRightPanelWidth(preferredRightPanelWidth);
+      } else {
+        const totalPref = preferredSidebarWidth + preferredRightPanelWidth;
+        let newSw = (preferredSidebarWidth / totalPref) * availableSides;
+        let newRw = (preferredRightPanelWidth / totalPref) * availableSides;
+
+        if (newSw < MIN_SIDEBAR_WIDTH) {
+          newSw = MIN_SIDEBAR_WIDTH;
+          newRw = availableSides - newSw;
+        } else if (newRw < MIN_RIGHT_PANEL_WIDTH) {
+          newRw = MIN_RIGHT_PANEL_WIDTH;
+          newSw = availableSides - newRw;
+        }
+        setSidebarWidth(newSw);
+        setRightPanelWidth(newRw);
+      }
+    } else {
+      const availableForRight = currentWindowWidth - MIN_CENTER_WIDTH - COLLAPSED_SIDEBAR_WIDTH;
+      setSidebarWidth(MIN_SIDEBAR_WIDTH);
+      setRightPanelWidth(Math.max(MIN_RIGHT_PANEL_WIDTH, Math.min(preferredRightPanelWidth, availableForRight)));
+    }
+
+    if (currentWindowWidth < CRITICAL_WIDTH && prevWidthRef.current >= CRITICAL_WIDTH) {
+      setIsSidebarCollapsed(true);
+    } else if (currentWindowWidth >= CRITICAL_WIDTH && prevWidthRef.current < CRITICAL_WIDTH) {
+      setIsSidebarCollapsed(false);
+    }
+    
+    prevWidthRef.current = currentWindowWidth;
+  }, [windowWidth, preferredSidebarWidth, preferredRightPanelWidth]);
 
   useEffect(() => {
     if (isSidebarExpanded) {
@@ -54,12 +91,12 @@ export const MainLayout = () => {
   const startResizeSidebar = (e: React.MouseEvent) => {
     e.preventDefault();
     const startX = e.clientX;
-    const startWidth = sidebarWidth;
+    const startWidth = preferredSidebarWidth;
     setIsResizing(true);
 
     const onMouseMove = (moveEvent: MouseEvent) => {
-      const newWidth = Math.min(Math.max(200, startWidth + (moveEvent.clientX - startX)), 420);
-      setSidebarWidth(newWidth);
+      const newWidth = Math.min(Math.max(MIN_SIDEBAR_WIDTH, startWidth + (moveEvent.clientX - startX)), 500);
+      setPreferredSidebarWidth(newWidth);
     };
 
     const onMouseUp = () => {
@@ -77,12 +114,12 @@ export const MainLayout = () => {
   const startResizeRightPanel = (e: React.MouseEvent) => {
     e.preventDefault();
     const startX = e.clientX;
-    const startWidth = rightPanelWidth;
+    const startWidth = preferredRightPanelWidth;
     setIsResizing(true);
 
     const onMouseMove = (moveEvent: MouseEvent) => {
-      const newWidth = Math.min(Math.max(280, startWidth - (moveEvent.clientX - startX)), 420);
-      setRightPanelWidth(newWidth);
+      const newWidth = Math.min(Math.max(MIN_RIGHT_PANEL_WIDTH, startWidth - (moveEvent.clientX - startX)), 500);
+      setPreferredRightPanelWidth(newWidth);
     };
 
     const onMouseUp = () => {
