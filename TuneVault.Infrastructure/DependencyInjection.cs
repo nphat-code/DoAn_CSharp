@@ -47,6 +47,7 @@ public static class DependencyInjection
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IRecommendationRepository, RecommendationRepository>();
         services.AddScoped<IFollowRepository, FollowRepository>();
+        services.AddScoped<INotificationService, TuneVault.Infrastructure.Services.NotificationService>();
         services.AddScoped<IEmailService, TuneVault.Infrastructure.Services.EmailService>();
         services.AddSingleton<ICacheService, TuneVault.Infrastructure.Services.MemoryCacheService>();
         services.AddHttpClient<IAiService, TuneVault.Infrastructure.Services.GeminiAiService>();
