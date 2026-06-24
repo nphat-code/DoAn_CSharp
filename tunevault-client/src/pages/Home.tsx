@@ -106,9 +106,9 @@ export const Home = () => {
 
 
   return (
-    <div className="p-6 pb-8">
+    <div className="px-6 pt-2 pb-8">
       {/* Filters */}
-      <div className="flex gap-3 px-1 mt-4 mb-6">
+      <div className="flex gap-3 px-1 mt-2 mb-6">
         <button 
           onClick={() => setActiveTab('all')}
           className={`px-4 py-1.5 rounded-full text-sm font-semibold transition ${activeTab === 'all' ? 'bg-white text-black' : 'bg-zinc-800 text-white hover:bg-zinc-700'}`}
