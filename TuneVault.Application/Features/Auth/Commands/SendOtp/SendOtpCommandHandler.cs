@@ -42,7 +42,9 @@ TuneVault";
         {
             try 
             {
+                Console.WriteLine($"[Email Task] Bắt đầu gửi email tới {request.Email}...");
                 await emailService.SendEmailAsync(request.Email, subject, body, CancellationToken.None);
+                Console.WriteLine($"[Email Task] Gửi email thành công tới {request.Email}!");
             }
             catch (Exception ex)
             {

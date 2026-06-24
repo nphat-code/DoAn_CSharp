@@ -20,23 +20,14 @@ public class EmailService(IConfiguration configuration) : IEmailService
             throw new Exception("Vui lòng cấu hình AppPassword cho EmailSettings trong appsettings.json.");
         }
 
-        var mailMessage = new MailMessage
-        {
-            From = new MailAddress(senderEmail, senderName),
-            Subject = subject,
-            Body = body,
-            IsBodyHtml = false
-        };
-        mailMessage.To.Add(toEmail);
-
         using var smtpClient = new SmtpClient(smtpServer, port)
         {
             Credentials = new NetworkCredential(senderEmail, appPassword),
             EnableSsl = true
         };
 
-        // Gửi qua background task, chấp nhận thời gian chờ lâu của Google (25-30s)
-        smtpClient.Send(mailMessage);
+        // Dùng overload string giống hệt file test_email.cs
+        smtpClient.Send(senderEmail, toEmail, subject, body);
         await Task.CompletedTask;
     }
 }
