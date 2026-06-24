@@ -6,7 +6,7 @@ import { albumService } from '../services/albumService';
 import type { AlbumDto } from '../services/albumService';
 import type { MediaItemDto } from '../types';
 // import { aiService } from '../services/aiService';
-import { Disc } from 'lucide-react';
+import { Disc, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const Home = () => {
@@ -14,6 +14,7 @@ export const Home = () => {
   const navigate = useNavigate();
   const [tracks, setTracks] = useState<MediaItemDto[]>([]);
   const [albums, setAlbums] = useState<AlbumDto[]>([]);
+  const [recentItems, setRecentItems] = useState<{isAlbum: boolean, data: any}[]>([]);
   // const [aiTracks, setAiTracks] = useState<MediaItemDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'songs' | 'albums' | 'foryou'>('all');
@@ -22,12 +23,33 @@ export const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [libData, albumData] = await Promise.all([
+        const [libData, albumData, historyData] = await Promise.all([
           mediaService.getAllMedia(),
-          albumService.getAllAlbums().catch(() => [])
+          albumService.getAllAlbums().catch(() => []),
+          mediaService.getRecentHistory(50).catch(() => [])
         ]);
         setTracks(libData);
         setAlbums(albumData);
+        
+        // Process history
+        const uniqueItems = new Map<string, any>();
+        for (const item of historyData) {
+          if (!item.mediaItem) continue;
+          
+          if (item.mediaItem.albumId) {
+            const album = albumData.find(a => a.id === item.mediaItem.albumId);
+            if (album && !uniqueItems.has(`album_${album.id}`)) {
+              uniqueItems.set(`album_${album.id}`, { isAlbum: true, data: album });
+            }
+          } else {
+            if (!uniqueItems.has(`track_${item.mediaItem.id}`)) {
+              uniqueItems.set(`track_${item.mediaItem.id}`, { isAlbum: false, data: item.mediaItem });
+            }
+          }
+          if (uniqueItems.size >= 8) break;
+        }
+        setRecentItems(Array.from(uniqueItems.values()));
+
       } catch (error) {
         console.error(error);
       } finally {
@@ -115,6 +137,61 @@ export const Home = () => {
           Album
         </button>
       </div>
+
+      {/* Recent History Grid */}
+      {activeTab === 'all' && !loading && recentItems.length > 0 && (
+        <section className="mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {recentItems.map((item) => {
+              const isAlbum = item.isAlbum;
+              const data = item.data;
+              const isPlayingThis = isAlbum 
+                ? currentMedia?.albumId === data.id && currentMedia?.isAlbumContext
+                : currentMedia?.id === data.id;
+
+              return (
+                <div 
+                  key={`${isAlbum ? 'album' : 'track'}_${data.id}`}
+                  onClick={(e) => isAlbum ? handlePlayAlbum(e, data.id) : playMediaList([data], 0)}
+                  className="flex items-center bg-white/5 hover:bg-white/20 transition-colors rounded-md overflow-hidden cursor-pointer group relative shadow-md hover:shadow-xl"
+                >
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 bg-zinc-800 shadow-[4px_0_12px_rgba(0,0,0,0.5)] z-10 relative">
+                    {data.coverUrl ? (
+                      <img src={getImageUrl(data.coverUrl)} alt={data.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-zinc-700">
+                        {isAlbum ? <Disc size={20} className="text-zinc-400" /> : <Music size={20} className="text-zinc-400" />}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 px-4 truncate">
+                    <h3 className="font-bold text-white text-sm sm:text-base truncate">{data.title}</h3>
+                  </div>
+                  <div className="pr-4 flex items-center">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (isPlayingThis) {
+                          togglePlayPause();
+                        } else {
+                          isAlbum ? handlePlayAlbum(e, data.id) : playMediaList([data], 0);
+                        }
+                      }}
+                      className={`w-10 h-10 sm:w-12 sm:h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-105 hover:bg-green-400 ${isPlayingThis ? 'opacity-100 scale-100' : 'opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100'}`}
+                    >
+                      {isPlayingThis && isPlaying ? (
+                        <svg height="20" width="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+                      ) : (
+                        <svg height="20" width="20" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* For You Section (AI) - Tạm thời vô hiệu hóa */}
       {/* {currentUser && (activeTab === 'all' || activeTab === 'foryou') && aiTracks.length > 0 && (
