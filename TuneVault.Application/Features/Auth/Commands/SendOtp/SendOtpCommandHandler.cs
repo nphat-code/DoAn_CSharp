@@ -16,14 +16,14 @@ public class SendOtpCommandHandler(
             throw new Exception("Email không tồn tại trong hệ thống.");
         }
 
-        // Generate 6-digit OTP
+        
         var random = new Random();
         var otp = random.Next(100000, 999999).ToString();
 
-        // Save to cache for 20 minutes
+        
         cacheService.Set($"OTP_{request.Email}", otp, TimeSpan.FromMinutes(20));
 
-        // Send Email in background to prevent UI hanging
+        
         var subject = "Your TuneVault login code";
         var body = $@"Hi,
 
@@ -48,7 +48,7 @@ TuneVault";
             }
             catch (Exception ex)
             {
-                // Background email sending failed
+                
                 Console.WriteLine($"Failed to send OTP email: {ex.Message}");
             }
         });

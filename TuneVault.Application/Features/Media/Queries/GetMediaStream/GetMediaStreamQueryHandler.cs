@@ -13,7 +13,7 @@ public class GetMediaStreamQueryHandler(
         var mediaItem = await mediaItemRepository.GetByIdAsync(request.MediaId, cancellationToken);
         if (mediaItem == null)
         {
-            throw new Exception("Media not found."); // Có thể đổi thành NotFoundException trong thực tế
+            throw new Exception("Media not found."); 
         }
 
         var physicalPath = fileStorageService.GetPhysicalPath(mediaItem.FileUrl);

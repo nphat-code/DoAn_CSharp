@@ -13,7 +13,7 @@ public class ClaudeAiService(HttpClient httpClient, IConfiguration configuration
         var apiKey = configuration["Anthropic:ApiKey"];
         if (string.IsNullOrEmpty(apiKey))
         {
-            // Trả về mock data nếu chưa cấu hình API Key để không bị sập ứng dụng
+            
             return new List<(string, string)>
             {
                 ("Chưa cấu hình Claude API Key", "Hệ thống")
@@ -56,7 +56,7 @@ Yêu cầu bắt buộc: Chỉ trả về ĐÚNG MỘT MẢNG JSON, không giả
         {
             var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
             Console.WriteLine($"[Claude API Error] Status: {response.StatusCode}, Detail: {errorContent}");
-            // Fallback nếu API lỗi (Hết credit, sai key...)
+            
             return new List<(string, string)>();
         }
 
@@ -70,7 +70,7 @@ Yêu cầu bắt buộc: Chỉ trả về ĐÚNG MỘT MẢNG JSON, không giả
 
             if (string.IsNullOrEmpty(textContent)) return new List<(string, string)>();
 
-            // Claude có thể thỉnh thoảng bọc json trong block ```json
+            
             textContent = textContent.Replace("```json", "").Replace("```", "").Trim();
 
             var result = JsonSerializer.Deserialize<List<ClaudeRecommendationResponse>>(textContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });

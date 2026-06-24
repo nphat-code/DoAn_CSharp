@@ -1,14 +1,14 @@
 import axios from 'axios';
 
-// Cấu hình base URL trỏ tới ASP.NET Core API
+
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://tunevault-api.onrender.com/api', // Tự động switch theo môi trường (dev/prod)
+  baseURL: import.meta.env.VITE_API_URL || 'https://tunevault-api.onrender.com/api', 
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Axios Interceptor (Request): Tự động đính kèm JWT Token vào Header của mọi request
+
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -22,18 +22,18 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Axios Interceptor (Response): Xử lý lỗi 401 Unauthorized (Token hết hạn)
+
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
       const hadToken = !!localStorage.getItem('token');
       
-      // Rút token
+      
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       
-      // Chỉ tự động chuyển hướng nếu trước đó người dùng ĐÃ có token (tức là token vừa hết hạn)
+      
       if (hadToken && window.location.pathname !== '/login' && window.location.pathname !== '/register') {
         window.location.href = '/login';
       }

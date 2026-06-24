@@ -15,7 +15,7 @@ public class DeleteArtistCommandHandler(
         if (artist == null)
             throw new Exception("Artist not found");
 
-        // Fetch and delete files for related media items
+        
         var mediaItems = await mediaItemRepository.GetByArtistIdAsync(request.Id, cancellationToken);
         foreach (var mediaItem in mediaItems)
         {
@@ -29,7 +29,7 @@ public class DeleteArtistCommandHandler(
             }
         }
 
-        // Fetch and delete files for related albums
+        
         var albums = await albumRepository.GetAlbumsByArtistIdAsync(request.Id, cancellationToken);
         foreach (var album in albums)
         {
@@ -39,7 +39,7 @@ public class DeleteArtistCommandHandler(
             }
         }
 
-        // Delete artist avatar
+        
         if (!string.IsNullOrEmpty(artist.AvatarUrl))
         {
             await fileStorageService.DeleteFileAsync(artist.AvatarUrl, cancellationToken);

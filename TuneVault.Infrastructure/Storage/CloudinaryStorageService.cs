@@ -39,7 +39,7 @@ public class CloudinaryStorageService : IFileStorageService
 
         UploadResult uploadResult;
 
-        // Cloudinary phân biệt Image và Video (Audio tính là Video)
+        
         if (ext is ".jpg" or ".jpeg" or ".png" or ".gif" or ".webp")
         {
             var imageParams = new ImageUploadParams()
@@ -68,7 +68,7 @@ public class CloudinaryStorageService : IFileStorageService
                 Folder = $"tunevault/{folderName}",
                 PublicId = uniqueFileName
             };
-            // SDK không có UploadAsync cho RawUploadParams nên dùng Upload bọc trong Task
+            
             uploadResult = await Task.Run(() => _cloudinary.Upload(rawParams), cancellationToken);
         }
 
@@ -100,7 +100,7 @@ public class CloudinaryStorageService : IFileStorageService
 
             var afterUpload = fileUrl.Substring(uploadIndex + 7);
             
-            // Xóa phiên bản (vd: v1234567/) nếu có
+            
             if (afterUpload.StartsWith("v") && afterUpload.Contains("/"))
             {
                 var slashIndex = afterUpload.IndexOf("/");
@@ -111,7 +111,7 @@ public class CloudinaryStorageService : IFileStorageService
                 }
             }
 
-            // Tách public_id (loại bỏ đuôi mở rộng)
+            
             var lastDot = afterUpload.LastIndexOf(".");
             var publicId = lastDot > 0 ? afterUpload.Substring(0, lastDot) : afterUpload;
 

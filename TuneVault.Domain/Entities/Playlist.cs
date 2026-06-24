@@ -9,10 +9,10 @@ public class Playlist
     public bool IsPublic { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    // Foreign Key
+    
     public Guid UserProfileId { get; set; }
     
-    // Navigation property
+    
     public UserProfile UserProfile { get; set; } = null!;
 
     public ICollection<PlaylistTrack> PlaylistTracks { get; set; } = new List<PlaylistTrack>();

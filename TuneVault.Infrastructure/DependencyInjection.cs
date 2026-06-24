@@ -20,15 +20,15 @@ public static class DependencyInjection
 
         IConfiguration configuration)
     {
-        // Đọc chuỗi kết nối an toàn từ appsettings.json
+        
         var connectionString = configuration.GetConnectionString("DefaultConnection")
 
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-        // Cấu hình IDbConnection cho Dapper dùng Npgsql (PostgreSQL)
+        
         services.AddScoped<IDbConnection>(sp => new NpgsqlConnection(connectionString));
 
-        // Đăng ký TypeHandler cho TimeSpan của Dapper
+        
         SqlMapper.AddTypeHandler(new TimeSpanHandler());
 
         services.AddAuth(configuration);
@@ -87,7 +87,7 @@ public static class DependencyInjection
                         Encoding.UTF8.GetBytes(jwtSettings.Secret))
                 };
 
-                // Xử lý token cho SignalR (WebSockets không gửi qua Header được)
+                
 
                 options.Events = new JwtBearerEvents
                 {

@@ -44,7 +44,7 @@ export const ArtistDetail = () => {
       try {
         if (!id) return;
 
-        // Fetch all artists and find the matching one
+        
         const allArtists = await artistService.getAllArtists();
         const foundArtist = allArtists.find(a => a.id === id);
 
@@ -52,16 +52,16 @@ export const ArtistDetail = () => {
           setArtist(foundArtist);
         }
 
-        // Fetch follow status
+        
         const followStatus = await artistService.getFollowStatus(id);
         setIsFollowing(followStatus);
 
-        // Fetch all media and filter by artistId
+        
         const allMedia = await mediaService.getAllMedia();
         const artistTracks = allMedia.filter(m => m.artistId === id);
         setTracks(artistTracks);
 
-        // Fetch liked tracks for the tracklist
+        
         const favoritesData = await mediaService.getFavorites();
         setLikedTracks(new Set(favoritesData.map(t => t.id)));
 
@@ -201,7 +201,7 @@ export const ArtistDetail = () => {
 
   return (
     <div className="flex flex-col h-full relative bg-spotify-card overflow-hidden">
-      {/* Background Gradient Layer */}
+      
       <div
         ref={gradientRef}
         className="absolute top-0 left-0 w-full pointer-events-none z-0"
@@ -211,18 +211,18 @@ export const ArtistDetail = () => {
         }}
       />
 
-      {/* Scrollable Content Layer */}
+      
       <div
         ref={scrollRef}
         className="h-full overflow-y-auto relative z-10 w-full scrollbar-hide grid grid-rows-[auto_1fr]"
         onScroll={handleScroll}
       >
-        {/* Header - Image as background */}
+        
         <div
           className="relative px-6 pb-6 pt-16 flex items-end"
           style={{ height: 'clamp(340px, 40cqw, 400px)', minHeight: '340px' }}
         >
-          {/* Header Background Image */}
+          
           {artist.avatarUrl && (
             <div
               className="absolute inset-0 z-0 bg-cover bg-center"
@@ -250,15 +250,15 @@ export const ArtistDetail = () => {
               <span className="text-white text-sm font-medium drop-shadow-md">Do Tunevault xác minh</span>
             </div>
             <div className="text-white font-medium text-base drop-shadow-md">
-              {/* Fake monthly listeners count based on ID length to be consistent */}
+              
               {Math.floor((artist.name.length * 12345) % 1000000 + 50000).toLocaleString('vi-VN')} người nghe hằng tháng
             </div>
           </div>
         </div>
 
-        {/* Content wrapper */}
+        
         <div className="w-full h-full flex flex-col pt-6 relative z-10 bg-black/20">
-          {/* Controls */}
+          
           <div className="flex items-center gap-6 mb-8 px-6">
             <button
               onClick={handleMainPlayClick}
@@ -318,7 +318,7 @@ export const ArtistDetail = () => {
             </div>
           </div>
 
-          {/* Popular Tracks Section */}
+          
           <div className="w-full px-6 mb-8">
             <h2 className="text-2xl font-bold text-white mb-4">Phổ biến</h2>
 

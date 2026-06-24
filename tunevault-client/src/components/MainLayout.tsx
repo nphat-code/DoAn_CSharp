@@ -89,7 +89,7 @@ export const MainLayout = () => {
     }
     
     prevWidthRef.current = currentWindowWidth;
-  }, [windowWidth]); // Only depend on windowWidth to avoid see-saw effect
+  }, [windowWidth]); 
 
   useEffect(() => {
     if (isSidebarExpanded) {
@@ -163,13 +163,13 @@ export const MainLayout = () => {
   return (
     <NotificationProvider>
       <PlayerProvider>
-        {/* Nền đen toàn cục, áp dụng gap-2 cho toàn bộ giao diện */}
+        
         <div className="h-screen w-full min-w-[900px] flex flex-col bg-spotify-base p-2 gap-2 text-white font-sans select-none overflow-x-auto">
           <TopBar />
           
-          {/* Vùng thân gồm Sidebar - MainContent - RightPanel */}
+          
           <div className="flex-1 flex overflow-hidden relative">
-            {/* Wrapper cho Sidebar để xử lý hiệu ứng mở rộng (overlay lên trên MainContent) */}
+            
             <div 
               className={`${isResizing ? '' : 'transition-all duration-300'} flex-shrink-0 overflow-hidden ${isSidebarExpanded ? 'absolute top-0 bottom-0 left-0 z-40' : 'relative h-full'}`}
               style={{ 
@@ -196,7 +196,7 @@ export const MainLayout = () => {
               </div>
             </div>
 
-            {/* Placeholder giữ chỗ khi Sidebar thành absolute để không làm co giật layout */}
+            
             {isSidebarExpanded && (
               <div 
                 className="flex-none transition-all duration-300"
@@ -204,7 +204,7 @@ export const MainLayout = () => {
               />
             )}
             
-            {/* Resizer Sidebar */}
+            
             {!isSidebarCollapsed && !isSidebarExpanded && (
               <div 
                 onMouseDown={startResizeSidebar}
@@ -243,7 +243,7 @@ export const MainLayout = () => {
               </main>
             </div>
 
-            {/* Resizer RightPanel */}
+            
             <div 
               onMouseDown={startResizeRightPanel}
               className="w-2 cursor-col-resize z-50 flex-shrink-0 bg-transparent"
@@ -252,16 +252,16 @@ export const MainLayout = () => {
 
             <RightPanel width={rightPanelWidth} />
 
-            {/* Now Playing Overlay rendered unconditionally (it hides itself if not expanded) */}
+            
             <NowPlayingOverlay />
           </div>
 
-          {/* Fixed PlayerBar */}
+          
           <div className="w-full shrink-0 relative z-50">
             <PlayerBar />
           </div>
 
-          {/* Login Modal */}
+          
           <LoginModal />
         </div>
       </PlayerProvider>

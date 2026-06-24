@@ -10,7 +10,7 @@ public class GetAiRecommendationsQueryHandler(
 {
     public async Task<IEnumerable<MediaItemDto>> Handle(GetAiRecommendationsQuery request, CancellationToken cancellationToken)
     {
-        // 1. Get play history and favorite strings
+        
         var historyContext = await recommendationRepository.GetUserHistoryContextAsync(request.UserId, cancellationToken);
         var favoritesContext = await recommendationRepository.GetUserFavoritesContextAsync(request.UserId, cancellationToken);
 
@@ -20,7 +20,7 @@ public class GetAiRecommendationsQueryHandler(
             return await recommendationRepository.GetFallbackRecommendationsAsync(cancellationToken);
         }
 
-        // 2. Send to AI
+        
         Console.WriteLine("[AI RECOMMENDATION] Sending prompt to Gemini AI...");
         var aiRecommendations = await aiService.GetRecommendationsAsync(historyContext, favoritesContext, cancellationToken);
 
@@ -30,7 +30,7 @@ public class GetAiRecommendationsQueryHandler(
             return await recommendationRepository.GetFallbackRecommendationsAsync(cancellationToken);
         }
 
-        // 3. Search DB for matching media items
+        
         var results = await recommendationRepository.SearchMediaByAiRecommendationsAsync(aiRecommendations, cancellationToken);
 
         if (!results.Any())

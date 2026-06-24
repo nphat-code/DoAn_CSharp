@@ -38,7 +38,7 @@ public class UploadMediaCommandValidator : AbstractValidator<UploadMediaCommand>
 
     private bool HaveValidImageExtension(string? fileName)
     {
-        if (string.IsNullOrWhiteSpace(fileName)) return true; // Optional
+        if (string.IsNullOrWhiteSpace(fileName)) return true; 
         var ext = Path.GetExtension(fileName).ToLowerInvariant();
         return ext is ".jpg" or ".jpeg" or ".png" or ".webp";
     }

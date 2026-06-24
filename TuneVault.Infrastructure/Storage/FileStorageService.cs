@@ -44,8 +44,8 @@ public class FileStorageService(IWebHostEnvironment env) : IFileStorageService
             }
             catch (IOException ex)
             {
-                // File có thể đang được khóa bởi trình duyệt (đang phát nhạc) trên Windows.
-                // Log lỗi và bỏ qua để cho phép xóa record trong Database.
+                
+                
                 Console.WriteLine($"Không thể xóa file vật lý (có thể đang bị khóa): {ex.Message}");
             }
         }

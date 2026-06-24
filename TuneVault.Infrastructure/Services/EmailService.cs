@@ -11,7 +11,7 @@ public class EmailService(IConfiguration configuration) : IEmailService
 
     public async Task SendEmailAsync(string toEmail, string subject, string body, CancellationToken cancellationToken)
     {
-        // URL Web App của Google Apps Script (bạn lấy ở bước deploy)
+        
         var scriptUrl = configuration["EmailSettings:GoogleScriptUrl"];
 
         if (string.IsNullOrEmpty(scriptUrl))
@@ -23,7 +23,7 @@ public class EmailService(IConfiguration configuration) : IEmailService
         {
             to = toEmail,
             subject = subject,
-            body = body.Replace("\n", "<br>") // Đổi văn bản thuần thành HTML
+            body = body.Replace("\n", "<br>") 
         };
 
         var request = new HttpRequestMessage(HttpMethod.Post, scriptUrl)

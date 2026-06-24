@@ -20,15 +20,15 @@ public class AuthorizationBehavior<TRequest, TResponse>(ICurrentUserService curr
                 throw new UnauthorizedException("Bạn cần đăng nhập để thực hiện chức năng này.");
             }
 
-            // Có thể thêm logic kiểm tra Role (Role-based Authorization) tại đây nếu cần
-            // bool hasAccess = true; 
-            // if (!hasAccess)
-            // {
-            //     throw new ForbiddenAccessException();
-            // }
+            
+            
+            
+            
+            
+            
         }
 
-        // Vượt qua kiểm tra quyền -> đi tiếp tới bước Validation hoặc Handler
+        
         return await next();
     }
 }

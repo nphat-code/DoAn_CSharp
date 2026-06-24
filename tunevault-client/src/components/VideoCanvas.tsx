@@ -17,7 +17,7 @@ export const VideoCanvas: React.FC<VideoCanvasProps> = ({ videoRef, className, s
 
     if (!canvas || !video || !ctx) return;
 
-    // Force an initial draw in case the video is already paused but has a frame
+    
     const forceDraw = () => {
       if (video.readyState >= 2) {
         if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
@@ -29,7 +29,7 @@ export const VideoCanvas: React.FC<VideoCanvasProps> = ({ videoRef, className, s
     };
 
     const drawLoop = () => {
-      // Always draw if video has frames, even if paused, to ensure canvas shows the correct frame
+      
       if (video.readyState >= 2) {
         if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
           canvas.width = video.videoWidth;
@@ -40,10 +40,10 @@ export const VideoCanvas: React.FC<VideoCanvasProps> = ({ videoRef, className, s
       animationFrameId = requestAnimationFrame(drawLoop);
     };
 
-    // Bắt đầu vòng lặp
+    
     drawLoop();
 
-    // Lắng nghe sự kiện để force draw khi video load xong data
+    
     video.addEventListener('loadeddata', forceDraw);
     video.addEventListener('seeked', forceDraw);
 

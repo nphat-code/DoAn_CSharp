@@ -102,12 +102,12 @@ export const UserProfile = () => {
 
   return (
     <div className="flex flex-col h-full bg-[#121212] overflow-y-auto">
-      {/* Header */}
+      
       <div
         className="flex flex-col md:flex-row items-end gap-6 px-6 pb-6 bg-gradient-to-b from-[#535353] to-[#181818] text-white shrink-0 relative z-10"
         style={{ height: 'clamp(225.9px, 30cqw, 380px)', minHeight: '225.9px' }}
       >
-        {/* Avatar */}
+        
         <div
           className="rounded-full overflow-hidden shadow-[0_4px_60px_rgba(0,0,0,0.5)] relative flex-shrink-0 bg-[#282828]"
           style={{ width: 'clamp(150px, 22cqw, 230px)', height: 'clamp(150px, 22cqw, 230px)' }}
@@ -129,7 +129,7 @@ export const UserProfile = () => {
           )}
         </div>
         
-        {/* Info */}
+        
         <div className="flex flex-col justify-center min-w-0 flex-1 w-full md:w-auto text-center md:text-left">
           <span className="text-sm font-bold tracking-wider mb-2 hidden md:block">Hồ sơ</span>
           <h1
@@ -153,10 +153,10 @@ export const UserProfile = () => {
         </div>
       </div>
 
-      {/* Content */}
+      
       <div className="px-8 py-6 bg-gradient-to-b from-[#181818]/80 to-[#121212] flex-1">
         
-        {/* Actions (Follow, More) */}
+        
         <div className="flex items-center gap-6 mb-8 text-zinc-400">
           <button 
             onClick={handleFollowToggle}
@@ -179,7 +179,7 @@ export const UserProfile = () => {
                     if (confirm('Admin: Bạn có chắc chắn muốn xóa vĩnh viễn người dùng này cùng toàn bộ dữ liệu của họ?')) {
                       try {
                         await profileService.deleteProfile(id);
-                        navigate('/'); // Quay về trang chủ mà không load lại trang
+                        navigate('/'); 
                       } catch (error) {
                         alert('Có lỗi xảy ra khi xóa người dùng!');
                       }
@@ -195,7 +195,7 @@ export const UserProfile = () => {
           })()}
         </div>
 
-        {/* Playlists Section */}
+        
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-white mb-6 hover:underline cursor-pointer inline-block">Playlist Công khai</h2>
           
@@ -240,7 +240,7 @@ export const UserProfile = () => {
           )}
         </div>
 
-        {/* Followers Section */}
+        
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-white mb-6 hover:underline cursor-pointer inline-block">Người theo dõi</h2>
           {followers.length > 0 ? (
@@ -274,7 +274,7 @@ export const UserProfile = () => {
           )}
         </div>
 
-        {/* Following Section */}
+        
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-white mb-6 hover:underline cursor-pointer inline-block">Đang theo dõi</h2>
           {following.length > 0 ? (

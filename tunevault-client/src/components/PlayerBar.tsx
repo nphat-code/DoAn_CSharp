@@ -57,7 +57,7 @@ export const PlayerBar = () => {
     media.addEventListener('loadedmetadata', handleLoadedMetadata);
     media.addEventListener('ended', handleEnded);
     
-    // Khởi tạo giá trị ban đầu nếu media đã load xong
+    
     if (media.readyState >= 1) {
       setDuration(media.duration);
     }
@@ -108,7 +108,7 @@ export const PlayerBar = () => {
     return () => window.removeEventListener('playlistsUpdated', fetchPlaylists);
   }, []);
 
-  // Đóng menu khi click ra ngoài
+  
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -152,13 +152,13 @@ export const PlayerBar = () => {
 
   const optimizeCloudinaryUrl = (url: string | undefined) => {
     if (!url) return '';
-    // Xóa f_auto/q_auto vì nó làm Cloudinary xử lý on-the-fly, phá vỡ tính năng tua (Range Requests)
+    
     return url.startsWith('http') ? url : `https://tunevault-api.onrender.com/api/media/${currentMedia.id}/stream`;
   };
 
   return (
     <div className="h-20 bg-spotify-base flex items-center justify-between px-4 pb-2">
-      {/* Global Media Element - Hidden by default, manually appended to targets */}
+      
       <div className="hidden">
         {currentMedia.mediaType === 'Video' ? (
           <video
@@ -178,7 +178,7 @@ export const PlayerBar = () => {
         )}
       </div>
       
-      {/* Song Info */}
+      
       <div className="flex items-center w-1/3">
         {currentMedia.coverUrl ? (
           <img src={getImageUrl(currentMedia.coverUrl)} alt={currentMedia.title} className="w-14 h-14 rounded-md object-cover flex-shrink-0 shadow-lg" />
@@ -211,7 +211,7 @@ export const PlayerBar = () => {
               )}
             </button>
             
-            {/* Menu Thêm vào danh sách phát */}
+            
             {showPlaylistMenu && (
               <div className="absolute bottom-full left-0 mb-4 w-72 bg-[#282828] rounded-md shadow-[0_16px_24px_rgba(0,0,0,0.5)] p-2 z-50 animate-in fade-in zoom-in duration-200 border border-zinc-700/50">
                 <div className="text-sm font-bold text-white mb-2 px-2 pt-2">Thêm vào danh sách phát</div>
@@ -270,7 +270,7 @@ export const PlayerBar = () => {
         </div>
       </div>
 
-      {/* Controls */}
+      
       <div className="flex flex-col items-center w-1/3 max-w-md mt-1">
         <div className="flex items-center gap-6 mb-2">
           <button onClick={playPrevious} className="text-spotify-lighttext hover:text-white transition"><SkipBack size={20} className="fill-current" /></button>
@@ -297,7 +297,7 @@ export const PlayerBar = () => {
         </div>
       </div>
 
-      {/* Volume */}
+      
       <div className="flex items-center justify-end w-1/3 gap-4 pr-2">
         <button 
           onClick={() => setShowQueue(!showQueue)}

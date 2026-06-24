@@ -17,7 +17,7 @@ export const TrackDetail = () => {
   const [loading, setLoading] = useState(true);
   const [isFav, setIsFav] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [bgColor, setBgColor] = useState<string>('rgba(17, 94, 89, 0.8)'); // Fallback teal
+  const [bgColor, setBgColor] = useState<string>('rgba(17, 94, 89, 0.8)'); 
   const { playMedia, currentMedia, isPlaying, togglePlayPause, setIsFavorited } = usePlayer();
 
 
@@ -29,7 +29,7 @@ export const TrackDetail = () => {
         const found = allMedia.find(m => m.id === id);
         if (found) {
           setTrack(found);
-          // Check favorite status
+          
           try {
             const favRes = await mediaService.checkFavorite(found.id);
             setIsFav(favRes.isFavorited);
@@ -37,7 +37,7 @@ export const TrackDetail = () => {
             console.error("Lỗi khi tải trạng thái yêu thích:", e);
           }
         } else {
-          // Xử lý không tìm thấy
+          
           navigate('/');
         }
       } catch (error) {
@@ -101,23 +101,23 @@ export const TrackDetail = () => {
   };
 
   const coverUrl = track.coverUrl ? getImageUrl(track.coverUrl) : "https://i.scdn.co/image/ab67616d0000b27341ea2ea7ea8a5be92d3c1f62";
-  const artistAvatar = track.artistAvatarUrl ? getImageUrl(track.artistAvatarUrl) : "https://i.scdn.co/image/ab67616d00001e023192276cb04c3da1dd1f2cf8"; // Default avatar
+  const artistAvatar = track.artistAvatarUrl ? getImageUrl(track.artistAvatarUrl) : "https://i.scdn.co/image/ab67616d00001e023192276cb04c3da1dd1f2cf8"; 
 
   return (
     <div className="h-full bg-spotify-card overflow-y-auto relative scrollbar-hide grid grid-rows-[auto_1fr]">
-      {/* Background Gradient */}
+      
       <div 
         className="absolute top-0 left-0 w-full h-[340px] pointer-events-none z-0"
         style={{
           background: `linear-gradient(to bottom, ${bgColor} 0%, transparent 100%)`
         }}
       />
-      {/* Header */}
+      
       <div 
         className="flex items-end gap-6 px-6 pb-6 shrink-0 relative z-10"
         style={{ height: 'clamp(195.5px, 25cqw, 340px)', minHeight: '195.5px' }}
       >
-        {/* Cover Art */}
+        
         <div 
           className="bg-zinc-800 shadow-2xl flex-shrink-0 flex items-center justify-center overflow-hidden"
           style={{ width: 'clamp(143.69px, 20cqw, 232px)', height: 'clamp(143.69px, 20cqw, 232px)' }}
@@ -129,7 +129,7 @@ export const TrackDetail = () => {
           />
         </div>
 
-        {/* Info */}
+        
         <div className="flex flex-col justify-end min-w-0 flex-1 w-full pb-1">
           <span className="text-sm font-bold text-white tracking-widest mb-1">Bài hát</span>
           
@@ -141,7 +141,7 @@ export const TrackDetail = () => {
           </h1>
           
           <div className="flex items-center flex-wrap gap-2 text-xs sm:text-sm font-medium text-white/90">
-            {/* Artist Avatar & Name */}
+            
             <div 
               className="flex items-center gap-2 group cursor-pointer hover:underline"
               onClick={() => track.artistId && navigate(`/artist/${track.artistId}`)}
@@ -175,9 +175,9 @@ export const TrackDetail = () => {
         </div>
       </div>
 
-      {/* Action Bar Background transition */}
+      
       <div className="w-full h-full flex flex-col bg-black/20 relative z-10">
-        {/* ACTION BAR */}
+        
         <div className="flex items-center gap-6 px-6 py-4">
         <button 
           onClick={handlePlayClick}
@@ -221,7 +221,7 @@ export const TrackDetail = () => {
         />
         </div>
 
-        {/* Lời bài hát Section (Lyrics Placeholder) */}
+        
         <div className="px-6 max-w-3xl mt-4 pb-24">
            <h2 className="text-white text-2xl font-bold mb-6">Lời bài hát</h2>
            <div className="bg-zinc-800/40 rounded-xl p-6">
@@ -236,7 +236,7 @@ export const TrackDetail = () => {
         </div>
       </div>
 
-      {/* Share Modal */}
+      
       {showShareModal && track && (
         <ShareMediaModal
           mediaId={track.id}

@@ -20,7 +20,7 @@ public class MediaItem
     public Guid? ArtistId { get; set; }
     public Artist? Artist { get; set; }
 
-    // Navigation properties
+    
     public ICollection<PlaylistTrack> PlaylistTracks { get; set; } = new List<PlaylistTrack>();
     public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
     public ICollection<PlayHistory> PlayHistories { get; set; } = new List<PlayHistory>();

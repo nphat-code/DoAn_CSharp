@@ -45,7 +45,7 @@ public class ArtistsController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("{id}/follow")]
-    [Authorize] // Any logged-in user can follow
+    [Authorize] 
     public async Task<IActionResult> FollowArtist(Guid id)
     {
         var result = await mediator.Send(new TuneVault.Application.Features.Artists.Commands.FollowArtist.FollowArtistCommand(id));

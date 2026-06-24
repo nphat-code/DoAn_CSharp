@@ -14,11 +14,11 @@ export const mediaService = {
     return response.data.data;
   },
 
-  // Upload file nhạc kèm form data (multipart/form-data)
+  
   uploadMedia: async (formData: FormData): Promise<MediaItemDto> => {
     const response = await apiClient.post<MediaItemDto>('/media/upload', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data', // Ghi đè header mặc định
+        'Content-Type': 'multipart/form-data', 
       },
     });
     return response.data;

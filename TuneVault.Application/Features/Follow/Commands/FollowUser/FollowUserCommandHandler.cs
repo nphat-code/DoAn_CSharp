@@ -21,7 +21,7 @@ public class FollowUserCommandHandler(
             var notifId = Guid.NewGuid();
             var createdAt = DateTime.UtcNow;
             
-            // 1. Lưu thông báo vào Database
+            
             await notificationRepository.AddNotificationAsync(new TuneVault.Domain.Entities.Notification
             {
                 Id = notifId,
@@ -32,7 +32,7 @@ public class FollowUserCommandHandler(
                 CreatedAt = createdAt
             }, cancellationToken);
 
-            // 2. Gửi realtime thông báo cho User
+            
             await notificationService.SendNotificationToUserAsync(
                 request.FollowingId,
                 notifId,

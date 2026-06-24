@@ -17,7 +17,7 @@ public class AzureBlobStorageService : IFileStorageService
         
         if (string.IsNullOrEmpty(connectionString) || connectionString == "YOUR_AZURE_BLOB_CONNECTION_STRING")
         {
-            // Trả về null client để fallback nếu chưa cấu hình
+            
             _blobServiceClient = null!;
         }
         else
@@ -30,19 +30,19 @@ public class AzureBlobStorageService : IFileStorageService
     {
         if (_blobServiceClient == null)
         {
-            // Nếu chưa có connection string thật, trả về link giả để không bị lỗi ứng dụng
+            
             return $"/mock-azure-blob/{folderName}/{originalFileName}";
         }
 
         var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
         
-        // Tạo container nếu chưa có và cấp quyền đọc Public để frontend có thể play nhạc
+        
         await blobContainerClient.CreateIfNotExistsAsync(PublicAccessType.Blob, cancellationToken: cancellationToken);
 
         var uniqueFileName = $"{folderName}/{Guid.NewGuid()}_{Path.GetFileName(originalFileName)}";
         var blobClient = blobContainerClient.GetBlobClient(uniqueFileName);
 
-        // Reset lại stream nếu stream có hỗ trợ (ví dụ vừa được đọc trước đó)
+        
         if (fileStream.CanSeek)
         {
             fileStream.Position = 0;
@@ -53,13 +53,13 @@ public class AzureBlobStorageService : IFileStorageService
             HttpHeaders = new BlobHttpHeaders { ContentType = GetContentType(originalFileName) }
         }, cancellationToken);
 
-        // Trả về đường link trực tiếp tới file trên Azure
+        
         return blobClient.Uri.ToString();
     }
 
     public string GetPhysicalPath(string fileUrl)
     {
-        // Azure Blob không dùng đường dẫn vật lý cục bộ, trả về chính URL đó
+        
         return fileUrl;
     }
 
@@ -73,7 +73,7 @@ public class AzureBlobStorageService : IFileStorageService
         try
         {
             var uri = new Uri(fileUrl);
-            // Parse tên blob từ URL (bỏ qua domain và container)
+            
             var blobName = uri.Segments.Skip(2).Select(s => Uri.UnescapeDataString(s)).Aggregate((a, b) => a + b);
             
             var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_containerName);

@@ -36,7 +36,7 @@ export const Register = () => {
     }
   }, []);
 
-  // Password validation state
+  
   const hasLetter = /[a-zA-Z]/.test(password);
   const hasNumberOrSpecial = /[^a-zA-Z\s]/.test(password);
   const hasMinLength = password.length >= 10;

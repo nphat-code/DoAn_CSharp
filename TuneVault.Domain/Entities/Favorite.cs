@@ -1,6 +1,6 @@
 namespace TuneVault.Domain.Entities;
 
-// Junction Table (Nhiều - Nhiều giữa User và MediaItem) cho danh sách Favorite
+
 public class Favorite
 {
     public Guid UserProfileId { get; set; }

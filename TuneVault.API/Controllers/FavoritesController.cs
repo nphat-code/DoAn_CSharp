@@ -11,7 +11,7 @@ namespace TuneVault.API.Controllers;
 [Authorize]
 public class FavoritesController(IMediator mediator) : ControllerBase
 {
-    // POST /api/favorites/toggle/{mediaId}
+    
     [HttpPost("toggle/{mediaId}")]
     public async Task<IActionResult> ToggleFavorite(Guid mediaId)
     {
@@ -26,7 +26,7 @@ public class FavoritesController(IMediator mediator) : ControllerBase
         return Ok(new { isFavorited });
     }
 
-    // GET /api/favorites/check/{mediaId}
+    
     [HttpGet("check/{mediaId}")]
     public async Task<IActionResult> CheckFavorite(Guid mediaId)
     {
@@ -36,14 +36,14 @@ public class FavoritesController(IMediator mediator) : ControllerBase
             return Unauthorized("Không thể xác thực danh tính người dùng.");
         }
 
-        // We can just use the repository directly or create a query. For simplicity here:
+        
         var repo = HttpContext.RequestServices.GetRequiredService<TuneVault.Application.Interfaces.IFavoriteRepository>();
         var isFavorited = await repo.IsFavoritedAsync(userId, mediaId, HttpContext.RequestAborted);
 
         return Ok(new { isFavorited });
     }
 
-    // GET /api/favorites
+    
     [HttpGet]
     public async Task<IActionResult> GetFavorites()
     {

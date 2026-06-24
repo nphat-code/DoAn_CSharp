@@ -11,14 +11,14 @@ public class CreateAlbumCommandHandler(
 {
     public async Task<Guid> Handle(CreateAlbumCommand request, CancellationToken cancellationToken)
     {
-        // 1. Lưu ảnh bìa
+        
         string? coverUrl = null;
         if (request.CoverImageStream != null && !string.IsNullOrWhiteSpace(request.CoverImageFileName))
         {
             coverUrl = await fileStorageService.SaveFileAsync(request.CoverImageStream, request.CoverImageFileName, "covers", cancellationToken);
         }
 
-        // 2. Xử lý Nghệ sĩ
+        
         Guid artistId;
         var artistName = request.ArtistName.Trim();
         var existingArtist = await artistRepository.GetByNameAsync(artistName, cancellationToken);
@@ -39,7 +39,7 @@ public class CreateAlbumCommandHandler(
             artistId = newArtist.Id;
         }
 
-        // 3. Tạo Album
+        
         var album = new Album
         {
             Id = Guid.NewGuid(),

@@ -187,7 +187,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
     <div
       className="bg-spotify-card rounded-lg flex flex-col overflow-hidden h-full w-full group"
     >
-      {/* Header */}
+      
       <div className="p-4 flex flex-col gap-4 shadow-sm">
         {isCollapsed ? (
           <div className="flex flex-col items-center justify-center gap-4 group">
@@ -224,7 +224,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
               </div>
             </div>
 
-            {/* Filters */}
+            
             <div className="flex gap-2 text-sm font-medium mt-1">
               {activeFilter !== 'all' && (
                 <button onClick={() => setActiveFilter('all')} className="w-8 h-8 flex items-center justify-center bg-zinc-800 text-white rounded-full transition hover:bg-zinc-700 shrink-0">
@@ -245,7 +245,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
         )}
       </div>
 
-      {/* Playlist Content */}
+      
       <div className={`flex-1 overflow-y-auto px-2 ${isCollapsed ? 'flex flex-col items-center' : ''} scrollbar-hide hover:scrollbar-default`}>
         {(() => {
           const showPlaylists = activeFilter === 'all' || activeFilter === 'playlist';
@@ -285,7 +285,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                 </div>
               )}
 
-              {/* List */}
+              
               <div className={`pb-4 ${isCollapsed ? 'flex flex-col items-center gap-4 w-full' : (isExpanded ? "grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-0 px-4 mt-2" : "flex flex-col gap-1")}`}>
                 {!isAuthenticated ? (
                   !isCollapsed && (
@@ -363,7 +363,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                   </>
                 )}
 
-                {/* User Playlists */}
+                
                 {isAuthenticated && showPlaylists && filteredPlaylists.map(playlist => (
                   <div
                     key={playlist.id}
@@ -412,7 +412,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                   </div>
                 ))}
 
-                {/* Albums */}
+                
                 {loading ? (
                   !isCollapsed && <div className="p-4 text-center text-zinc-500 text-sm w-full">Đang tải thư viện...</div>
                 ) : (
@@ -464,7 +464,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
                         )}
                       </div>
                     ))}
-                    {/* Artists */}
+                    
                     {isAuthenticated && showArtists && filteredArtists.map(artist => (
                       <div
                         key={artist.id}

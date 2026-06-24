@@ -13,23 +13,23 @@ public class LoginCommandHandler(
 
     public async Task<LoginResponseDto> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        // 1. Kiểm tra User tồn tại
+        
         var user = await userRepository.GetByEmailAsync(request.Email, cancellationToken);
         if (user == null)
         {
             throw new UnauthorizedException("Invalid email or password.");
         }
 
-        // 2. Kiểm tra Password
+        
         if (!passwordHasher.Verify(request.Password, user.PasswordHash))
         {
             throw new UnauthorizedException("Invalid email or password.");
         }
 
-        // 3. Sinh Token
+        
         var token = jwtTokenGenerator.GenerateToken(user);
 
-        // 4. Trả về DTO
+        
         return new LoginResponseDto
         {
             UserId = user.Id,

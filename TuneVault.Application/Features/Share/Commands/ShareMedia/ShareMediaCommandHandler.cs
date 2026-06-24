@@ -15,7 +15,7 @@ public class ShareMediaCommandHandler(
             : $"Bạn nhận được một bài hát kèm lời nhắn: {request.Message}";
         var createdAt = DateTime.UtcNow;
 
-        // 1 & 2. Gọi sang tầng Infrastructure để lưu DB (Bảo đảm Clean Architecture)
+        
         var success = await shareRepository.ShareMediaAsync(
             request.SenderId, 
             request.ReceiverId, 
@@ -27,11 +27,11 @@ public class ShareMediaCommandHandler(
 
         if (!success)
         {
-            // Trả về false nếu đã share rồi (idempotent), không gửi lại notification
+            
             return false;
         }
 
-        // 3. Đẩy thông báo Real-time cho Receiver
+        
         await notificationService.SendNotificationToUserAsync(
             request.ReceiverId, 
             notifId,

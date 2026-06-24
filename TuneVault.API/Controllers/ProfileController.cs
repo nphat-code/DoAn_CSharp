@@ -13,7 +13,7 @@ namespace TuneVault.API.Controllers;
 [Authorize]
 public class ProfileController(IMediator mediator) : ControllerBase
 {
-    // GET /api/profile
+    
     [HttpGet]
     public async Task<ActionResult<ProfileDto>> GetMyProfile()
     {
@@ -25,7 +25,7 @@ public class ProfileController(IMediator mediator) : ControllerBase
         return Ok(new { success = true, data = profile });
     }
 
-    // GET /api/profile/{id}
+    
     [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<ActionResult<ProfileDto>> GetProfileById(Guid id)
@@ -41,7 +41,7 @@ public class ProfileController(IMediator mediator) : ControllerBase
         }
     }
 
-    // PUT /api/profile/avatar
+    
     [HttpPut("avatar")]
     public async Task<IActionResult> UpdateAvatar([FromBody] string avatarUrl)
     {
@@ -53,7 +53,7 @@ public class ProfileController(IMediator mediator) : ControllerBase
         return Ok(new { success });
     }
 
-    // PUT /api/profile
+    
     [HttpPut]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
     {
@@ -65,7 +65,7 @@ public class ProfileController(IMediator mediator) : ControllerBase
         return Ok(new { success });
     }
 
-    // GET /api/profile/search
+    
     [HttpGet("search")]
     public async Task<ActionResult<IEnumerable<ProfileDto>>> SearchUsers([FromQuery] string q)
     {
@@ -76,7 +76,7 @@ public class ProfileController(IMediator mediator) : ControllerBase
         return Ok(result);
     }
 
-    // DELETE /api/profile
+    
     [HttpDelete]
     public async Task<IActionResult> DeleteProfile()
     {
@@ -88,7 +88,7 @@ public class ProfileController(IMediator mediator) : ControllerBase
         return Ok(new { success });
     }
 
-    // DELETE /api/profile/{id}
+    
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUserAsAdmin(Guid id)
     {

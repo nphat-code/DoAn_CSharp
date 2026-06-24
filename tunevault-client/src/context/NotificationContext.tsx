@@ -32,7 +32,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    // Fetch existing notifications
+    
     const fetchNotifications = async () => {
       try {
         const response = await apiClient.get('/notifications');
@@ -44,20 +44,20 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     
     fetchNotifications();
 
-    // 1. Khởi tạo kết nối SignalR Hub
+    
     const connection = new signalR.HubConnectionBuilder()
       .withUrl((import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://tunevault-api.onrender.com') + "/hubs/notifications", {
-        accessTokenFactory: () => token // Tự động đính kèm Token JWT vào header
+        accessTokenFactory: () => token 
       })
       .withAutomaticReconnect()
       .build();
 
-    // 2. Lắng nghe Event từ Backend
+    
     connection.on("ReceiveNotification", (notification: Notification) => {
       setNotifications(prev => [notification, ...prev]);
     });
 
-    // 3. Khởi động kết nối
+    
     const startConnection = async () => {
       try {
         await connection.start();
@@ -74,26 +74,26 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const markAsRead = async (id: string) => {
-    // Optimistic update (Cập nhật UI ngay lập tức)
+    
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
     try {
       await apiClient.put(`/notifications/${id}/read`);
     } catch (error) {
       console.error('Error marking notification as read:', error);
-      // Hoàn tác nếu lỗi
+      
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: false } : n));
     }
   };
 
   const markAllAsRead = async () => {
-    // Optimistic update
+    
     const previous = [...notifications];
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     try {
       await apiClient.put(`/notifications/read-all`);
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
-      // Hoàn tác nếu lỗi
+      
       setNotifications(previous);
     }
   };

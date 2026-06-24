@@ -16,7 +16,7 @@ public class VerifyOtpCommandHandler(
             throw new Exception("Mã OTP không hợp lệ hoặc đã hết hạn.");
         }
 
-        // OTP matches, remove it to prevent reuse
+        
         cacheService.Remove($"OTP_{request.Email}");
 
         var user = await userRepository.GetByEmailAsync(request.Email, cancellationToken);

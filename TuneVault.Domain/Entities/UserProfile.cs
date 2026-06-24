@@ -1,7 +1,7 @@
 namespace TuneVault.Domain.Entities;
 
-// Trong ASP.NET Core, class này thường sẽ ánh xạ với bảng AspNetUsers
-// Ở Infrastructure, bạn có thể thiết lập class này kế thừa từ IdentityUser<Guid>
+
+
 public class UserProfile
 {
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -13,7 +13,7 @@ public class UserProfile
     public string Role { get; set; } = "User";
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    // Navigation properties
+    
     public ICollection<Playlist> Playlists { get; set; } = new List<Playlist>();
     public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
     public ICollection<PlayHistory> PlayHistories { get; set; } = new List<PlayHistory>();

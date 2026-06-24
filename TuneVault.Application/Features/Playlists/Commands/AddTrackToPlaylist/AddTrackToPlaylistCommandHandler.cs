@@ -17,7 +17,7 @@ public class AddTrackToPlaylistCommandHandler(IPlaylistRepository playlistReposi
             PlaylistId = request.PlaylistId,
             MediaItemId = request.MediaItemId,
             AddedAt = DateTime.UtcNow,
-            DisplayOrder = 0 // Tương lai có thể tính toán để cho vào cuối
+            DisplayOrder = 0 
         };
 
         await playlistRepository.AddTrackAsync(playlistTrack, cancellationToken);

@@ -45,7 +45,7 @@ public class PlaylistsController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [AllowAnonymous] // Hoặc Authorize tùy theo IsPublic
+    [AllowAnonymous] 
     public async Task<IActionResult> GetPlaylistDetails(Guid id)
     {
         var query = new GetPlaylistDetailsQuery(id);

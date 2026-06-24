@@ -4,7 +4,7 @@ using TuneVault.Application.Features.Media.DTOs;
 
 namespace TuneVault.Application.Features.Media.Commands.UploadMedia;
 
-// Note: Passing Stream instead of IFormFile ensures Application Layer is decoupled from ASP.NET Core HTTP concerns.
+
 [Authorize]
 public record UploadMediaCommand(
     Guid UploaderId,

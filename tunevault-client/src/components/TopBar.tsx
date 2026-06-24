@@ -52,7 +52,7 @@ export const TopBar = () => {
       setIsSearching(true);
       setShowDropdown(true);
       try {
-        const data = await mediaService.searchMedia(query, 1, 5); // Fetch top 5 results
+        const data = await mediaService.searchMedia(query, 1, 5); 
         setSearchResults(data);
       } catch (error) {
         console.error(error);
@@ -75,7 +75,7 @@ export const TopBar = () => {
 
     loadUser();
 
-    // Lắng nghe sự kiện cập nhật hồ sơ từ Profile.tsx
+    
     window.addEventListener('userUpdated', loadUser);
     return () => window.removeEventListener('userUpdated', loadUser);
   }, []);
@@ -89,22 +89,22 @@ export const TopBar = () => {
 
   const formatRelativeTime = (dateStr: string) => {
     if (!dateStr) return '';
-    // Đổi khoảng trắng thành 'T' để chuẩn format ISO 8601 (C# DateTime thường trả về dấu cách)
+    
     let normalizedDate = dateStr.replace(' ', 'T');
     
-    // Đảm bảo chuỗi ngày tháng được hiểu là UTC (thêm 'Z' nếu backend trả về thiếu)
+    
     if (!normalizedDate.endsWith('Z')) {
       normalizedDate = `${normalizedDate}Z`;
     }
     
     const date = new Date(normalizedDate);
     
-    // Nếu ngày không hợp lệ, trả về chuỗi gốc
+    
     if (isNaN(date.getTime())) return dateStr;
 
     const now = new Date();
     
-    // Tính toán khoảng thời gian (giây), tránh số âm nếu giờ server hơi lệch
+    
     const diffInSeconds = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000));
 
     if (diffInSeconds < 60) return 'Vừa xong';
@@ -116,7 +116,7 @@ export const TopBar = () => {
 
   return (
     <header className="h-16 flex items-center justify-between -m-2 p-2">
-      {/* Logo */}
+      
       <div className="flex-1 min-w-0 flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
         <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shrink-0">
           <div className="w-4 h-4 bg-black rounded-full" />
@@ -124,7 +124,7 @@ export const TopBar = () => {
         <div className="text-2xl font-bold tracking-tighter text-white hidden sm:block">TuneVault</div>
       </div>
 
-      {/* Center Controls (Home + Search) */}
+      
       <div className="flex items-center justify-center gap-2 w-full max-w-xl px-2">
         <NavLink 
           to="/" 
@@ -173,14 +173,14 @@ export const TopBar = () => {
             />
           </div>
           
-          {/* Live Search Dropdown */}
+          
           {showDropdown && query.trim() !== '' && (
             <div className="absolute top-14 left-0 w-full bg-[#282828] rounded-xl shadow-2xl border border-white/10 overflow-hidden z-50 flex flex-col max-h-[70vh]">
               {isSearching && !searchResults ? (
                 <div className="p-4 text-center text-zinc-400 text-sm">Đang tìm kiếm...</div>
               ) : searchResults ? (
                 <div className="overflow-y-auto custom-scrollbar p-2">
-                  {/* Tracks */}
+                  
                   {searchResults.tracks && searchResults.tracks.length > 0 && (
                     <div className="mb-4">
                       <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider px-2 mb-2">Bài hát</h3>
@@ -202,7 +202,7 @@ export const TopBar = () => {
                     </div>
                   )}
 
-                  {/* Artists */}
+                  
                   {searchResults.artists && searchResults.artists.length > 0 && (
                     <div className="mb-4">
                       <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider px-2 mb-2">Nghệ sĩ</h3>
@@ -224,7 +224,7 @@ export const TopBar = () => {
                     </div>
                   )}
 
-                  {/* Playlists */}
+                  
                   {searchResults.playlists && searchResults.playlists.length > 0 && (
                     <div className="mb-2">
                       <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider px-2 mb-2">Playlist</h3>
@@ -265,7 +265,7 @@ export const TopBar = () => {
         </div>
       </div>
 
-      {/* Right Actions */}
+      
       <div className="flex-1 flex items-center justify-end gap-4 relative min-w-0">
 
         {isAuthenticated && user?.role === 'Admin' && (
@@ -364,7 +364,7 @@ export const TopBar = () => {
           )}
         </div>
         
-        {/* User Profile or Auth Buttons */}
+        
         {isAuthenticated ? (
           <div className="relative group" ref={menuRef}>
             <button 
@@ -378,14 +378,14 @@ export const TopBar = () => {
                )}
             </button>
             
-            {/* Tooltip */}
+            
             {!isMenuOpen && (
               <div className="absolute -bottom-10 right-0 bg-[#282828] text-white text-sm font-bold px-3 py-1.5 rounded shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                 {user?.username || 'Hồ sơ'}
               </div>
             )}
             
-            {/* Dropdown Menu */}
+            
             {isMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-zinc-800 rounded-md shadow-lg py-1 z-50">
                 <NavLink to="/profile" className="block px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white" onClick={() => setIsMenuOpen(false)}>Hồ sơ</NavLink>

@@ -51,7 +51,7 @@ export const CreateAlbumModal = ({ onClose }: CreateAlbumModalProps) => {
     try {
       await albumService.createAlbum(formData);
       alert('Tạo Album thành công!');
-      window.dispatchEvent(new Event('mediaUpdated')); // Cập nhật dữ liệu mà không làm f5 trang
+      window.dispatchEvent(new Event('mediaUpdated')); 
       onClose();
     } catch (error) {
       console.error(error);

@@ -12,7 +12,7 @@ public class GeminiAiService(HttpClient httpClient, IConfiguration configuration
         var apiKey = configuration["Gemini:ApiKey"];
         if (string.IsNullOrEmpty(apiKey) || apiKey == "API_KEY_CỦA_BẠN_ĐỂ_Ở_ĐÂY" || apiKey == "your_gemini_api_key_here")
         {
-            // Trả về mock data nếu chưa cấu hình API Key để không bị sập ứng dụng
+            
             return new List<(string, string)>
             {
                 ("Chưa cấu hình Gemini API Key", "Hệ thống")
@@ -52,7 +52,7 @@ Yêu cầu bắt buộc: Chỉ trả về ĐÚNG MỘT MẢNG JSON, không giả
         {
             var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
             Console.WriteLine($"[Gemini API Error] Status: {response.StatusCode}, Detail: {errorContent}");
-            // Fallback nếu API lỗi
+            
             return new List<(string, string)>();
         }
 
@@ -69,7 +69,7 @@ Yêu cầu bắt buộc: Chỉ trả về ĐÚNG MỘT MẢNG JSON, không giả
 
             if (string.IsNullOrEmpty(textContent)) return new List<(string, string)>();
 
-            // Xử lý json nếu model bọc trong markdown
+            
             textContent = textContent.Replace("```json", "").Replace("```", "").Trim();
 
             var result = JsonSerializer.Deserialize<List<GeminiRecommendationResponse>>(textContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });

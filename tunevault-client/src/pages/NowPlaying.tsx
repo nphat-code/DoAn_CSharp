@@ -20,7 +20,7 @@ export const NowPlayingOverlay = () => {
   return (
     <div className="absolute inset-0 z-50 bg-black overflow-hidden flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-200">
       
-      {/* Background/Video Layer */}
+      
       <div className="absolute inset-0 z-0 flex items-center justify-center">
         {currentMedia.mediaType === 'Video' ? (
           <VideoCanvas 
@@ -34,7 +34,7 @@ export const NowPlayingOverlay = () => {
         )}
       </div>
 
-      {/* Header Overlay */}
+      
       <div className="absolute top-0 left-0 w-full flex items-center justify-between p-6 z-10 bg-gradient-to-b from-black/80 to-transparent">
         <h2 className="text-white font-bold text-lg hover:underline cursor-pointer drop-shadow-lg">
           {currentMedia.description || "Đang phát"}

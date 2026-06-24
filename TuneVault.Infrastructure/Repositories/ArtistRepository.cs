@@ -39,7 +39,7 @@ public class ArtistRepository(IDbConnection dbConnection) : IArtistRepository
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        // First delete associated albums and media items to avoid foreign key constraints
+        
         var deleteMediaSql = "DELETE FROM MediaItems WHERE ArtistId = @Id";
         await dbConnection.ExecuteAsync(new CommandDefinition(deleteMediaSql, new { Id = id }, cancellationToken: cancellationToken));
 

@@ -22,7 +22,7 @@ public class SearchRepository(IDbConnection dbConnection) : ISearchRepository
 
         string queryTerm = string.IsNullOrWhiteSpace(query) ? "" : $"%{query}%";
 
-        // Query Tracks
+        
         string trackSql = string.IsNullOrWhiteSpace(query) 
             ? @"SELECT m.Id, m.Title, m.Description, m.FileUrl, m.MediaType, m.Duration, m.UploaderId, m.CreatedAt, m.CoverUrl,
                        m.ArtistId, m.AlbumId, a.Name as ArtistName, a.Bio as ArtistBio, a.AvatarUrl as ArtistAvatarUrl, al.Title as AlbumTitle
@@ -52,7 +52,7 @@ public class SearchRepository(IDbConnection dbConnection) : ISearchRepository
         var tracks = await dbConnection.QueryAsync<MediaItemDto>(trackSql, new { Query = queryTerm, Limit = limit, Offset = offset });
         result.Tracks = tracks;
 
-        // Query Artists
+        
         string artistSql = string.IsNullOrWhiteSpace(query)
             ? @"SELECT Id, Name, Bio, AvatarUrl, CreatedAt
                 FROM Artists
@@ -71,7 +71,7 @@ public class SearchRepository(IDbConnection dbConnection) : ISearchRepository
         var artists = await dbConnection.QueryAsync<ArtistDto>(artistSql, new { Query = queryTerm, Limit = limit, Offset = offset });
         result.Artists = artists;
 
-        // Query Albums
+        
         string albumSql = string.IsNullOrWhiteSpace(query)
             ? @"SELECT al.Id, al.Title, al.CoverUrl, al.ReleaseDate, al.ArtistId,
                        a.Name as ArtistName
@@ -94,7 +94,7 @@ public class SearchRepository(IDbConnection dbConnection) : ISearchRepository
         var albums = await dbConnection.QueryAsync<TuneVault.Application.Features.Albums.DTOs.AlbumDto>(albumSql, new { Query = queryTerm, Limit = limit, Offset = offset });
         result.Albums = albums;
 
-        // Query Playlists
+        
         string playlistSql = string.IsNullOrWhiteSpace(query)
             ? @"SELECT Id, Title as Name, Description, CoverUrl, IsPublic, CreatedAt, CreatorId as UserProfileId
                 FROM Playlists
@@ -110,7 +110,7 @@ public class SearchRepository(IDbConnection dbConnection) : ISearchRepository
         var playlists = await dbConnection.QueryAsync<PlaylistDto>(playlistSql, new { Query = queryTerm, Limit = limit, Offset = offset });
         result.Playlists = playlists;
 
-        // Query Users
+        
         string userSql = string.IsNullOrWhiteSpace(query)
             ? @"SELECT Id, Username, Email, AvatarUrl, Bio, CreatedAt
                 FROM UserProfiles
@@ -127,7 +127,7 @@ public class SearchRepository(IDbConnection dbConnection) : ISearchRepository
 
         result.TotalItems = result.Tracks.Count() + result.Artists.Count() + result.Albums.Count() + result.Playlists.Count() + result.Users.Count();
         result.TotalPages = (int)Math.Ceiling(result.TotalItems / (double)limit); 
-        // Note: For true total pages, we'd need to run 3 COUNT queries.
+        
 
         return result;
     }

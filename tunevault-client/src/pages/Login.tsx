@@ -26,7 +26,7 @@ export const Login = () => {
       if (token) {
         setLoading(true);
         authService.googleLogin(token).then(() => {
-          // Clear hash to prevent infinite loop or exposed token
+          
           window.history.replaceState(null, '', window.location.pathname);
           window.location.href = '/';
         }).catch(err => {
@@ -62,7 +62,7 @@ export const Login = () => {
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Auto focus next input
+    
     if (value !== '' && index < 5) {
       otpRefs.current[index + 1]?.focus();
     }
@@ -96,7 +96,7 @@ export const Login = () => {
     setError('');
     try {
       await authService.sendOtp(email);
-      // Optional: show a success toast here
+      
     } catch (err: any) {
       setError(err.response?.data?.message || 'Không thể gửi lại mã OTP.');
     }
@@ -118,7 +118,7 @@ export const Login = () => {
     }
   };
 
-  // Helper to mask email (e.g. n***@g***.com)
+  
   const maskEmail = (email: string) => {
     const [name, domain] = email.split('@');
     if (!domain) return email;

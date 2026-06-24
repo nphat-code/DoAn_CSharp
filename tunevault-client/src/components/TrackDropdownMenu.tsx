@@ -17,7 +17,7 @@ interface TrackDropdownMenuProps {
   onRemoveFromPlaylist?: (trackId: string) => void;
   onRemoveFromAlbum?: (trackId: string) => void;
   
-  className?: string; // Optional custom styling for the 3-dots button wrapper
+  className?: string; 
   iconSize?: number;
   alwaysShow?: boolean;
   subMenuDirection?: 'left' | 'right';
@@ -168,7 +168,7 @@ export const TrackDropdownMenu = ({
                 onClick={(e) => {
                   e.stopPropagation();
                   handleClose();
-                  const targetArtistId = track.artistId || track.albumId; // Provide fallback if possible
+                  const targetArtistId = track.artistId || track.albumId; 
                   if (targetArtistId) navigate(`/artist/${targetArtistId}`);
                 }}
                 className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"

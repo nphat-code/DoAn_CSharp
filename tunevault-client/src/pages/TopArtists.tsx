@@ -79,7 +79,7 @@ export const TopArtists = () => {
                 <div className="w-full h-full shadow-lg rounded-full bg-zinc-800 shrink-0 relative overflow-hidden">
                   <img src={getImageUrl(artist.avatarUrl)} alt={artist.name} className="w-full h-full object-cover rounded-full" />
                 </div>
-                {/* Play button overlay */}
+                
                 <button 
                   onClick={(e) => handlePlayArtist(e, artist.id)}
                   className={`absolute right-2 bottom-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${isPlayingRow ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}

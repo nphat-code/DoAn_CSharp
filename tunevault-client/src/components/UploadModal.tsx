@@ -43,7 +43,7 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
         setArtists(artistsData);
         setAlbums(albumsData);
 
-        // Pre-fill text if initial IDs are provided
+        
         if (initialArtistId) {
           const artist = artistsData.find(a => a.id === initialArtistId);
           if (artist) setArtistSearchText(artist.name);
@@ -110,7 +110,7 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
 
         <form onSubmit={handleSubmit} className="flex flex-col overflow-hidden min-h-0 flex-1">
           <div className="p-6 flex flex-col gap-5 overflow-y-auto custom-scrollbar min-h-0 flex-1">
-            {/* File input */}
+            
             <div 
               className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition ${file ? 'border-green-500 bg-green-500/10' : 'border-zinc-500 hover:border-white hover:bg-white/5'}`}
               onClick={() => fileInputRef.current?.click()}
@@ -136,7 +136,7 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
                     setFile(e.target.files[0]);
-                    // Tự động điền tiêu đề từ tên file nếu chưa có
+                    
                     if (!title) {
                       const fileName = e.target.files[0].name.replace(/\.[^/.]+$/, "");
                       setTitle(fileName);
@@ -146,7 +146,7 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
               />
             </div>
 
-            {/* Cover Image Input */}
+            
             <div className="flex flex-col gap-2">
               <label className="text-sm font-bold text-white">Ảnh bìa (Không bắt buộc)</label>
               <div 
@@ -190,7 +190,7 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
             </div>
 
             <div className="flex flex-col gap-4">
-              {/* Autocomplete Nghệ sĩ */}
+              
               <div className="flex flex-col gap-2 relative">
                 <label className="text-sm font-bold text-white">Nghệ sĩ</label>
                 <input 
@@ -198,7 +198,7 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
                   value={artistSearchText}
                   onChange={(e) => {
                     setArtistSearchText(e.target.value);
-                    setSelectedArtistId(''); // Xóa ID nếu người dùng gõ text mới
+                    setSelectedArtistId(''); 
                     setShowArtistSuggestions(true);
                   }}
                   onFocus={() => setShowArtistSuggestions(true)}
@@ -233,7 +233,7 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
                 )}
               </div>
 
-              {/* Autocomplete Album */}
+              
               <div className="flex flex-col gap-2 relative">
                 <label className="text-sm font-bold text-white">Album</label>
                 <input 
@@ -241,7 +241,7 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
                   value={albumSearchText}
                   onChange={(e) => {
                     setAlbumSearchText(e.target.value);
-                    setSelectedAlbumId(''); // Xóa ID nếu người dùng gõ text mới
+                    setSelectedAlbumId(''); 
                     setShowAlbumSuggestions(true);
                   }}
                   onFocus={() => setShowAlbumSuggestions(true)}
@@ -261,7 +261,7 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
                           setSelectedAlbumId(album.id);
                           setShowAlbumSuggestions(false);
                           
-                          // Tự động điền nghệ sĩ nếu chưa chọn
+                          
                           if (!selectedArtistId) {
                             setSelectedArtistId(album.artistId);
                             const artist = artists.find(a => a.id === album.artistId);

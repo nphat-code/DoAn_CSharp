@@ -7,7 +7,7 @@ namespace TuneVault.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[AllowAnonymous] // Login endpoint is public
+[AllowAnonymous] 
 public class AuthController(IMediator mediator) : ControllerBase
 {
 

@@ -120,13 +120,13 @@ export const AdminDashboard = () => {
 
   return (
     <div className="flex flex-col min-h-full bg-zinc-900 p-8">
-      {/* Title */}
+      
       <div className="flex items-center gap-4 mb-6">
         <ShieldAlert size={40} className="text-red-500" />
         <h1 className="text-4xl font-bold text-white tracking-tight">Quản trị Hệ thống</h1>
       </div>
 
-      {/* Search */}
+      
       <div className="relative w-full mb-6">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
         <input 
@@ -138,7 +138,7 @@ export const AdminDashboard = () => {
         />
       </div>
 
-      {/* Tabs */}
+      
       <div className="flex gap-4 mb-8 border-b border-zinc-800 pb-2">
         <button 
           onClick={() => setActiveTab('tracks')}
@@ -160,7 +160,7 @@ export const AdminDashboard = () => {
         </button>
       </div>
 
-      {/* Content */}
+      
       <div className="bg-zinc-900/50 rounded-xl overflow-hidden border border-zinc-800">
         {loading ? (
           <div className="p-8 text-center text-zinc-400">Đang tải dữ liệu...</div>
@@ -176,7 +176,7 @@ export const AdminDashboard = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800/50">
-              {/* TRACKS */}
+              
               {activeTab === 'tracks' && getPaginatedData(filteredTracks).map(track => (
                 <tr key={track.id} className="hover:bg-zinc-800/50 transition">
                   <td className="px-6 py-4 font-bold text-white flex items-center gap-3">
@@ -195,7 +195,7 @@ export const AdminDashboard = () => {
                 </tr>
               ))}
 
-              {/* ALBUMS */}
+              
               {activeTab === 'albums' && getPaginatedData(filteredAlbums).map(album => (
                 <tr key={album.id} className="hover:bg-zinc-800/50 transition">
                   <td className="px-6 py-4 font-bold text-white flex items-center gap-3">
@@ -214,7 +214,7 @@ export const AdminDashboard = () => {
                 </tr>
               ))}
 
-              {/* ARTISTS */}
+              
               {activeTab === 'artists' && getPaginatedData(filteredArtists).map(artist => (
                 <tr key={artist.id} className="hover:bg-zinc-800/50 transition">
                   <td className="px-6 py-4 font-bold text-white flex items-center gap-3">
@@ -244,7 +244,7 @@ export const AdminDashboard = () => {
         )}
       </div>
 
-      {/* Pagination Controls */}
+      
       {!loading && currentDataLength > 0 && (
         <div className="mt-6 flex items-center justify-between text-zinc-400">
           <div className="text-sm">

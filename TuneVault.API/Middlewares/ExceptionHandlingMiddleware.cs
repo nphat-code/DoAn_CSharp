@@ -49,7 +49,7 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
                 response.StatusCode = (int)HttpStatusCode.NotFound;
                 break;
             default:
-                // CHỈ KHI LÀ LỖI 500 (Code sập thật sự) MỚI IN MÀU ĐỎ VÀ HIỂN THỊ STACK TRACE
+                
                 logger.LogError(exception, "Đã xảy ra lỗi hệ thống nội bộ nghiêm trọng!");
                 response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 responseModel.Message = "Đã xảy ra lỗi hệ thống nội bộ. Vui lòng thử lại sau.";

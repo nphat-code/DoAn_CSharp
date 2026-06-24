@@ -15,7 +15,7 @@ interface TrackListRowProps {
   showAlbum?: boolean;
   showGoToArtist?: boolean;
   showGoToAlbum?: boolean;
-  className?: string; // Tùy chỉnh grid cols, vd: 'grid-cols-[32px_1fr_minmax(80px,120px)]'
+  className?: string; 
   
   isFavorited?: boolean;
   onToggleFavorite?: (id: string) => void;
@@ -67,7 +67,7 @@ export const TrackListRow: React.FC<TrackListRowProps> = ({
       className={`grid ${gridClass} gap-4 px-4 py-2 hover:bg-white/10 rounded-md transition items-center group cursor-pointer`}
       onDoubleClick={() => handlePlay()}
     >
-      {/* 1. STT / Nút Play */}
+      
       <div className={`${isPlayingTrack ? 'text-[#1ed760]' : 'text-[#b3b3b3]'} text-base font-medium flex items-center justify-end pr-2 relative w-full`}>
         <span className="group-hover:hidden">{index + 1}</span>
         <button className="hidden group-hover:block" onClick={handlePlay}>
@@ -81,7 +81,7 @@ export const TrackListRow: React.FC<TrackListRowProps> = ({
         </button>
       </div>
 
-      {/* 2. Info (Cover + Title + Artist) */}
+      
       <div className="flex items-center gap-3 overflow-hidden">
         {showCover && (
           <div className="w-10 h-10 bg-zinc-800 rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
@@ -108,7 +108,7 @@ export const TrackListRow: React.FC<TrackListRowProps> = ({
         </div>
       </div>
 
-      {/* 3. Album (Optional) */}
+      
       {showAlbum && (
         <div 
           className="text-sm text-[#b3b3b3] truncate hover:text-white transition hidden md:block cursor-pointer"
@@ -121,7 +121,7 @@ export const TrackListRow: React.FC<TrackListRowProps> = ({
         </div>
       )}
 
-      {/* 4. Actions / Duration */}
+      
       <div className="flex items-center justify-end gap-4 pr-4 relative">
         {onToggleFavorite && (
           <button

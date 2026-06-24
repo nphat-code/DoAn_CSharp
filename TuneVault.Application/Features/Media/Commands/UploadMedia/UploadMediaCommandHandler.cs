@@ -12,8 +12,8 @@ public class UploadMediaCommandHandler(
 {
     public async Task<MediaItemDto> Handle(UploadMediaCommand request, CancellationToken cancellationToken)
     {
-        // 1. Tính toán Duration từ stream bằng file tạm TRƯỚC KHI upload
-        TimeSpan duration = TimeSpan.FromMinutes(3); // Giá trị mặc định
+        
+        TimeSpan duration = TimeSpan.FromMinutes(3); 
         try
         {
             var tempFilePath = Path.GetTempFileName() + Path.GetExtension(request.FileName);
@@ -31,15 +31,15 @@ public class UploadMediaCommandHandler(
                 }
             }
 
-            System.IO.File.Delete(tempFilePath); // Dọn dẹp file tạm
-            request.FileStream.Position = 0; // Reset lại stream để upload
+            System.IO.File.Delete(tempFilePath); 
+            request.FileStream.Position = 0; 
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Không thể đọc duration từ file tạm: {ex.Message}");
         }
 
-        // 2. Upload file
+        
         var mediaFolder = request.ContentType.StartsWith("video", StringComparison.OrdinalIgnoreCase) ? "video" : "audio";
         var fileUrl = await fileStorageService.SaveFileAsync(request.FileStream, request.FileName, mediaFolder, cancellationToken);
 
@@ -48,10 +48,10 @@ public class UploadMediaCommandHandler(
         {
             coverUrl = await fileStorageService.SaveFileAsync(request.CoverImageStream, request.CoverImageFileName, "covers", cancellationToken);
         }
-        // 3. Phân loại MediaType dựa trên ContentType hoặc Extension
+        
         string mediaType = request.ContentType.StartsWith("video") ? "Video" : "Audio";
 
-        // Xử lý Nghệ sĩ (Artist)
+        
         Guid? artistId = request.ArtistId;
         string? artistBio = null;
         string? artistAvatarUrl = null;
@@ -78,7 +78,7 @@ public class UploadMediaCommandHandler(
             }
         }
 
-        // 4. Tạo entity và lưu vào database
+        
         var mediaItem = new MediaItem
         {
             Id = Guid.NewGuid(),
@@ -96,7 +96,7 @@ public class UploadMediaCommandHandler(
 
         await mediaItemRepository.AddAsync(mediaItem, cancellationToken);
 
-        // 5. Trả về DTO
+        
         return new MediaItemDto
         {
             Id = mediaItem.Id,
@@ -108,7 +108,7 @@ public class UploadMediaCommandHandler(
             UploaderId = mediaItem.UploaderId,
             CreatedAt = mediaItem.CreatedAt,
             CoverUrl = mediaItem.CoverUrl,
-            ArtistName = request.Description, // artistName corresponds to Description here
+            ArtistName = request.Description, 
             ArtistBio = artistBio,
             ArtistAvatarUrl = artistAvatarUrl,
             ArtistId = artistId,

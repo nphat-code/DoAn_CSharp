@@ -16,7 +16,7 @@ public class ShareRepository(IDbConnection dbConnection) : IShareRepository
         using var transaction = dbConnection.BeginTransaction();
         try
         {
-            // 1. Kiểm tra Receiver có tồn tại không
+            
             var receiverExists = await dbConnection.ExecuteScalarAsync<bool>(
                 "SELECT EXISTS(SELECT 1 FROM UserProfiles WHERE Id = @Id)", 
                 new { Id = receiverId }, transaction);
@@ -26,7 +26,7 @@ public class ShareRepository(IDbConnection dbConnection) : IShareRepository
                 throw new KeyNotFoundException("Người nhận không tồn tại trong hệ thống.");
             }
 
-            // 2. Xác định loại Media
+            
             var isPlaylist = await dbConnection.ExecuteScalarAsync<bool>(
                 "SELECT EXISTS(SELECT 1 FROM Playlists WHERE Id = @Id)", 
                 new { Id = mediaId }, transaction);
@@ -35,7 +35,7 @@ public class ShareRepository(IDbConnection dbConnection) : IShareRepository
                 "SELECT EXISTS(SELECT 1 FROM Albums WHERE Id = @Id)", 
                 new { Id = mediaId }, transaction);
 
-            // 3. Kiểm tra Idempotency (Không cho phép chia sẻ cùng 1 bài hát cho cùng 1 người nhiều lần)
+            
             string checkDuplicateSql = isPlaylist 
                 ? "SELECT EXISTS(SELECT 1 FROM MediaShares WHERE SenderId = @SenderId AND ReceiverId = @ReceiverId AND PlaylistId = @MediaId)"
                 : isAlbum 
@@ -48,10 +48,10 @@ public class ShareRepository(IDbConnection dbConnection) : IShareRepository
 
             if (isDuplicate)
             {
-                return false; // Đã chia sẻ rồi, trả về false để không tạo Notification trùng lặp
+                return false; 
             }
 
-            // 4. Lưu Share
+            
             var shareSql = isPlaylist 
                 ? @"INSERT INTO MediaShares (Id, SenderId, ReceiverId, PlaylistId, Message, CreatedAt)
                     VALUES (@Id, @SenderId, @ReceiverId, @MediaId, @Message, @CreatedAt)"
@@ -70,7 +70,7 @@ public class ShareRepository(IDbConnection dbConnection) : IShareRepository
                 CreatedAt = createdAt
             }, transaction);
 
-            // 5. Lưu Notification
+            
             var notifSql = @"
                 INSERT INTO Notifications (Id, UserId, Message, Type, IsRead, CreatedAt)
                 VALUES (@Id, @UserId, @Message, @Type, @IsRead, @CreatedAt)";

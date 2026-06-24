@@ -26,7 +26,7 @@ const Placeholder = ({ title }: { title: string }) => (
 );
 
 function App() {
-  // Kiểm tra xem đã có token trong localStorage chưa
+  
   const isAuthenticated = !!localStorage.getItem('token');
 
   return (
@@ -35,7 +35,7 @@ function App() {
         <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
         <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <Register />} />
         
-        {/* Main Routes */}
+        
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
           <Route path="search" element={<Search />} />

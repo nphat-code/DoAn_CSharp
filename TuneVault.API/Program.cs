@@ -5,30 +5,30 @@ using TuneVault.Infrastructure.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Cấu hình giới hạn kích thước upload (2GB) để cho phép up video FHD/4K
+
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.Limits.MaxRequestBodySize = 2147483648; // 2GB
+    options.Limits.MaxRequestBodySize = 2147483648; 
 });
 
 builder.Services.Configure<FormOptions>(options =>
 {
-    options.MultipartBodyLengthLimit = 2147483648; // 2GB
+    options.MultipartBodyLengthLimit = 2147483648; 
 });
 
-// Add CORS policy for React Frontend
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", builder =>
     {
-        builder.SetIsOriginAllowed(origin => true) // Cho phép mọi Domain (kể cả Vercel)
+        builder.SetIsOriginAllowed(origin => true) 
                .AllowAnyMethod()
                .AllowAnyHeader()
-               .AllowCredentials(); // Quan trọng cho SignalR JWT
+               .AllowCredentials(); 
     });
 });
 
-// Add services to the container.
+
 builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
 builder.Services.AddOpenApiDocument(config =>
@@ -45,21 +45,21 @@ builder.Services.AddOpenApiDocument(config =>
     config.OperationProcessors.Add(new NSwag.Generation.Processors.Security.AspNetCoreOperationSecurityScopeProcessor("Bearer"));
 });
 
-// Register Clean Architecture Layers
+
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
-// Đăng ký Current User Service
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<TuneVault.Application.Interfaces.ICurrentUserService, TuneVault.API.Services.CurrentUserService>();
 
 var app = builder.Build();
 
-// Đăng ký Global Exception Handler (Người hứng bom toàn cục)
+
 app.UseMiddleware<TuneVault.API.Middlewares.ExceptionHandlingMiddleware>();
 
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseOpenApi();
@@ -68,27 +68,27 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Bật CORS (Phải để trước UseStaticFiles để ảnh có header CORS)
+
 app.UseCors("CorsPolicy");
 
-// Cấu hình Middleware phục vụ các file tĩnh (trong wwwroot) và cho phép CORS để lấy màu
+
 app.UseStaticFiles(new StaticFileOptions
 {
     OnPrepareResponse = ctx =>
     {
-        // Cho phép mọi trang web tải ảnh về
+        
         ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
         ctx.Context.Response.Headers.Append("Access-Control-Allow-Methods", "GET, OPTIONS");
     }
 });
 
-// Cấu hình Middleware Xác thực và Phân quyền
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-// Đăng ký SignalR Hub endpoint
+
 app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.Run();

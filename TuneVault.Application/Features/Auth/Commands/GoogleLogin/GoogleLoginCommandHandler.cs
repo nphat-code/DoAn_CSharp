@@ -14,7 +14,7 @@ public class GoogleLoginCommandHandler(
 {
     public async Task<LoginResponseDto> Handle(GoogleLoginCommand request, CancellationToken cancellationToken)
     {
-        // 1. Verify access_token with Google
+        
         using var client = new HttpClient();
         var response = await client.GetAsync($"https://www.googleapis.com/oauth2/v3/userinfo?access_token={request.Token}", cancellationToken);
         
@@ -35,24 +35,24 @@ public class GoogleLoginCommandHandler(
         var googleName = googleUser.Name;
         var googlePicture = googleUser.Picture;
 
-        // 2. Check if user exists
+        
         var user = await userRepository.GetByEmailAsync(googleEmail, cancellationToken);
         
         if (user == null)
         {
-            // Register new user
+            
             user = new UserProfile
             {
                 Email = googleEmail,
                 Username = googleName ?? googleEmail.Split('@')[0],
-                PasswordHash = "", // No password for Google users
+                PasswordHash = "", 
                 AvatarUrl = googlePicture
             };
             await userRepository.AddAsync(user, cancellationToken);
         }
         else
         {
-            // Update avatar if missing
+            
             if (string.IsNullOrEmpty(user.AvatarUrl) && !string.IsNullOrEmpty(googlePicture))
             {
                 await userRepository.UpdateAvatarAsync(user.Id, googlePicture, cancellationToken);
@@ -60,10 +60,10 @@ public class GoogleLoginCommandHandler(
             }
         }
 
-        // 3. Generate Token
+        
         var token = jwtTokenGenerator.GenerateToken(user);
 
-        // 4. Return DTO
+        
         return new LoginResponseDto
         {
             UserId = user.Id,

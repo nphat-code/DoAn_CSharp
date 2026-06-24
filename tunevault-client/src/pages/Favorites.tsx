@@ -15,7 +15,7 @@ export const Favorites = () => {
   const currentUserStr = localStorage.getItem('user');
   const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
 
-  // Share states
+  
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareData, setShareData] = useState<{ id: string, type: string, title: string } | null>(null);
 
@@ -37,7 +37,7 @@ export const Favorites = () => {
     return () => window.removeEventListener('favoritesUpdated', fetchFavorites);
   }, []);
 
-  // Đồng bộ danh sách bài hát với thay đổi từ PlayerBar hoặc RightPanel
+  
   useEffect(() => {
     if (!currentMedia || loading) return;
     
@@ -45,10 +45,10 @@ export const Favorites = () => {
       const isCurrentlyInList = prev.some(t => t.id === currentMedia.id);
       
       if (isFavorited && !isCurrentlyInList) {
-        // Đã thả tim từ nơi khác -> thêm vào đầu danh sách
+        
         return [currentMedia, ...prev];
       } else if (!isFavorited && isCurrentlyInList) {
-        // Đã bỏ tim từ nơi khác -> xóa khỏi danh sách
+        
         return prev.filter(t => t.id !== currentMedia.id);
       }
       return prev;
@@ -60,10 +60,10 @@ export const Favorites = () => {
     try {
       const res = await mediaService.toggleFavorite(track.id);
       if (!res.isFavorited) {
-        // Remove from list if un-favorited
+        
         setFavorites(prev => prev.filter(t => t.id !== track.id));
       }
-      // Đồng bộ nếu bài hát đang phát bị xóa khỏi danh sách yêu thích
+      
       if (currentMedia && currentMedia.id === track.id) {
         setIsFavorited(res.isFavorited);
       }
@@ -73,11 +73,11 @@ export const Favorites = () => {
     }
   };
 
-  // Tính tổng thời lượng
+  
   const getTotalDuration = () => {
     let totalSeconds = 0;
     favorites.forEach(t => {
-      // Assuming t.duration is like "04:23"
+      
       if (t.duration) {
         const parts = t.duration.split(':');
         if (parts.length === 3) {
@@ -120,7 +120,7 @@ export const Favorites = () => {
 
   return (
     <div className="h-full bg-gradient-to-b from-[#4A30A4] to-[#121212] overflow-y-auto scrollbar-hide grid grid-rows-[auto_1fr]">
-      {/* Header */}
+      
       <div 
         className="flex items-end gap-6 px-6 pb-6 shrink-0"
         style={{ height: 'clamp(195.5px, 25cqw, 340px)', minHeight: '195.5px' }}
@@ -147,10 +147,10 @@ export const Favorites = () => {
         </div>
       </div>
 
-      {/* Content wrapper */}
+      
       <div className="w-full h-full bg-gradient-to-b from-black/20 to-black/60 border-t border-white/10 pt-6 px-6">
 
-        {/* Controls */}
+        
         <div className="flex items-center gap-6 mb-6">
           <button 
             onClick={handleMainPlayClick}
@@ -168,9 +168,9 @@ export const Favorites = () => {
           </button>
         </div>
 
-        {/* Track List Section */}
+        
         <div className="w-full flex-1">
-          {/* Table Header */}
+          
           <div className="grid grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(100px,1fr)] gap-4 px-4 py-2 border-b border-white/10 text-sm font-medium text-[#b3b3b3] mb-4 sticky top-0 bg-transparent z-10 items-center">
             <div className="text-right pr-2">#</div>
             <div>Tiêu đề</div>
@@ -182,7 +182,7 @@ export const Favorites = () => {
             </div>
           </div>
 
-        {/* Tracks */}
+        
         <div className="flex flex-col gap-0 pb-10">
           {favorites.length === 0 ? (
             <div className="text-center text-zinc-400 mt-10">Bạn chưa thêm bài hát nào vào danh sách này.</div>
@@ -206,7 +206,7 @@ export const Favorites = () => {
       </div>
       </div>
 
-      {/* Share Modal */}
+      
       {showShareModal && shareData && (
         <ShareMediaModal
           mediaId={shareData.id}

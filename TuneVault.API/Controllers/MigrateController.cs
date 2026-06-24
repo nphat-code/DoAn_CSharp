@@ -9,14 +9,14 @@ namespace TuneVault.API.Controllers;
 [Route("api/[controller]")]
 public class MigrateController(IDbConnection dbConnection, IFileStorageService fileStorageService, IWebHostEnvironment env) : ControllerBase
 {
-    // API ẩn dùng để chuyển đổi dữ liệu từ Local sang Cloudinary
+    
     [HttpPost("migrate-to-cloudinary")]
     public async Task<IActionResult> MigrateToCloudinary(CancellationToken cancellationToken)
     {
         var wwwroot = env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
         var results = new List<string>();
 
-        // 1. Migrate MediaItems
+        
         var mediaItems = await dbConnection.QueryAsync<TuneVault.Domain.Entities.MediaItem>("SELECT Id, CoverUrl, FileUrl FROM MediaItems");
         foreach (var item in mediaItems)
         {
@@ -43,7 +43,7 @@ public class MigrateController(IDbConnection dbConnection, IFileStorageService f
             }
         }
 
-        // 2. Migrate Artists
+        
         var artists = await dbConnection.QueryAsync<TuneVault.Domain.Entities.Artist>("SELECT Id, AvatarUrl FROM Artists");
         foreach (var item in artists)
         {
@@ -57,7 +57,7 @@ public class MigrateController(IDbConnection dbConnection, IFileStorageService f
             }
         }
 
-        // 3. Migrate Albums
+        
         var albums = await dbConnection.QueryAsync<TuneVault.Domain.Entities.Album>("SELECT Id, CoverUrl FROM Albums");
         foreach (var item in albums)
         {
@@ -71,7 +71,7 @@ public class MigrateController(IDbConnection dbConnection, IFileStorageService f
             }
         }
 
-        // 4. Migrate Playlists
+        
         var playlists = await dbConnection.QueryAsync<TuneVault.Domain.Entities.Playlist>("SELECT Id, CoverUrl FROM Playlists");
         foreach (var item in playlists)
         {
@@ -90,19 +90,19 @@ public class MigrateController(IDbConnection dbConnection, IFileStorageService f
 
     private async Task<string?> UploadToCloudinary(string? localUrl, string folder, string wwwroot, CancellationToken ct)
     {
-        // Bỏ qua nếu null, hoặc đã là link Cloudinary/Azure/Web (bắt đầu bằng http)
+        
         if (string.IsNullOrEmpty(localUrl) || localUrl.StartsWith("http") || localUrl.StartsWith("/mock-")) return localUrl;
 
         var relativePath = localUrl.TrimStart('/');
         var physicalPath = Path.Combine(wwwroot, relativePath.Replace('/', Path.DirectorySeparatorChar));
 
-        if (!System.IO.File.Exists(physicalPath)) return localUrl; // File không tồn tại vật lý
+        if (!System.IO.File.Exists(physicalPath)) return localUrl; 
 
         try
         {
             using var stream = new FileStream(physicalPath, FileMode.Open, FileAccess.Read);
             var fileName = Path.GetFileName(physicalPath);
-            // Gửi file lên Cloudinary
+            
             var cloudUrl = await fileStorageService.SaveFileAsync(stream, fileName, folder, ct);
             return cloudUrl;
         }

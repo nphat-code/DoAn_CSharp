@@ -21,7 +21,7 @@ export const profileService = {
   },
 
   updateAvatar: async (avatarUrl: string): Promise<boolean> => {
-    // Send raw string by setting headers correctly, or wrap in quotes to act as JSON string
+    
     const response = await apiClient.put<{success: boolean}>('/profile/avatar', `"${avatarUrl}"`, {
       headers: {
         'Content-Type': 'application/json'

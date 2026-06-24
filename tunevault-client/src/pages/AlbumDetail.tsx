@@ -27,7 +27,7 @@ export const AlbumDetail = () => {
 
   const navigate = useNavigate();
 
-  // Share states
+  
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareData, setShareData] = useState<{ id: string, type: string, title: string } | null>(null);
 
@@ -61,7 +61,7 @@ export const AlbumDetail = () => {
         const data = await albumService.getAlbumById(id);
         setAlbum(data);
 
-        // Check if saved
+        
         const userStr = localStorage.getItem('user');
         if (userStr) {
           const user = JSON.parse(userStr);
@@ -181,7 +181,7 @@ export const AlbumDetail = () => {
 
     if (isCurrentAlbumTrackPlaying) {
       if (queue.length <= 1) {
-        // We were playing a single track, switch queue context to the album
+        
         updateQueueContext(album.tracks.map(t => ({
           ...t,
           albumId: album.id,
@@ -202,7 +202,7 @@ export const AlbumDetail = () => {
     try {
       await albumService.deleteAlbum(album.id);
       alert("Xóa album thành công!");
-      navigate('/'); // Go to home after delete
+      navigate('/'); 
     } catch (error) {
       alert("Lỗi khi xóa album");
     }
@@ -212,7 +212,7 @@ export const AlbumDetail = () => {
     if (!album || !window.confirm("Bạn có chắc chắn muốn xóa bài hát này khỏi album?")) return;
     try {
       await albumService.removeTrackFromAlbum(album.id, trackId);
-      // Cập nhật lại list bài hát trong UI
+      
       setAlbum({
         ...album,
         tracks: album.tracks.filter(t => t.id !== trackId)
@@ -267,7 +267,7 @@ export const AlbumDetail = () => {
 
   return (
     <div className="flex flex-col h-full relative bg-spotify-card overflow-hidden">
-      {/* Background Gradient Layer */}
+      
       <div
         ref={gradientRef}
         className="absolute top-0 left-0 w-full pointer-events-none z-0"
@@ -277,13 +277,13 @@ export const AlbumDetail = () => {
         }}
       />
 
-      {/* Scrollable Content Layer */}
+      
       <div
         ref={scrollRef}
         className="h-full overflow-y-auto relative z-10 w-full scrollbar-hide grid grid-rows-[auto_1fr]"
         onScroll={handleScroll}
       >
-        {/* Header */}
+        
         <div
           className="flex items-end gap-6 px-6 pb-6 pt-16 shrink-0 relative z-10"
           style={{ height: 'clamp(195.5px, 25cqw, 340px)', minHeight: '195.5px' }}
@@ -335,9 +335,9 @@ export const AlbumDetail = () => {
           </div>
         </div>
 
-        {/* Content wrapper */}
+        
         <div className="w-full h-full border-t border-white/10 pt-6 relative z-10 bg-black/20">
-          {/* Controls */}
+          
           <div className="flex items-center gap-6 mb-6 px-6">
             <button
               onClick={handleMainPlayClick}
@@ -425,9 +425,9 @@ export const AlbumDetail = () => {
             )}
           </div>
 
-          {/* Track List Section */}
+          
           <div className="w-full flex-1">
-            {/* Table Header */}
+            
             <div className="grid grid-cols-[32px_1fr_minmax(80px,120px)] gap-4 px-6 py-2 border-b border-white/10 text-sm font-medium text-spotify-lighttext mb-4 sticky top-0 bg-transparent z-10 items-center">
               <div className="text-right pr-2">#</div>
               <div>Tiêu đề</div>
@@ -438,7 +438,7 @@ export const AlbumDetail = () => {
               </div>
             </div>
 
-            {/* Tracks */}
+            
             <div className="flex flex-col gap-0 pb-10 px-2">
               {album.tracks && album.tracks.map((track, index) => {
                 const enrichedTrack = {
@@ -474,20 +474,20 @@ export const AlbumDetail = () => {
             </div>
           </div>
         </div>
-        {/* Add Track Modal */}
+        
         {showAddTrackModal && isAdmin && album && (
           <AddTrackToAlbumModal
             onClose={() => setShowAddTrackModal(false)}
             onSuccess={() => {
               setShowAddTrackModal(false);
-              fetchDetails(); // Reload để thấy bài hát mới
+              fetchDetails(); 
             }}
             albumId={album.id}
             existingTrackIds={album.tracks?.map(t => t.id) || []}
           />
         )}
 
-        {/* Share Modal */}
+        
         {showShareModal && shareData && (
           <ShareMediaModal
             mediaId={shareData.id}

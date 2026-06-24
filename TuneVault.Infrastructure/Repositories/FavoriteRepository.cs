@@ -20,14 +20,14 @@ public class FavoriteRepository(IDbConnection dbConnection) : IFavoriteRepositor
 
         if (isFavorited)
         {
-            // Unlike
+            
             var sqlDelete = "DELETE FROM UserLikes WHERE UserId = @UserId AND MediaItemId = @MediaId";
             await dbConnection.ExecuteAsync(new CommandDefinition(sqlDelete, new { UserId = userId, MediaId = mediaId }, cancellationToken: cancellationToken));
             return false;
         }
         else
         {
-            // Like
+            
             var sqlInsert = "INSERT INTO UserLikes (UserId, MediaItemId, LikedAt) VALUES (@UserId, @MediaId, @LikedAt)";
             await dbConnection.ExecuteAsync(new CommandDefinition(sqlInsert, new { UserId = userId, MediaId = mediaId, LikedAt = DateTime.UtcNow }, cancellationToken: cancellationToken));
             return true;

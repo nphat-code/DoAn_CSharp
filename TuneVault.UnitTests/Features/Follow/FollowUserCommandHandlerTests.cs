@@ -30,7 +30,7 @@ public class FollowUserCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnTrue_AndSendNotification_WhenFollowIsSuccessful()
     {
-        // Arrange
+        
         var command = new FollowUserCommand(Guid.NewGuid(), Guid.NewGuid());
         var follower = new UserProfile { Id = command.FollowerId, Username = "TestUser", Email = "test@test.com", PasswordHash = "hash" };
 
@@ -41,10 +41,10 @@ public class FollowUserCommandHandlerTests
         _notificationRepositoryMock.Setup(repo => repo.AddNotificationAsync(It.IsAny<Notification>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        // Act
+        
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
+        
         result.Should().BeTrue();
         _notificationServiceMock.Verify(s => s.SendNotificationToUserAsync(
             command.FollowingId, 

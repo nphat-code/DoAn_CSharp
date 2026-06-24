@@ -22,7 +22,7 @@ export const AddTrackToAlbumModal = ({ onClose, onSuccess, albumId, existingTrac
     const fetchAll = async () => {
       setLoading(true);
       try {
-        const data = await mediaService.getAllMedia(); // gets all media
+        const data = await mediaService.getAllMedia(); 
         setTracks(data.filter(t => !existingTrackIds.includes(t.id)));
       } catch (error) {
         console.error(error);
