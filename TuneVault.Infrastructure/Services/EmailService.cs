@@ -32,9 +32,14 @@ public class EmailService(IConfiguration configuration) : IEmailService
         using var smtpClient = new SmtpClient(smtpServer, port)
         {
             Credentials = new NetworkCredential(senderEmail, appPassword),
-            EnableSsl = true
+            EnableSsl = true,
+            DeliveryMethod = SmtpDeliveryMethod.Network,
+            Timeout = 20000 // 20 seconds timeout
         };
 
-        await smtpClient.SendMailAsync(mailMessage, cancellationToken);
+        // Dùng Send() đồng bộ thay vì SendMailAsync() vì hàm này hay bị lỗi Timeout 
+        // khi chạy ngầm (Task.Run) trên một số môi trường mạng.
+        smtpClient.Send(mailMessage);
+        await Task.CompletedTask; // Keep signature async
     }
 }
