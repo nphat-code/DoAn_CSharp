@@ -179,7 +179,7 @@ export const UserProfile = () => {
                     if (confirm('Admin: Bạn có chắc chắn muốn xóa vĩnh viễn người dùng này cùng toàn bộ dữ liệu của họ?')) {
                       try {
                         await profileService.deleteProfile(id);
-                        window.location.href = '/'; // Quay về trang chủ
+                        navigate('/'); // Quay về trang chủ mà không load lại trang
                       } catch (error) {
                         alert('Có lỗi xảy ra khi xóa người dùng!');
                       }
