@@ -62,12 +62,19 @@ export const RightPanel = ({ width }: RightPanelProps) => {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      import('../services/playlistService').then(m => {
-        m.playlistService.getUserPlaylists().then(res => setPlaylists(res)).catch(() => {});
-      });
-    }
+    const fetchPlaylists = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const m = await import('../services/playlistService');
+          const res = await m.playlistService.getUserPlaylists();
+          setPlaylists(res);
+        } catch {}
+      }
+    };
+    fetchPlaylists();
+    window.addEventListener('playlistsUpdated', fetchPlaylists);
+    return () => window.removeEventListener('playlistsUpdated', fetchPlaylists);
   }, []);
 
   useEffect(() => {

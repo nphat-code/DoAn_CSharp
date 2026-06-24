@@ -37,6 +37,7 @@ export const playlistService = {
       description,
       isPublic
     });
+    window.dispatchEvent(new Event('playlistsUpdated'));
     return response.data.data;
   },
 
@@ -47,10 +48,12 @@ export const playlistService = {
       coverUrl: coverUrl === null ? "" : coverUrl,
       isPublic
     });
+    window.dispatchEvent(new Event('playlistsUpdated'));
   },
 
   deletePlaylist: async (id: string): Promise<void> => {
     await apiClient.delete(`/playlists/${id}`);
+    window.dispatchEvent(new Event('playlistsUpdated'));
   },
 
   addTrackToPlaylist: async (playlistId: string, mediaItemId: string): Promise<void> => {

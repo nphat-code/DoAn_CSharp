@@ -104,6 +104,8 @@ export const PlayerBar = () => {
       }
     };
     fetchPlaylists();
+    window.addEventListener('playlistsUpdated', fetchPlaylists);
+    return () => window.removeEventListener('playlistsUpdated', fetchPlaylists);
   }, []);
 
   // Đóng menu khi click ra ngoài
