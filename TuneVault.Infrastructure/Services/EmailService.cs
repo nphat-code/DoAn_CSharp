@@ -31,8 +31,12 @@ public class EmailService(IConfiguration configuration) : IEmailService
         };
 
         using var client = new SmtpClient();
-        // Dùng cổng 465 (SSL/TLS ngầm định) để vượt mặt các trình duyệt virus/firewall hay chặn cổng 587
-        await client.ConnectAsync(smtpServer, 465, SecureSocketOptions.SslOnConnect, cancellationToken);
+        
+        // Fix lỗi IPv6 Blackhole trên .NET Core: Ép buộc dùng IPv4 để kết nối tới Google
+        using var socket = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp);
+        await socket.ConnectAsync(smtpServer, 465, cancellationToken);
+
+        await client.ConnectAsync(socket, smtpServer, 465, SecureSocketOptions.SslOnConnect, cancellationToken);
         await client.AuthenticateAsync(senderEmail, appPassword, cancellationToken);
         await client.SendAsync(message, cancellationToken);
         await client.DisconnectAsync(true, cancellationToken);
