@@ -187,8 +187,8 @@ export const Home = () => {
 
       {/* Recent History Grid */}
       {activeTab === 'all' && !loading && recentItems.length > 0 && (
-        <section className="mb-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <section className="mb-10" style={{ containerType: 'inline-size' }}>
+          <div className="recent-grid gap-3">
             {recentItems.map((item) => {
               const isAlbum = item.isAlbum;
               const data = item.data;
