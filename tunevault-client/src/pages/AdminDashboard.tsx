@@ -78,6 +78,9 @@ export const AdminDashboard = () => {
       await mediaService.deleteMedia(id);
       setTracks(tracks.filter(t => t.id !== id));
       alert("Xóa thành công!");
+      window.dispatchEvent(new Event('playlistsUpdated'));
+      window.dispatchEvent(new Event('favoritesUpdated'));
+      window.dispatchEvent(new Event('mediaUpdated'));
     } catch (error) {
       console.error(error);
       alert("Lỗi khi xóa bài hát");
@@ -90,6 +93,8 @@ export const AdminDashboard = () => {
       await albumService.deleteAlbum(id);
       setAlbums(albums.filter(a => a.id !== id));
       alert("Xóa thành công!");
+      window.dispatchEvent(new Event('savedAlbumsUpdated'));
+      window.dispatchEvent(new Event('mediaUpdated'));
     } catch (error) {
       console.error(error);
       alert("Lỗi khi xóa Album");
@@ -102,6 +107,11 @@ export const AdminDashboard = () => {
       await artistService.deleteArtist(id);
       setArtists(artists.filter(a => a.id !== id));
       alert("Xóa thành công!");
+      window.dispatchEvent(new Event('followedArtistsUpdated'));
+      window.dispatchEvent(new Event('savedAlbumsUpdated'));
+      window.dispatchEvent(new Event('playlistsUpdated'));
+      window.dispatchEvent(new Event('favoritesUpdated'));
+      window.dispatchEvent(new Event('mediaUpdated'));
     } catch (error) {
       console.error(error);
       alert("Lỗi khi xóa Nghệ sĩ");
