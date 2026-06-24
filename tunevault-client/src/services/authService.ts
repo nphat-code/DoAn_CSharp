@@ -50,6 +50,16 @@ export const authService = {
     return result;
   },
 
+  googleLogin: async (idToken: string): Promise<LoginResponseDto> => {
+    const response = await apiClient.post<any>('/auth/google', { token: idToken });
+    const result = response.data.data || response.data;
+    if (result.token) {
+      localStorage.setItem('token', result.token);
+      localStorage.setItem('user', JSON.stringify(result));
+    }
+    return result;
+  },
+
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');

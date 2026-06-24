@@ -45,4 +45,11 @@ public class AuthController(IMediator mediator) : ControllerBase
         var response = await mediator.Send(command);
         return Ok(new { success = true, data = response });
     }
+
+    [HttpPost("google")]
+    public async Task<IActionResult> GoogleLogin([FromBody] TuneVault.Application.Features.Auth.Commands.GoogleLogin.GoogleLoginCommand command)
+    {
+        var response = await mediator.Send(command);
+        return Ok(new { success = true, data = response });
+    }
 }
