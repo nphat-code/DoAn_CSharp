@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { authService } from '../services/authService';
-import { GoogleLogin } from '@react-oauth/google';
+import { useGoogleLogin } from '@react-oauth/google';
 
 export const Login = () => {
   const [step, setStep] = useState(1);
@@ -10,6 +10,33 @@ export const Login = () => {
   const [loading, setLoading] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const googleLogin = useGoogleLogin({
+    flow: 'implicit',
+    ux_mode: 'redirect',
+    onSuccess: () => {}, // Handled by useEffect on redirect
+    onError: () => setError("Đăng nhập Google thất bại.")
+  });
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.includes('access_token')) {
+      const params = new URLSearchParams(hash.replace('#', '?'));
+      const token = params.get('access_token');
+      if (token) {
+        setLoading(true);
+        authService.googleLogin(token).then(() => {
+          // Clear hash to prevent infinite loop or exposed token
+          window.history.replaceState(null, '', window.location.pathname);
+          window.location.href = '/';
+        }).catch(err => {
+          window.history.replaceState(null, '', window.location.pathname);
+          setError(err.response?.data?.message || "Lỗi đăng nhập bằng Google.");
+          setLoading(false);
+        });
+      }
+    }
+  }, []);
 
   const handleNextStep1 = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,29 +169,15 @@ export const Login = () => {
               <div className="flex-1 border-t border-zinc-800"></div>
             </div>
 
-            <div className="w-full max-w-[324px] flex justify-center">
-              <GoogleLogin
-                onSuccess={async (credentialResponse) => {
-                  try {
-                    setLoading(true);
-                    if (credentialResponse.credential) {
-                      await authService.googleLogin(credentialResponse.credential);
-                      window.location.href = '/';
-                    }
-                  } catch (err: any) {
-                    setError(err.response?.data?.message || "Lỗi đăng nhập bằng Google.");
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
-                onError={() => {
-                  setError("Đăng nhập Google thất bại.");
-                }}
-                shape="pill"
-                theme="filled_black"
-                width="324"
-                text="continue_with"
-              />
+            <div className="w-full max-w-[324px] flex flex-col gap-3">
+              <button type="button" onClick={() => googleLogin()} className="w-full border border-zinc-500 hover:border-white text-white font-bold py-3.5 rounded-full flex items-center justify-center gap-3 transition disabled:opacity-50">
+                {loading ? (
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor"><path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
+                )}
+                Tiếp tục với Google
+              </button>
             </div>
 
             <div className="w-full max-w-[450px] border-t border-zinc-800 my-8"></div>

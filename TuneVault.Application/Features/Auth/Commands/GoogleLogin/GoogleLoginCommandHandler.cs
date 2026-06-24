@@ -16,31 +16,26 @@ public class GoogleLoginCommandHandler(
 {
     public async Task<LoginResponseDto> Handle(GoogleLoginCommand request, CancellationToken cancellationToken)
     {
-        // 1. Verify id_token with Google
-        var clientId = configuration["Google:ClientId"];
-        var settings = new GoogleJsonWebSignature.ValidationSettings
-        {
-            Audience = new[] { clientId }
-        };
-
-        GoogleJsonWebSignature.Payload payload;
-        try
-        {
-            payload = await GoogleJsonWebSignature.ValidateAsync(request.Token, settings);
-        }
-        catch (InvalidJwtException)
+        // 1. Verify access_token with Google
+        using var client = new HttpClient();
+        var response = await client.GetAsync($"https://www.googleapis.com/oauth2/v3/userinfo?access_token={request.Token}", cancellationToken);
+        
+        if (!response.IsSuccessStatusCode)
         {
             throw new UnauthorizedException("Invalid Google token.");
         }
 
-        if (payload == null || string.IsNullOrEmpty(payload.Email))
+        var content = await response.Content.ReadAsStringAsync(cancellationToken);
+        var googleUser = JsonSerializer.Deserialize<GoogleUserInfo>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        if (googleUser == null || string.IsNullOrEmpty(googleUser.Email))
         {
             throw new UnauthorizedException("Could not retrieve email from Google.");
         }
 
-        var googleEmail = payload.Email;
-        var googleName = payload.Name;
-        var googlePicture = payload.Picture;
+        var googleEmail = googleUser.Email;
+        var googleName = googleUser.Name;
+        var googlePicture = googleUser.Picture;
 
         // 2. Check if user exists
         var user = await userRepository.GetByEmailAsync(googleEmail, cancellationToken);
@@ -82,4 +77,9 @@ public class GoogleLoginCommandHandler(
     }
 }
 
-
+public class GoogleUserInfo
+{
+    public string Email { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Picture { get; set; } = string.Empty;
+}
