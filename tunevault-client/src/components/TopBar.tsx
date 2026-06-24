@@ -117,8 +117,11 @@ export const TopBar = () => {
   return (
     <header className="h-16 flex items-center justify-between -m-2 p-2">
       {/* Logo */}
-      <div className="flex-1 min-w-0">
-        <div className="text-2xl font-bold tracking-tighter text-white cursor-pointer">TuneVault</div>
+      <div className="flex-1 min-w-0 flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shrink-0">
+          <div className="w-4 h-4 bg-black rounded-full" />
+        </div>
+        <div className="text-2xl font-bold tracking-tighter text-white hidden sm:block">TuneVault</div>
       </div>
 
       {/* Center Controls (Home + Search) */}
