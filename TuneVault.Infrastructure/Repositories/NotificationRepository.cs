@@ -39,4 +39,14 @@ public class NotificationRepository(IDbConnection dbConnection) : INotificationR
         var command = new CommandDefinition(sql, new { UserId = userId }, cancellationToken: cancellationToken);
         await dbConnection.ExecuteAsync(command);
     }
+
+    public async Task AddNotificationAsync(Notification notification, CancellationToken cancellationToken)
+    {
+        var sql = @"
+            INSERT INTO Notifications (Id, UserId, Message, Type, IsRead, CreatedAt)
+            VALUES (@Id, @UserId, @Message, @Type, @IsRead, @CreatedAt)";
+
+        var command = new CommandDefinition(sql, notification, cancellationToken: cancellationToken);
+        await dbConnection.ExecuteAsync(command);
+    }
 }

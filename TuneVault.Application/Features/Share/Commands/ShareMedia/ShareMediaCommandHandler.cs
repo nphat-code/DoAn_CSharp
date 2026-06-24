@@ -34,8 +34,10 @@ public class ShareMediaCommandHandler(
         // 3. Đẩy thông báo Real-time cho Receiver
         await notificationService.SendNotificationToUserAsync(
             request.ReceiverId, 
+            notifId,
             notificationMessage, 
             "Share", 
+            createdAt,
             cancellationToken);
 
         return true;

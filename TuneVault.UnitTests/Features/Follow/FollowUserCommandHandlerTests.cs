@@ -11,6 +11,7 @@ public class FollowUserCommandHandlerTests
     private readonly Mock<IFollowRepository> _followRepositoryMock;
     private readonly Mock<IUserRepository> _userRepositoryMock;
     private readonly Mock<INotificationService> _notificationServiceMock;
+    private readonly Mock<INotificationRepository> _notificationRepositoryMock;
     private readonly FollowUserCommandHandler _handler;
 
     public FollowUserCommandHandlerTests()
@@ -18,45 +19,43 @@ public class FollowUserCommandHandlerTests
         _followRepositoryMock = new Mock<IFollowRepository>();
         _userRepositoryMock = new Mock<IUserRepository>();
         _notificationServiceMock = new Mock<INotificationService>();
-        
+        _notificationRepositoryMock = new Mock<INotificationRepository>();
         _handler = new FollowUserCommandHandler(
             _followRepositoryMock.Object,
             _userRepositoryMock.Object,
-            _notificationServiceMock.Object);
+            _notificationServiceMock.Object,
+            _notificationRepositoryMock.Object);
     }
 
     [Fact]
-    public async Task Handle_ShouldReturnTrue_AndSendNotification_WhenRepositoryReturnsTrue()
+    public async Task Handle_ShouldReturnTrue_AndSendNotification_WhenFollowIsSuccessful()
     {
-        // 1. Arrange: Chuẩn bị đầu vào
-        var followerId = Guid.NewGuid();
-        var followingId = Guid.NewGuid();
-        var command = new FollowUserCommand(followerId, followingId);
+        // Arrange
+        var command = new FollowUserCommand(Guid.NewGuid(), Guid.NewGuid());
+        var follower = new UserProfile { Id = command.FollowerId, Username = "TestUser", Email = "test@test.com", PasswordHash = "hash" };
 
-        _followRepositoryMock
-            .Setup(x => x.FollowUserAsync(followerId, followingId, It.IsAny<CancellationToken>()))
+        _followRepositoryMock.Setup(repo => repo.FollowUserAsync(command.FollowerId, command.FollowingId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
+        _userRepositoryMock.Setup(repo => repo.GetByIdAsync(command.FollowerId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(follower);
+        _notificationRepositoryMock.Setup(repo => repo.AddNotificationAsync(It.IsAny<Notification>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
-        _userRepositoryMock
-            .Setup(x => x.GetByIdAsync(followerId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new UserProfile { Id = followerId, Username = "TestUser", Email = "test@test.com", PasswordHash = "hash" });
-
-        // 2. Act: Thực thi hàm cần test
+        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // 3. Assert: Kiểm tra kết quả
+        // Assert
         result.Should().BeTrue();
-        
-        _followRepositoryMock.Verify(
-            x => x.FollowUserAsync(followerId, followingId, It.IsAny<CancellationToken>()), 
-            Times.Once);
-
-        _notificationServiceMock.Verify(
-            x => x.SendNotificationToUserAsync(
-                followingId, 
-                "TestUser đã bắt đầu theo dõi bạn", 
-                "Follow", 
-                It.IsAny<CancellationToken>()),
-            Times.Once);
+        _notificationServiceMock.Verify(s => s.SendNotificationToUserAsync(
+            command.FollowingId, 
+            It.IsAny<Guid>(),
+            $"{follower.Username} đã bắt đầu theo dõi bạn", 
+            "Follow", 
+            It.IsAny<DateTime>(),
+            It.IsAny<CancellationToken>()), Times.Once);
+            
+        _notificationRepositoryMock.Verify(r => r.AddNotificationAsync(
+            It.Is<TuneVault.Domain.Entities.Notification>(n => n.UserId == command.FollowingId && n.Type == "Follow"), 
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 }
