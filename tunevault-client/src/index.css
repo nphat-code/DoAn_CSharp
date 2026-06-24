@@ -107,7 +107,7 @@
     }
   }
 
-  @container (min-width: 850px) {
+  @container (min-width: 720px) {
     .recent-grid {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
