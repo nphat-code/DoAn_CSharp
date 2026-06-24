@@ -30,6 +30,11 @@ export const authService = {
     return result;
   },
 
+  checkEmail: async (email: string): Promise<boolean> => {
+    const response = await apiClient.get<any>(`/auth/check-email?email=${encodeURIComponent(email)}`);
+    return response.data.exists;
+  },
+
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');

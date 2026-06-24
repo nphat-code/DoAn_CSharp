@@ -24,4 +24,11 @@ public class AuthController(IMediator mediator) : ControllerBase
         var response = await mediator.Send(command);
         return Ok(new { success = true, data = response });
     }
+
+    [HttpGet("check-email")]
+    public async Task<IActionResult> CheckEmail([FromQuery] string email)
+    {
+        var exists = await mediator.Send(new TuneVault.Application.Features.Auth.Queries.CheckEmail.CheckEmailQuery(email));
+        return Ok(new { success = true, exists = exists });
+    }
 }
