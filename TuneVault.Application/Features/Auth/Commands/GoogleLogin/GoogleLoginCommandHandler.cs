@@ -1,6 +1,5 @@
 using System.Text.Json;
 using MediatR;
-using Microsoft.Extensions.Configuration;
 using Google.Apis.Auth;
 using TuneVault.Application.Exceptions;
 using TuneVault.Application.Features.Auth.DTOs;
@@ -11,8 +10,7 @@ namespace TuneVault.Application.Features.Auth.Commands.GoogleLogin;
 
 public class GoogleLoginCommandHandler(
     IUserRepository userRepository, 
-    IJwtTokenGenerator jwtTokenGenerator,
-    IConfiguration configuration) : IRequestHandler<GoogleLoginCommand, LoginResponseDto>
+    IJwtTokenGenerator jwtTokenGenerator) : IRequestHandler<GoogleLoginCommand, LoginResponseDto>
 {
     public async Task<LoginResponseDto> Handle(GoogleLoginCommand request, CancellationToken cancellationToken)
     {

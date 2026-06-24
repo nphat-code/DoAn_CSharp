@@ -9,4 +9,5 @@ public interface IAlbumRepository
     Task<IEnumerable<MediaItem>> GetAlbumTracksAsync(Guid albumId, CancellationToken cancellationToken);
     Task<Guid> AddAsync(Album album, CancellationToken cancellationToken);
     Task DeleteAsync(Guid id, CancellationToken cancellationToken);
+    Task<IEnumerable<Album>> GetAlbumsByArtistIdAsync(Guid artistId, CancellationToken cancellationToken);
 }

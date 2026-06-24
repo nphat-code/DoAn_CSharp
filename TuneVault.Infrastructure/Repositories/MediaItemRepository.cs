@@ -96,4 +96,11 @@ public class MediaItemRepository(IDbConnection dbConnection) : IMediaItemReposit
         var command = new CommandDefinition(sql, mediaItem, cancellationToken: cancellationToken);
         await dbConnection.ExecuteAsync(command);
     }
+
+    public async Task<IEnumerable<MediaItem>> GetByArtistIdAsync(Guid artistId, CancellationToken cancellationToken)
+    {
+        var sql = "SELECT * FROM MediaItems WHERE ArtistId = @ArtistId";
+        var command = new CommandDefinition(sql, new { ArtistId = artistId }, cancellationToken: cancellationToken);
+        return await dbConnection.QueryAsync<MediaItem>(command);
+    }
 }

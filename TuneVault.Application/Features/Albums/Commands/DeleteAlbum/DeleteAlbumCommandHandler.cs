@@ -4,7 +4,9 @@ using System.Collections.Generic;
 
 namespace TuneVault.Application.Features.Albums.Commands.DeleteAlbum;
 
-public class DeleteAlbumCommandHandler(IAlbumRepository albumRepository) : IRequestHandler<DeleteAlbumCommand>
+public class DeleteAlbumCommandHandler(
+    IAlbumRepository albumRepository,
+    IFileStorageService fileStorageService) : IRequestHandler<DeleteAlbumCommand>
 {
     public async Task Handle(DeleteAlbumCommand request, CancellationToken cancellationToken)
     {
@@ -12,6 +14,11 @@ public class DeleteAlbumCommandHandler(IAlbumRepository albumRepository) : IRequ
         if (album == null)
         {
             throw new KeyNotFoundException("Album not found.");
+        }
+
+        if (!string.IsNullOrEmpty(album.CoverUrl))
+        {
+            await fileStorageService.DeleteFileAsync(album.CoverUrl, cancellationToken);
         }
 
         await albumRepository.DeleteAsync(request.Id, cancellationToken);

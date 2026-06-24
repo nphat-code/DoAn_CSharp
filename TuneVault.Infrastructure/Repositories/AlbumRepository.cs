@@ -90,4 +90,12 @@ public class AlbumRepository(IDbConnection dbConnection) : IAlbumRepository
             new CommandDefinition(sqlDelete, new { Id = id }, cancellationToken: cancellationToken)
         );
     }
+
+    public async Task<IEnumerable<Album>> GetAlbumsByArtistIdAsync(Guid artistId, CancellationToken cancellationToken)
+    {
+        var sql = "SELECT * FROM Albums WHERE ArtistId = @ArtistId";
+        return await dbConnection.QueryAsync<Album>(
+            new CommandDefinition(sql, new { ArtistId = artistId }, cancellationToken: cancellationToken)
+        );
+    }
 }
