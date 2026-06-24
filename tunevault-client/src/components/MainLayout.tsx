@@ -11,8 +11,8 @@ import { NowPlayingOverlay } from '../pages/NowPlaying';
 export const MainLayout = () => {
   const MIN_SIDEBAR_WIDTH = 280;
   const MIN_RIGHT_PANEL_WIDTH = 280;
-  const MIN_CENTER_WIDTH = 550;
-  const IDEAL_CENTER_WIDTH = 800;
+  const MIN_CENTER_WIDTH = 450;
+  const IDEAL_CENTER_WIDTH = 700;
   const COLLAPSED_SIDEBAR_WIDTH = 72;
   const CRITICAL_WIDTH = MIN_CENTER_WIDTH + MIN_SIDEBAR_WIDTH + MIN_RIGHT_PANEL_WIDTH;
 
