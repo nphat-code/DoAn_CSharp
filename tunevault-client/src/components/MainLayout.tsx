@@ -222,7 +222,9 @@ export const MainLayout = () => {
                   className="absolute top-0 left-0 w-full pointer-events-none z-0 transition-colors duration-1000 ease-in-out"
                   style={{
                     height: '320px',
-                    backgroundImage: `linear-gradient(to bottom, ${gradientColor}, transparent 100%)`
+                    backgroundColor: gradientColor,
+                    maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+                    WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)'
                   }}
                 />
               )}
