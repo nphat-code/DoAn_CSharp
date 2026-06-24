@@ -40,9 +40,9 @@
 *   [x] Xóa thử 1 bài hát ra khỏi Playlist.
 
 ## 6. Tính Năng Xã Hội (Share & Notification)
-*   [ ] Bấm **Chia sẻ** một Bài hát hoặc Album cho một người dùng khác (nếu ứng dụng có chức năng chọn user để gửi) hoặc Copy Link.
-*   [ ] (Nếu có chức năng gửi trong app): Đăng nhập bằng tài khoản người nhận, kiểm tra mục "Trung tâm chia sẻ" (Shared with me) xem có hiện thông báo nhận được nhạc không.
-*   [ ] Bấm Play trực tiếp từ mục Thông báo xem nhạc có phát ngay lập tức không.
+*   [x] Bấm **Chia sẻ** một Bài hát hoặc Album cho một người dùng khác (nếu ứng dụng có chức năng chọn user để gửi) hoặc Copy Link.
+*   [x] (Nếu có chức năng gửi trong app): Đăng nhập bằng tài khoản người nhận, kiểm tra mục "Trung tâm chia sẻ" (Shared with me) xem có hiện thông báo nhận được nhạc không.
+*   [x] Bấm Play trực tiếp từ mục Thông báo xem nhạc có phát ngay lập tức không.
 
 ## 7. Giao Diện & UI/UX (Soi lỗi hiển thị)
 *   [ ] Phóng to, thu nhỏ cửa sổ trình duyệt (hoặc dùng F12 giả lập điện thoại/tablet) xem layout có bị vỡ, chữ có bị tràn không.

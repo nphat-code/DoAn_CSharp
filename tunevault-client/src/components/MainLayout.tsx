@@ -9,7 +9,7 @@ import { NotificationProvider } from '../context/NotificationContext';
 import { NowPlayingOverlay } from '../pages/NowPlaying';
 
 export const MainLayout = () => {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(window.innerWidth <= 1100);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === '/';
@@ -20,6 +20,24 @@ export const MainLayout = () => {
   
   const scrollRef = useRef<HTMLElement>(null);
   const gradientRef = useRef<HTMLDivElement>(null);
+  const prevWidthRef = useRef(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const currentWidth = window.innerWidth;
+      
+      if (currentWidth <= 1100 && prevWidthRef.current > 1100) {
+        setIsSidebarCollapsed(true);
+      } else if (currentWidth > 1100 && prevWidthRef.current <= 1100) {
+        setIsSidebarCollapsed(false);
+      }
+      
+      prevWidthRef.current = currentWidth;
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (isSidebarExpanded) {
