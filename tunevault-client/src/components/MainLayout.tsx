@@ -10,7 +10,9 @@ import { NowPlayingOverlay } from '../pages/NowPlaying';
 
 export const MainLayout = () => {
   const MIN_SIDEBAR_WIDTH = 280;
+  const MAX_SIDEBAR_WIDTH = 550;
   const MIN_RIGHT_PANEL_WIDTH = 280;
+  const MAX_RIGHT_PANEL_WIDTH = 550;
   const MIN_CENTER_WIDTH = 450;
   const COLLAPSED_SIDEBAR_WIDTH = 72;
   const CRITICAL_WIDTH = MIN_CENTER_WIDTH + MIN_SIDEBAR_WIDTH + MIN_RIGHT_PANEL_WIDTH;
@@ -102,7 +104,7 @@ export const MainLayout = () => {
       const maxAllowed = windowWidth - rightPanelWidth - MIN_CENTER_WIDTH;
       newWidth = Math.min(newWidth, Math.max(MIN_SIDEBAR_WIDTH, maxAllowed));
       
-      setSidebarWidth(newWidth);
+      setSidebarWidth(Math.min(newWidth, MAX_SIDEBAR_WIDTH));
     };
 
     const onMouseUp = () => {
@@ -131,7 +133,7 @@ export const MainLayout = () => {
       const maxAllowed = windowWidth - effectiveSw - MIN_CENTER_WIDTH;
       newWidth = Math.min(newWidth, Math.max(MIN_RIGHT_PANEL_WIDTH, maxAllowed));
       
-      setRightPanelWidth(newWidth);
+      setRightPanelWidth(Math.min(newWidth, MAX_RIGHT_PANEL_WIDTH));
     };
 
     const onMouseUp = () => {
