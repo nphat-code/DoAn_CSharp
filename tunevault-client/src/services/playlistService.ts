@@ -58,9 +58,11 @@ export const playlistService = {
 
   addTrackToPlaylist: async (playlistId: string, mediaItemId: string): Promise<void> => {
     await apiClient.post(`/playlists/${playlistId}/tracks/${mediaItemId}`);
+    window.dispatchEvent(new Event('playlistsUpdated'));
   },
 
   removeTrackFromPlaylist: async (playlistId: string, mediaItemId: string): Promise<void> => {
     await apiClient.delete(`/playlists/${playlistId}/tracks/${mediaItemId}`);
+    window.dispatchEvent(new Event('playlistsUpdated'));
   }
 };
