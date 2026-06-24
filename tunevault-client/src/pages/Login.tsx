@@ -14,7 +14,7 @@ export const Login = () => {
     const clientId = "932955180439-i4m5vahs6rsecc4go5ubn09uso4485oe.apps.googleusercontent.com";
     const redirectUri = `${window.location.origin}/login`;
     const scope = "email profile";
-    const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent(scope)}`;
+    const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent(scope)}&prompt=select_account`;
     window.location.href = url;
   };
 
