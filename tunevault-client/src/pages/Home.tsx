@@ -1,5 +1,5 @@
 import { getImageUrl } from '../utils/imageUrl';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { usePlayer } from '../context/PlayerContext';
 import { mediaService } from '../services/mediaService';
 import { albumService } from '../services/albumService';
@@ -18,6 +18,31 @@ export const Home = () => {
   // const [aiTracks, setAiTracks] = useState<MediaItemDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'songs' | 'albums' | 'foryou'>('all');
+  const colorCache = useRef<{ [key: string]: string }>({});
+
+  const handleMouseEnter = async (coverUrl: string | undefined) => {
+    if (!coverUrl) {
+      window.dispatchEvent(new CustomEvent('homeBgColorChange', { detail: 'rgba(79, 70, 229, 0.8)' }));
+      return;
+    }
+    const url = getImageUrl(coverUrl);
+    if (colorCache.current[url]) {
+      window.dispatchEvent(new CustomEvent('homeBgColorChange', { detail: colorCache.current[url] }));
+      return;
+    }
+    try {
+      const { getAverageColor } = await import('../utils/colorUtils');
+      const color = await getAverageColor(url);
+      colorCache.current[url] = color;
+      window.dispatchEvent(new CustomEvent('homeBgColorChange', { detail: color }));
+    } catch (e) {
+      window.dispatchEvent(new CustomEvent('homeBgColorChange', { detail: 'rgba(79, 70, 229, 0.8)' }));
+    }
+  };
+
+  const handleMouseLeave = () => {
+    window.dispatchEvent(new CustomEvent('homeBgColorChange', { detail: 'rgba(79, 70, 229, 0.8)' }));
+  };
 
 
   useEffect(() => {
@@ -153,6 +178,8 @@ export const Home = () => {
                 <div 
                   key={`${isAlbum ? 'album' : 'track'}_${data.id}`}
                   onClick={(e) => isAlbum ? handlePlayAlbum(e, data.id) : playMediaList([data], 0)}
+                  onMouseEnter={() => handleMouseEnter(data.coverUrl)}
+                  onMouseLeave={handleMouseLeave}
                   className="flex items-center bg-white/5 hover:bg-white/20 transition-colors rounded-md overflow-hidden cursor-pointer group relative shadow-md hover:shadow-xl"
                 >
                   <div className="w-12 h-12 flex-shrink-0 bg-zinc-800 shadow-[4px_0_12px_rgba(0,0,0,0.5)] z-10 relative">

@@ -37,6 +37,18 @@ export const MainLayout = () => {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+  const [gradientColor, setGradientColor] = useState('rgba(79, 70, 229, 0.8)');
+  
+  useEffect(() => {
+    const handleColorChange = (e: any) => {
+      if (e.detail) {
+        setGradientColor(e.detail);
+      }
+    };
+    window.addEventListener('homeBgColorChange', handleColorChange);
+    return () => window.removeEventListener('homeBgColorChange', handleColorChange);
+  }, []);
+
   useEffect(() => {
     const currentWindowWidth = windowWidth;
 
@@ -207,10 +219,10 @@ export const MainLayout = () => {
               {isHome && (
                 <div 
                   ref={gradientRef}
-                  className="absolute top-0 left-0 w-full pointer-events-none z-0"
+                  className="absolute top-0 left-0 w-full pointer-events-none z-0 transition-colors duration-1000 ease-in-out"
                   style={{
                     height: '320px',
-                    backgroundImage: 'linear-gradient(to bottom, rgba(79, 70, 229, 0.8) 0%, transparent 100%)'
+                    backgroundImage: `linear-gradient(to bottom, ${gradientColor}, transparent 100%)`
                   }}
                 />
               )}
