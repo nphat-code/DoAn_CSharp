@@ -19,10 +19,33 @@ export const Home = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'songs' | 'albums' | 'foryou'>('all');
   const colorCache = useRef<{ [key: string]: string }>({});
+  const defaultColor = useRef('rgba(79, 70, 229, 0.8)');
+
+  useEffect(() => {
+    const computeDefaultBg = async () => {
+      if (recentItems.length > 0) {
+        const firstItem = recentItems[0];
+        const coverUrl = firstItem.data.coverUrl;
+        if (coverUrl) {
+          try {
+            const url = getImageUrl(coverUrl);
+            const { getAverageColor } = await import('../utils/colorUtils');
+            const color = await getAverageColor(url);
+            defaultColor.current = color;
+            colorCache.current[url] = color;
+            window.dispatchEvent(new CustomEvent('homeBgColorChange', { detail: color }));
+          } catch (e) {
+            // ignore
+          }
+        }
+      }
+    };
+    computeDefaultBg();
+  }, [recentItems]);
 
   const handleMouseEnter = async (coverUrl: string | undefined) => {
     if (!coverUrl) {
-      window.dispatchEvent(new CustomEvent('homeBgColorChange', { detail: 'rgba(79, 70, 229, 0.8)' }));
+      window.dispatchEvent(new CustomEvent('homeBgColorChange', { detail: defaultColor.current }));
       return;
     }
     const url = getImageUrl(coverUrl);
@@ -36,14 +59,13 @@ export const Home = () => {
       colorCache.current[url] = color;
       window.dispatchEvent(new CustomEvent('homeBgColorChange', { detail: color }));
     } catch (e) {
-      window.dispatchEvent(new CustomEvent('homeBgColorChange', { detail: 'rgba(79, 70, 229, 0.8)' }));
+      window.dispatchEvent(new CustomEvent('homeBgColorChange', { detail: defaultColor.current }));
     }
   };
 
   const handleMouseLeave = () => {
-    window.dispatchEvent(new CustomEvent('homeBgColorChange', { detail: 'rgba(79, 70, 229, 0.8)' }));
+    window.dispatchEvent(new CustomEvent('homeBgColorChange', { detail: defaultColor.current }));
   };
-
 
   useEffect(() => {
     const fetchData = async () => {
