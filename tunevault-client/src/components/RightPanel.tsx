@@ -792,8 +792,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                 </div>
 
                 {/* Listeners & Follow Button */}
-                <div className="flex items-center justify-between mb-1">
-                  <p className="text-zinc-300 text-sm drop-shadow-md">86.906.547 người nghe hằng tháng</p>
+                <div className="flex items-center justify-end mb-1">
                   {currentMedia?.artistId && (
                     <button 
                       onClick={handleToggleFollowArtist}
