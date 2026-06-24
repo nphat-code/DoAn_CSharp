@@ -1,5 +1,7 @@
 using System.Text.Json;
 using MediatR;
+using Microsoft.Extensions.Configuration;
+using Google.Apis.Auth;
 using TuneVault.Application.Exceptions;
 using TuneVault.Application.Features.Auth.DTOs;
 using TuneVault.Application.Interfaces;
@@ -9,49 +11,59 @@ namespace TuneVault.Application.Features.Auth.Commands.GoogleLogin;
 
 public class GoogleLoginCommandHandler(
     IUserRepository userRepository, 
-    IJwtTokenGenerator jwtTokenGenerator) : IRequestHandler<GoogleLoginCommand, LoginResponseDto>
+    IJwtTokenGenerator jwtTokenGenerator,
+    IConfiguration configuration) : IRequestHandler<GoogleLoginCommand, LoginResponseDto>
 {
     public async Task<LoginResponseDto> Handle(GoogleLoginCommand request, CancellationToken cancellationToken)
     {
-        // 1. Verify access_token with Google
-        using var client = new HttpClient();
-        var response = await client.GetAsync($"https://www.googleapis.com/oauth2/v3/userinfo?access_token={request.Token}", cancellationToken);
-        
-        if (!response.IsSuccessStatusCode)
+        // 1. Verify id_token with Google
+        var clientId = configuration["Google:ClientId"];
+        var settings = new GoogleJsonWebSignature.ValidationSettings
+        {
+            Audience = new[] { clientId }
+        };
+
+        GoogleJsonWebSignature.Payload payload;
+        try
+        {
+            payload = await GoogleJsonWebSignature.ValidateAsync(request.Token, settings);
+        }
+        catch (InvalidJwtException)
         {
             throw new UnauthorizedException("Invalid Google token.");
         }
 
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        var googleUser = JsonSerializer.Deserialize<GoogleUserInfo>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        if (googleUser == null || string.IsNullOrEmpty(googleUser.Email))
+        if (payload == null || string.IsNullOrEmpty(payload.Email))
         {
             throw new UnauthorizedException("Could not retrieve email from Google.");
         }
 
+        var googleEmail = payload.Email;
+        var googleName = payload.Name;
+        var googlePicture = payload.Picture;
+
         // 2. Check if user exists
-        var user = await userRepository.GetByEmailAsync(googleUser.Email, cancellationToken);
+        var user = await userRepository.GetByEmailAsync(googleEmail, cancellationToken);
         
         if (user == null)
         {
             // Register new user
             user = new UserProfile
             {
-                Email = googleUser.Email,
-                Username = googleUser.Name ?? googleUser.Email.Split('@')[0],
+                Email = googleEmail,
+                Username = googleName ?? googleEmail.Split('@')[0],
                 PasswordHash = "", // No password for Google users
-                AvatarUrl = googleUser.Picture
+                AvatarUrl = googlePicture
             };
             await userRepository.AddAsync(user, cancellationToken);
         }
         else
         {
             // Update avatar if missing
-            if (string.IsNullOrEmpty(user.AvatarUrl) && !string.IsNullOrEmpty(googleUser.Picture))
+            if (string.IsNullOrEmpty(user.AvatarUrl) && !string.IsNullOrEmpty(googlePicture))
             {
-                await userRepository.UpdateAvatarAsync(user.Id, googleUser.Picture, cancellationToken);
-                user.AvatarUrl = googleUser.Picture;
+                await userRepository.UpdateAvatarAsync(user.Id, googlePicture, cancellationToken);
+                user.AvatarUrl = googlePicture;
             }
         }
 
@@ -70,9 +82,4 @@ public class GoogleLoginCommandHandler(
     }
 }
 
-public class GoogleUserInfo
-{
-    public string Email { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public string Picture { get; set; } = string.Empty;
-}
+

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { authService } from '../services/authService';
-import { useGoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
 
 export const Register = () => {
   const [step, setStep] = useState(1);
@@ -9,23 +9,6 @@ export const Register = () => {
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        setLoading(true);
-        await authService.googleLogin(tokenResponse.access_token);
-        window.location.href = '/';
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Lỗi đăng ký bằng Google.");
-      } finally {
-        setLoading(false);
-      }
-    },
-    onError: () => {
-      setError("Đăng ký Google thất bại.");
-    }
-  });
 
   // Password validation state
   const hasLetter = /[a-zA-Z]/.test(password);
@@ -122,10 +105,30 @@ export const Register = () => {
                 <div className="flex-1 border-t border-zinc-800"></div>
               </div>
 
-              <button type="button" onClick={googleLogin as any} className="w-full max-w-[324px] border border-zinc-500 hover:border-white text-white font-bold py-3.5 rounded-full flex items-center justify-center gap-3 transition">
-                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor"><path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
-                Đăng ký bằng Google
-              </button>
+              <div className="w-full max-w-[324px] flex justify-center">
+                <GoogleLogin
+                  onSuccess={async (credentialResponse) => {
+                    try {
+                      setLoading(true);
+                      if (credentialResponse.credential) {
+                        await authService.googleLogin(credentialResponse.credential);
+                        window.location.href = '/';
+                      }
+                    } catch (err: any) {
+                      setError(err.response?.data?.message || "Lỗi đăng ký bằng Google.");
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  onError={() => {
+                    setError("Đăng ký Google thất bại.");
+                  }}
+                  shape="pill"
+                  theme="filled_black"
+                  width="324"
+                  text="signup_with"
+                />
+              </div>
             </form>
 
             <div className="w-full max-w-[450px] border-t border-zinc-800 my-8"></div>
