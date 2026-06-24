@@ -129,6 +129,10 @@ export const PlaylistDetail = () => {
 
   useEffect(() => {
     fetchDetails();
+
+    const handleUpdate = () => fetchDetails();
+    window.addEventListener('playlistsUpdated', handleUpdate);
+    return () => window.removeEventListener('playlistsUpdated', handleUpdate);
   }, [id]);
 
   const handleRemoveTrack = async (trackId: string) => {
