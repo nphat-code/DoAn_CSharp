@@ -11,7 +11,8 @@ import { NowPlayingOverlay } from '../pages/NowPlaying';
 export const MainLayout = () => {
   const MIN_SIDEBAR_WIDTH = 280;
   const MIN_RIGHT_PANEL_WIDTH = 280;
-  const MIN_CENTER_WIDTH = 500;
+  const MIN_CENTER_WIDTH = 550;
+  const IDEAL_CENTER_WIDTH = 800;
   const COLLAPSED_SIDEBAR_WIDTH = 72;
   const CRITICAL_WIDTH = MIN_CENTER_WIDTH + MIN_SIDEBAR_WIDTH + MIN_RIGHT_PANEL_WIDTH;
 
@@ -40,10 +41,23 @@ export const MainLayout = () => {
 
   useEffect(() => {
     const currentWindowWidth = windowWidth;
-    let availableSides = currentWindowWidth - MIN_CENTER_WIDTH;
 
-    if (availableSides >= MIN_SIDEBAR_WIDTH + MIN_RIGHT_PANEL_WIDTH) {
-      if (preferredSidebarWidth + preferredRightPanelWidth <= availableSides) {
+    let willBeCollapsed = isSidebarCollapsed;
+    if (currentWindowWidth < CRITICAL_WIDTH && prevWidthRef.current >= CRITICAL_WIDTH) {
+      setIsSidebarCollapsed(true);
+      willBeCollapsed = true;
+    } else if (currentWindowWidth >= CRITICAL_WIDTH && prevWidthRef.current < CRITICAL_WIDTH) {
+      setIsSidebarCollapsed(false);
+      willBeCollapsed = false;
+    }
+
+    if (willBeCollapsed) {
+      const availableForRight = currentWindowWidth - MIN_CENTER_WIDTH - COLLAPSED_SIDEBAR_WIDTH;
+      setSidebarWidth(MIN_SIDEBAR_WIDTH);
+      setRightPanelWidth(Math.max(MIN_RIGHT_PANEL_WIDTH, Math.min(preferredRightPanelWidth, availableForRight)));
+    } else {
+      let availableSides = currentWindowWidth - IDEAL_CENTER_WIDTH;
+      if (availableSides >= preferredSidebarWidth + preferredRightPanelWidth) {
         setSidebarWidth(preferredSidebarWidth);
         setRightPanelWidth(preferredRightPanelWidth);
       } else {
@@ -51,30 +65,16 @@ export const MainLayout = () => {
         let newSw = (preferredSidebarWidth / totalPref) * availableSides;
         let newRw = (preferredRightPanelWidth / totalPref) * availableSides;
 
-        if (newSw < MIN_SIDEBAR_WIDTH) {
-          newSw = MIN_SIDEBAR_WIDTH;
-          newRw = availableSides - newSw;
-        } else if (newRw < MIN_RIGHT_PANEL_WIDTH) {
-          newRw = MIN_RIGHT_PANEL_WIDTH;
-          newSw = availableSides - newRw;
-        }
+        if (newSw < MIN_SIDEBAR_WIDTH) newSw = MIN_SIDEBAR_WIDTH;
+        if (newRw < MIN_RIGHT_PANEL_WIDTH) newRw = MIN_RIGHT_PANEL_WIDTH;
+
         setSidebarWidth(newSw);
         setRightPanelWidth(newRw);
       }
-    } else {
-      const availableForRight = currentWindowWidth - MIN_CENTER_WIDTH - COLLAPSED_SIDEBAR_WIDTH;
-      setSidebarWidth(MIN_SIDEBAR_WIDTH);
-      setRightPanelWidth(Math.max(MIN_RIGHT_PANEL_WIDTH, Math.min(preferredRightPanelWidth, availableForRight)));
-    }
-
-    if (currentWindowWidth < CRITICAL_WIDTH && prevWidthRef.current >= CRITICAL_WIDTH) {
-      setIsSidebarCollapsed(true);
-    } else if (currentWindowWidth >= CRITICAL_WIDTH && prevWidthRef.current < CRITICAL_WIDTH) {
-      setIsSidebarCollapsed(false);
     }
     
     prevWidthRef.current = currentWindowWidth;
-  }, [windowWidth, preferredSidebarWidth, preferredRightPanelWidth]);
+  }, [windowWidth, preferredSidebarWidth, preferredRightPanelWidth, isSidebarCollapsed]);
 
   useEffect(() => {
     if (isSidebarExpanded) {
