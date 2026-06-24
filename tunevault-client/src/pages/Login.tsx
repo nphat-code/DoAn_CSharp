@@ -10,10 +10,20 @@ export const Login = () => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const handleNextStep1 = (e: React.FormEvent) => {
+  const handleNextStep1 = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    setStep(2);
+    setError('');
+    setLoading(true);
+    try {
+      await authService.sendOtp(email);
+      setStep(2);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.response?.data?.message || 'Không thể gửi mã OTP. Vui lòng kiểm tra lại email.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleOtpChange = (index: number, value: string) => {
@@ -36,9 +46,32 @@ export const Login = () => {
     }
   };
 
-  const handleLoginOtp = (e: React.FormEvent) => {
+  const handleLoginOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('Tính năng đăng nhập bằng OTP đang được phát triển. Vui lòng đăng nhập bằng mật khẩu.');
+    const otpCode = otp.join('');
+    if (otpCode.length !== 6) return;
+
+    setError('');
+    setLoading(true);
+    try {
+      await authService.verifyOtp(email, otpCode);
+      window.location.href = '/'; 
+    } catch (err: any) {
+      console.error(err);
+      setError(err.response?.data?.message || 'Mã OTP không hợp lệ hoặc đã hết hạn.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resendOtp = async () => {
+    setError('');
+    try {
+      await authService.sendOtp(email);
+      // Optional: show a success toast here
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Không thể gửi lại mã OTP.');
+    }
   };
 
   const handleLoginPassword = async (e: React.FormEvent) => {
@@ -95,10 +128,10 @@ export const Login = () => {
 
               <button 
                 type="submit" 
-                disabled={!email}
+                disabled={loading || !email}
                 className="w-full max-w-[324px] bg-[#1ed760] hover:bg-[#1fdf64] hover:scale-105 text-black font-bold py-3.5 rounded-full mt-4 transition disabled:opacity-50 disabled:hover:scale-100"
               >
-                Tiếp tục
+                {loading ? 'Đang gửi mã...' : 'Tiếp tục'}
               </button>
             </form>
 
@@ -159,16 +192,16 @@ export const Login = () => {
                 ))}
               </div>
 
-              <button type="button" className="text-white hover:text-[#1ed760] font-bold text-sm mb-8 transition border border-zinc-500 px-4 py-2 rounded-full hover:border-white">
+              <button type="button" onClick={resendOtp} className="text-white hover:text-[#1ed760] font-bold text-sm mb-8 transition border border-zinc-500 px-4 py-2 rounded-full hover:border-white">
                 Gửi lại mã
               </button>
 
               <button 
                 type="submit" 
-                disabled={otp.some(d => d === '')}
+                disabled={loading || otp.some(d => d === '')}
                 className="w-full max-w-[324px] bg-[#1ed760] hover:bg-[#1fdf64] hover:scale-105 text-black font-bold py-3.5 rounded-full transition disabled:opacity-50 disabled:hover:scale-100"
               >
-                Tiếp theo
+                {loading ? 'Đang xác minh...' : 'Tiếp theo'}
               </button>
 
               <button 

@@ -31,4 +31,18 @@ public class AuthController(IMediator mediator) : ControllerBase
         var exists = await mediator.Send(new TuneVault.Application.Features.Auth.Queries.CheckEmail.CheckEmailQuery(email));
         return Ok(new { success = true, exists = exists });
     }
+
+    [HttpPost("send-otp")]
+    public async Task<IActionResult> SendOtp([FromBody] TuneVault.Application.Features.Auth.Commands.SendOtp.SendOtpCommand command)
+    {
+        var result = await mediator.Send(command);
+        return Ok(new { success = true });
+    }
+
+    [HttpPost("verify-otp")]
+    public async Task<IActionResult> VerifyOtp([FromBody] TuneVault.Application.Features.Auth.Commands.VerifyOtp.VerifyOtpCommand command)
+    {
+        var response = await mediator.Send(command);
+        return Ok(new { success = true, data = response });
+    }
 }

@@ -30,6 +30,7 @@ builder.Services.AddCors(options =>
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddMemoryCache();
 builder.Services.AddOpenApiDocument(config =>
 {
     config.Title = "TuneVault API";
