@@ -23,7 +23,7 @@ public class SendOtpCommandHandler(
         // Save to cache for 20 minutes
         cacheService.Set($"OTP_{request.Email}", otp, TimeSpan.FromMinutes(20));
 
-        // Send Email
+        // Send Email in background to prevent UI hanging
         var subject = "Your TuneVault login code";
         var body = $@"Hi,
 
@@ -38,7 +38,18 @@ If you didn't attempt to log in, you can safely ignore this email.
 Best regards,
 TuneVault";
 
-        await emailService.SendEmailAsync(request.Email, subject, body, cancellationToken);
+        _ = Task.Run(async () => 
+        {
+            try 
+            {
+                await emailService.SendEmailAsync(request.Email, subject, body, CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                // Background email sending failed
+                Console.WriteLine($"Failed to send OTP email: {ex.Message}");
+            }
+        });
 
         return true;
     }
