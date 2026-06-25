@@ -86,8 +86,8 @@ export const Register = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-black flex items-center justify-center p-4">
-      <div className="w-full max-w-[734px] bg-black p-8 sm:p-24 rounded-xl flex flex-col items-center">
+    <div className="h-screen w-full bg-black flex flex-col items-center p-4 overflow-y-auto">
+      <div className="w-full max-w-[734px] bg-black p-8 sm:p-24 rounded-xl flex flex-col items-center my-auto">
         {step === 1 && (
           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-6">
             <div className="w-8 h-8 bg-black rounded-full" />
