@@ -81,11 +81,16 @@ export const Home = () => {
 
         const historyData = historyDataRaw.map((h: any) => {
           if (h.mediaItem) {
+            const mi = h.mediaItem;
+            const artist = mi.artist;
             return {
               ...h,
               mediaItem: {
-                ...h.mediaItem,
-                artistName: h.mediaItem.artistName || h.mediaItem.artist?.name
+                ...mi,
+                artistName: mi.artistName || artist?.name,
+                artistId: mi.artistId || artist?.id,
+                artistAvatarUrl: mi.artistAvatarUrl || artist?.avatarUrl,
+                artistBio: mi.artistBio || artist?.bio
               }
             };
           }
