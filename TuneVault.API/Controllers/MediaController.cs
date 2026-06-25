@@ -70,6 +70,7 @@ public class MediaController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet("search")]
+    [AllowAnonymous]
     public async Task<IActionResult> Search([FromQuery] string q = "", [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
         try
