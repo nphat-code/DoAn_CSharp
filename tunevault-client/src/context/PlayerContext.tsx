@@ -12,6 +12,7 @@ interface PlayerContextType {
   playPrevious: () => Promise<void>;
   togglePlayPause: () => void;
   updateQueueContext: (newQueue: MediaItemDto[], trackId: string) => void;
+  addToQueue: (track: MediaItemDto) => void;
   volume: number;
   setVolume: (v: number) => void;
   mediaRef: RefObject<HTMLMediaElement | null>;
@@ -187,10 +188,31 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const addToQueue = (track: MediaItemDto) => {
+    const isAuthenticated = !!localStorage.getItem('token');
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    setQueue(prev => {
+      if (prev.length === 0) {
+        setCurrentIndex(0);
+        setCurrentMedia(track);
+        setIsPlaying(true);
+        return [track];
+      }
+      const newQueue = [...prev];
+      const insertIndex = currentIndex + 1;
+      newQueue.splice(insertIndex, 0, track);
+      return newQueue;
+    });
+  };
+
   return (
     <PlayerContext.Provider value={{
       currentMedia, isPlaying, playMedia, playMediaList, playNext, playPrevious,
-      togglePlayPause, updateQueueContext, volume, setVolume, mediaRef,
+      togglePlayPause, updateQueueContext, addToQueue, volume, setVolume, mediaRef,
       showLoginModal, setShowLoginModal, isFavorited, setIsFavorited, toggleFavorite,
       queue,
       currentIndex,

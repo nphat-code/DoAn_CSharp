@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, User, Disc, Share2, MoreHorizontal } from 'lucide-react';
+import { Plus, Trash2, User, Disc, Share2, MoreHorizontal, ListMusic } from 'lucide-react';
 import { playlistService } from '../services/playlistService';
 import type { PlaylistDto } from '../services/playlistService';
 import type { MediaItemDto } from '../types';
+import { usePlayer } from '../context/PlayerContext';
 
 interface TrackDropdownMenuProps {
   track: MediaItemDto;
@@ -38,6 +39,7 @@ export const TrackDropdownMenu = ({
   subMenuDirection = 'left'
 }: TrackDropdownMenuProps) => {
   const navigate = useNavigate();
+  const { addToQueue } = usePlayer();
   const [isOpen, setIsOpen] = useState(false);
   const [openUpwards, setOpenUpwards] = useState(false);
   const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
@@ -96,6 +98,19 @@ export const TrackDropdownMenu = ({
                 Xóa khỏi danh sách phát này
               </button>
             )}
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                addToQueue(track);
+                handleClose();
+                alert("Đã thêm vào danh sách chờ");
+              }}
+              className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
+            >
+              <ListMusic size={16} />
+              Thêm vào danh sách chờ
+            </button>
 
             <div
               className="relative"
