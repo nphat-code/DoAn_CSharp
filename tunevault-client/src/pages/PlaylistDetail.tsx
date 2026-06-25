@@ -87,7 +87,6 @@ export const PlaylistDetail = () => {
     }
   };
 
-  // State cho việc tìm kiếm và thêm bài hát
   const [addQuery, setAddQuery] = useState("");
   const [addResults, setAddResults] = useState<MediaItemDto[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -101,7 +100,6 @@ export const PlaylistDetail = () => {
       setIsSearching(true);
       try {
         const data = await mediaService.searchMedia(addQuery);
-        // Lọc ra các bài hát chưa có trong playlist
         const existingIds = new Set(playlist?.tracks.map(t => t.id) || []);
         setAddResults(data.tracks ? data.tracks.filter(t => !existingIds.has(t.id)) : []);
       } catch (error) {
@@ -140,7 +138,6 @@ export const PlaylistDetail = () => {
     if (confirm("Bạn có chắc muốn xóa bài hát này khỏi playlist?")) {
       try {
         await playlistService.removeTrackFromPlaylist(id, trackId);
-        // Cập nhật lại list
         setPlaylist(prev => prev ? { ...prev, tracks: prev.tracks.filter(t => t.id !== trackId) } : null);
       } catch (error) {
         alert("Lỗi khi xóa bài hát");
@@ -155,7 +152,8 @@ export const PlaylistDetail = () => {
     if (confirm("Xóa playlist này vĩnh viễn?")) {
       try {
         await playlistService.deletePlaylist(id);
-        window.location.href = '/'; // Quay về home
+        window.dispatchEvent(new Event('playlistsUpdated'));
+        navigate('/');
       } catch (error) {
         alert("Lỗi khi xóa playlist");
       }
@@ -479,7 +477,7 @@ export const PlaylistDetail = () => {
                             togglePlayPause();
                           } else {
                             const tracksToPlay = addResults.map(t => ({ ...t, playlistId: playlist.id }));
-                        playMediaList(tracksToPlay, idx);
+                            playMediaList(tracksToPlay, idx);
                           }
                         }}>
                           {isPlayingTrack && isPlaying ? (
