@@ -20,19 +20,20 @@ public static class DependencyInjection
 
         IConfiguration configuration)
     {
-        
+
+
         var connectionString = configuration.GetConnectionString("DefaultConnection")
 
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-        
+
+
         services.AddScoped<IDbConnection>(sp => new NpgsqlConnection(connectionString));
 
-        
+
         SqlMapper.AddTypeHandler(new TimeSpanHandler());
 
         services.AddAuth(configuration);
-
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IArtistRepository, ArtistRepository>();
@@ -45,12 +46,10 @@ public static class DependencyInjection
         services.AddScoped<IAlbumRepository, AlbumRepository>();
         services.AddScoped<ISearchRepository, SearchRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
-        services.AddScoped<IRecommendationRepository, RecommendationRepository>();
         services.AddScoped<IFollowRepository, FollowRepository>();
         services.AddScoped<INotificationService, TuneVault.Infrastructure.Services.NotificationService>();
         services.AddScoped<IEmailService, TuneVault.Infrastructure.Services.EmailService>();
         services.AddSingleton<ICacheService, TuneVault.Infrastructure.Services.MemoryCacheService>();
-        services.AddHttpClient<IAiService, TuneVault.Infrastructure.Services.GeminiAiService>();
 
         services.AddSignalR();
 
@@ -64,9 +63,7 @@ public static class DependencyInjection
         var jwtSettings = new JwtSettings();
         configuration.Bind(JwtSettings.SectionName, jwtSettings);
 
-
         services.AddSingleton(Microsoft.Extensions.Options.Options.Create(jwtSettings));
-
 
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
@@ -86,8 +83,6 @@ public static class DependencyInjection
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(jwtSettings.Secret))
                 };
-
-                
 
                 options.Events = new JwtBearerEvents
                 {

@@ -5,7 +5,6 @@ import { mediaService } from '../services/mediaService';
 import { albumService } from '../services/albumService';
 import type { AlbumDto } from '../services/albumService';
 import type { MediaItemDto } from '../types';
-// import { aiService } from '../services/aiService';
 import { Disc, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,7 +14,6 @@ export const Home = () => {
   const [tracks, setTracks] = useState<MediaItemDto[]>([]);
   const [albums, setAlbums] = useState<AlbumDto[]>([]);
   const [recentItems, setRecentItems] = useState<{isAlbum: boolean, data: any}[]>([]);
-  // const [aiTracks, setAiTracks] = useState<MediaItemDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'songs' | 'albums' | 'foryou'>('all');
   const colorCache = useRef<{ [key: string]: string }>({});
@@ -104,16 +102,7 @@ export const Home = () => {
       }
     };
 
-    // const fetchAiData = async () => {
-    //   // Tạm thời vô hiệu hóa AI
-    //   // if (currentUserStr) {
-    //   //   const aiData = await aiService.getRecommendations().catch(() => []);
-    //   //   setAiTracks(aiData);
-    //   // }
-    // };
-
     fetchData();
-    // fetchAiData(); // Đã tắt AI theo yêu cầu
 
     window.addEventListener('mediaUpdated', fetchData);
     window.addEventListener('favoritesUpdated', fetchData);
@@ -162,15 +151,6 @@ export const Home = () => {
         >
           Tất cả
         </button>
-        {/* Tạm thời ẩn Tab 'Dành cho bạn' (AI) */}
-        {/* {currentUser && (
-          <button 
-            onClick={() => setActiveTab('foryou')}
-            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition ${activeTab === 'foryou' ? 'bg-white text-black' : 'bg-zinc-800 text-white hover:bg-zinc-700'}`}
-          >
-            Dành cho bạn
-          </button>
-        )} */}
         <button 
           onClick={() => setActiveTab('songs')}
           className={`px-4 py-1.5 rounded-full text-sm font-semibold transition ${activeTab === 'songs' ? 'bg-white text-black' : 'bg-zinc-800 text-white hover:bg-zinc-700'}`}
@@ -241,13 +221,6 @@ export const Home = () => {
           </div>
         </section>
       )}
-
-      {/* For You Section (AI) - Tạm thời vô hiệu hóa */}
-      {/* {currentUser && (activeTab === 'all' || activeTab === 'foryou') && aiTracks.length > 0 && (
-        <section className="mb-10">
-          ...
-        </section>
-      )} */}
 
       {/* Album Section */}
       {(activeTab === 'all' || activeTab === 'albums') && (

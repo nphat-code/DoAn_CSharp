@@ -51,8 +51,7 @@ Render sẽ đóng vai trò làm máy chủ ảo để chạy code C# ASP.NET Co
    - `Cloudinary__CloudName` : `dc6avrrgt`
    - `Cloudinary__ApiKey` : `[API Key của bạn]`
    - `Cloudinary__ApiSecret` : `[API Secret của bạn]`
-   - `Anthropic__ApiKey` : `[Key Anthropic]`
-   - `Gemini__ApiKey` : `[Key Gemini]`
+
 7. Bấm **Create Web Service**. Chờ từ 5-10 phút để Render tải code về, build Docker và khởi động ứng dụng.
 8. Sau khi Deploy thành công (hiện chữ xanh **Live**), hãy copy đường dẫn API của bạn (Vd: `https://tunevault-api.onrender.com`).
 
