@@ -67,7 +67,7 @@ public class ProfileController(IMediator mediator) : ControllerBase
 
     
     [HttpGet("search")]
-    public async Task<ActionResult<IEnumerable<ProfileDto>>> SearchUsers([FromQuery] string q)
+    public async Task<ActionResult<IEnumerable<ProfileDto>>> SearchUsers([FromQuery] string? q)
     {
         if (string.IsNullOrWhiteSpace(q))
             return Ok(new List<ProfileDto>());
