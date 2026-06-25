@@ -104,7 +104,6 @@ export const TrackDropdownMenu = ({
                 e.stopPropagation();
                 addToQueue(track);
                 handleClose();
-                alert("Đã thêm vào danh sách chờ");
               }}
               className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2"
             >
@@ -137,10 +136,10 @@ export const TrackDropdownMenu = ({
                           e.stopPropagation();
                           try {
                             await playlistService.addTrackToPlaylist(p.id, track.id);
-                            alert("Đã thêm vào " + p.name);
                             handleClose();
                           } catch (err) {
-                            alert("Có thể bài hát đã có trong playlist này.");
+                            console.error("Lỗi khi thêm. Có thể bài hát đã có trong playlist này.", err);
+                            handleClose();
                           }
                         }}
                         className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-white/10 hover:text-white truncate"

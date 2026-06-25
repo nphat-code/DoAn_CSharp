@@ -212,9 +212,8 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                                       try {
                                         const m = await import('../services/playlistService');
                                         await m.playlistService.addTrackToPlaylist(p.id, currentMedia.id);
-                                        alert("Đã thêm vào " + p.name);
                                       } catch (err) {
-                                        alert("Lỗi khi thêm. Có thể bài hát đã có trong danh sách.");
+                                        console.error("Lỗi khi thêm. Có thể bài hát đã có trong danh sách.", err);
                                       }
                                       setOpenDropdown(null);
                                     }}
@@ -375,9 +374,8 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                                           try {
                                             const m = await import('../services/playlistService');
                                             await m.playlistService.addTrackToPlaylist(p.id, track.id);
-                                            alert("Đã thêm vào " + p.name);
                                           } catch (err) {
-                                            alert("Lỗi khi thêm. Có thể bài hát đã có trong danh sách.");
+                                            console.error("Lỗi khi thêm. Có thể bài hát đã có trong danh sách.", err);
                                           }
                                           setOpenDropdown(null);
                                         }}
