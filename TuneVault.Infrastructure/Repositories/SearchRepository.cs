@@ -54,11 +54,11 @@ public class SearchRepository(IDbConnection dbConnection) : ISearchRepository
 
         
         string artistSql = string.IsNullOrWhiteSpace(query)
-            ? @"SELECT Id, Name, Bio, AvatarUrl, CreatedAt
+            ? @"SELECT Id, Name, Bio, AvatarUrl, CreatedAt, RealMonthlyListeners
                 FROM Artists
                 ORDER BY CreatedAt DESC
                 LIMIT @Limit OFFSET @Offset"
-            : @"SELECT Id, Name, Bio, AvatarUrl, CreatedAt
+            : @"SELECT Id, Name, Bio, AvatarUrl, CreatedAt, RealMonthlyListeners
                 FROM Artists
                 WHERE Name ILIKE @Query 
                    OR Bio ILIKE @Query
