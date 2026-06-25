@@ -184,6 +184,7 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="bg-[#3E3E3E] text-white rounded-md p-3 outline-none focus:ring-2 focus:ring-white placeholder-zinc-400"
+                maxLength={100}
                 placeholder="VD: Perfect"
                 required
               />
@@ -296,6 +297,7 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="bg-[#3E3E3E] text-white rounded-md p-3 outline-none focus:ring-2 focus:ring-white placeholder-zinc-400"
+                maxLength={500}
                 placeholder="VD: Bản thu âm trực tiếp năm 2024"
               />
             </div>

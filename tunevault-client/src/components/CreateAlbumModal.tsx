@@ -81,6 +81,7 @@ export const CreateAlbumModal = ({ onClose }: CreateAlbumModalProps) => {
               value={title}
               onChange={e => setTitle(e.target.value)}
               className="bg-zinc-800 text-white px-4 py-3 rounded-md focus:ring-1 focus:ring-white outline-none border border-zinc-700 focus:border-white transition"
+              maxLength={100}
               placeholder="VD: After Hours"
               required
             />
@@ -98,6 +99,7 @@ export const CreateAlbumModal = ({ onClose }: CreateAlbumModalProps) => {
               onFocus={() => setShowArtistSuggestions(true)}
               onBlur={() => setTimeout(() => setShowArtistSuggestions(false), 200)}
               className="bg-zinc-800 text-white px-4 py-3 rounded-md focus:ring-1 focus:ring-white outline-none border border-zinc-700 focus:border-white transition"
+              maxLength={100}
               placeholder="VD: The Weeknd"
               required
             />

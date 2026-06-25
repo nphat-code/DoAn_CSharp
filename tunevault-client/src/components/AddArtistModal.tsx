@@ -92,6 +92,7 @@ export const AddArtistModal = ({ onClose, onSuccess }: AddArtistModalProps) => {
                 <label className="text-sm font-bold text-white">Tên nghệ sĩ <span className="text-red-500">*</span></label>
                 <input 
                   type="text" 
+                  maxLength={100}
                   placeholder="Nhập tên nghệ sĩ..." 
                   className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg p-3 outline-none focus:border-white transition"
                   value={name}
@@ -104,6 +105,7 @@ export const AddArtistModal = ({ onClose, onSuccess }: AddArtistModalProps) => {
               <div className="space-y-2">
                 <label className="text-sm font-bold text-white">Tiểu sử nghệ sĩ</label>
                 <textarea 
+                  maxLength={50000}
                   placeholder="Giới thiệu về nghệ sĩ (Tùy chọn)..." 
                   className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg p-3 outline-none focus:border-white transition min-h-[100px] resize-y"
                   value={bio}

@@ -229,6 +229,8 @@ export const Register = () => {
                   type="text" 
                   value={username}
                   onChange={e => setUsername(e.target.value)}
+                  minLength={3}
+                  maxLength={50}
                   className="bg-[#121212] border border-zinc-500 text-white p-3.5 rounded-[4px] hover:border-white focus:outline-none focus:ring-2 focus:ring-white transition w-full"
                   required
                 />

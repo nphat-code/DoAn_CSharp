@@ -569,6 +569,8 @@ export const Profile = () => {
                     type="text"
                     value={usernameInput}
                     onChange={e => setUsernameInput(e.target.value)}
+                    minLength={3}
+                    maxLength={50}
                     className="w-full bg-[#3E3E3E] text-white px-4 py-3 rounded-md focus:outline-none focus:bg-[#4E4E4E] transition-colors font-medium border border-transparent hover:border-zinc-500 relative z-0"
                   />
                 </div>
@@ -578,6 +580,7 @@ export const Profile = () => {
                   <textarea
                     value={bioInput}
                     onChange={e => setBioInput(e.target.value)}
+                    maxLength={1000}
                     rows={3}
                     placeholder="Giới thiệu đôi nét về bạn..."
                     className="w-full bg-[#3E3E3E] text-white px-4 py-3 rounded-md focus:outline-none focus:bg-[#4E4E4E] transition-colors font-medium border border-transparent hover:border-zinc-500 relative z-0 resize-none"

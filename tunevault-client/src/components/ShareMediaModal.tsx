@@ -136,6 +136,7 @@ export const ShareMediaModal: React.FC<ShareMediaModalProps> = ({ mediaId, media
               <textarea 
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
+                maxLength={500}
                 placeholder="Thêm lời nhắn..."
                 className="w-full bg-white/10 text-white text-sm rounded-md p-3 outline-none focus:ring-2 focus:ring-white/20 transition resize-none h-20 placeholder-zinc-500"
               />

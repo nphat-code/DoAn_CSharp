@@ -16,6 +16,8 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Mật khẩu không được để trống")
-            .MinimumLength(6).WithMessage("Mật khẩu phải có ít nhất 6 ký tự");
+            .MinimumLength(10).WithMessage("Mật khẩu phải có ít nhất 10 ký tự")
+            .Matches(@"[a-zA-Z]").WithMessage("Mật khẩu phải chứa ít nhất 1 chữ cái")
+            .Matches(@"[^a-zA-Z\s]").WithMessage("Mật khẩu phải chứa ít nhất 1 chữ số hoặc ký tự đặc biệt");
     }
 }

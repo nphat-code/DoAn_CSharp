@@ -617,12 +617,14 @@ export const PlaylistDetail = () => {
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
+                  maxLength={100}
                   placeholder="Thêm tên"
                   className="w-full bg-zinc-700/50 text-white p-3 rounded text-sm font-medium focus:outline-none focus:bg-zinc-700 focus:ring-1 focus:ring-white transition"
                 />
                 <textarea
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
+                  maxLength={500}
                   placeholder="Thêm phần mô tả không bắt buộc"
                   className="w-full bg-zinc-700/50 text-white p-3 rounded text-sm font-medium focus:outline-none focus:bg-zinc-700 focus:ring-1 focus:ring-white transition resize-none flex-1 min-h-[100px]"
                 ></textarea>
