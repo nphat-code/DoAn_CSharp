@@ -396,22 +396,24 @@ export const Home = () => {
                   onClick={handleClick}
                   className="p-3 rounded-md bg-transparent hover:bg-[#282828] transition-all duration-300 cursor-pointer group relative flex flex-col min-w-[180px] w-[180px] flex-shrink-0"
                 >
-                  <div className={`w-full aspect-square bg-zinc-800 mb-4 shadow-lg flex items-center justify-center relative overflow-hidden group-hover:shadow-xl transition-all duration-300 ${isArtist ? 'rounded-full' : 'rounded-md'}`}>
-                    {item.coverUrl ? (
-                      <img 
-                        src={getImageUrl(item.coverUrl)} 
-                        alt={item.title} 
-                        className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${isArtist ? 'rounded-full' : 'rounded-md'}`} 
-                      />
-                    ) : (
-                      <div className={`w-full h-full flex items-center justify-center ${isArtist ? 'bg-zinc-700' : 'bg-gradient-to-br from-zinc-700 to-zinc-800'}`}>
-                        {isArtist ? (
-                          <span className="text-white/30 font-bold text-4xl">{item.title.charAt(0).toUpperCase()}</span>
-                        ) : (
-                          <Disc size={64} className="text-white/30" />
-                        )}
-                      </div>
-                    )}
+                  <div className="relative mb-4">
+                    <div className={`w-full aspect-square bg-zinc-800 shadow-lg flex items-center justify-center overflow-hidden group-hover:shadow-xl transition-all duration-300 ${isArtist ? 'rounded-full' : 'rounded-md'}`}>
+                      {item.coverUrl ? (
+                        <img 
+                          src={getImageUrl(item.coverUrl)} 
+                          alt={item.title} 
+                          className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${isArtist ? 'rounded-full' : 'rounded-md'}`} 
+                        />
+                      ) : (
+                        <div className={`w-full h-full flex items-center justify-center ${isArtist ? 'bg-zinc-700 rounded-full' : 'bg-gradient-to-br from-zinc-700 to-zinc-800'}`}>
+                          {isArtist ? (
+                            <span className="text-white/30 font-bold text-4xl">{item.title.charAt(0).toUpperCase()}</span>
+                          ) : (
+                            <Disc size={64} className="text-white/30" />
+                          )}
+                        </div>
+                      )}
+                    </div>
                     <button
                       onClick={(e) => handlePlayRecentCard(e, item)}
                       className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${isPlayingThis ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}
