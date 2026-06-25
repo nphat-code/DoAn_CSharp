@@ -81,13 +81,12 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     if (mediaList.length === 0) return;
-    
+
     setQueue(mediaList);
     setCurrentIndex(startIndex);
     setCurrentMedia(mediaList[startIndex]);
     setIsPlaying(true);
-    
-    // Auto-append 15 random tracks to show in the queue UI
+
     try {
       const m = await import('../services/mediaService');
       const allMedia = await m.mediaService.getAllMedia();
@@ -114,12 +113,11 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const playNext = async () => {
     if (queue.length > 0 && currentIndex < queue.length - 1) {
       const nextIndex = currentIndex + 1;
-      
+
       setCurrentIndex(nextIndex);
       setCurrentMedia(queue[nextIndex]);
       setIsPlaying(true);
-      
-      // Auto-fetch more if getting close to the end
+
       if (nextIndex >= queue.length - 3) {
         try {
           const m = await import('../services/mediaService');
@@ -129,7 +127,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
             const extraTracks = shuffled.slice(0, 15);
             setQueue(prev => [...prev, ...extraTracks]);
           }
-        } catch (e) {}
+        } catch (e) { }
       }
 
       try {
@@ -139,14 +137,13 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
         console.error(error);
       }
     } else {
-      // End of queue -> Fetch and play 15 random tracks
       try {
         const m = await import('../services/mediaService');
         const allMedia = await m.mediaService.getAllMedia();
         if (allMedia.length > 0) {
           const shuffled = [...allMedia].sort(() => 0.5 - Math.random());
           const extraTracks = shuffled.slice(0, 15);
-          
+
           setQueue(prev => [...prev, ...extraTracks]);
           setCurrentIndex(prev => prev + 1);
           setCurrentMedia(extraTracks[0]);
@@ -191,9 +188,9 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <PlayerContext.Provider value={{ 
-      currentMedia, isPlaying, playMedia, playMediaList, playNext, playPrevious, 
-      togglePlayPause, updateQueueContext, volume, setVolume, mediaRef, 
+    <PlayerContext.Provider value={{
+      currentMedia, isPlaying, playMedia, playMediaList, playNext, playPrevious,
+      togglePlayPause, updateQueueContext, volume, setVolume, mediaRef,
       showLoginModal, setShowLoginModal, isFavorited, setIsFavorited, toggleFavorite,
       queue,
       currentIndex,
