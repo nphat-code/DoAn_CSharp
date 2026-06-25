@@ -788,7 +788,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                 </svg>
               </div>
               <div className="flex items-center justify-between w-full mt-1">
-                <div className="text-xs text-zinc-400 font-medium">
+                <div className="text-sm text-zinc-400 font-medium">
                   {(Math.floor((((currentMedia as any).artist?.name || currentMedia.artistName || "").length * 1234567) % 99900000 + 100000) + (artistMonthlyListeners || 0)).toLocaleString('vi-VN')} người nghe hằng tháng
                 </div>
                 {currentMedia?.artistId && (
