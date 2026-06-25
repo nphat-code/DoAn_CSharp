@@ -10,7 +10,6 @@ public class Artist
 
     public int RealMonthlyListeners { get; set; }
 
-
-    public ICollection<Album> Albums { get; set; } = new List<Album>();
-    public ICollection<MediaItem> MediaItems { get; set; } = new List<MediaItem>();
+    public ICollection<Album> Albums { get; set; } = [];
+    public ICollection<MediaItem> MediaItems { get; set; } = [];
 }
