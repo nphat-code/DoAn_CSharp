@@ -71,13 +71,27 @@ export const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [libData, albumData, artistData, historyData, playlistData] = await Promise.all([
+        const [libData, albumData, artistData, historyDataRaw, playlistData] = await Promise.all([
           mediaService.getAllMedia(),
           albumService.getAllAlbums().catch(() => []),
           artistService.getAllArtists().catch(() => []),
           mediaService.getRecentHistory(50).catch(() => []),
           playlistService.getUserPlaylists().catch(() => [])
         ]);
+
+        const historyData = historyDataRaw.map((h: any) => {
+          if (h.mediaItem) {
+            return {
+              ...h,
+              mediaItem: {
+                ...h.mediaItem,
+                artistName: h.mediaItem.artistName || h.mediaItem.artist?.name
+              }
+            };
+          }
+          return h;
+        });
+
         setTracks(libData);
         setAlbums(albumData);
         
