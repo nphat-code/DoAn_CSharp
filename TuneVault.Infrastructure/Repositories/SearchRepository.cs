@@ -54,18 +54,26 @@ public class SearchRepository(IDbConnection dbConnection) : ISearchRepository
 
         
         string artistSql = string.IsNullOrWhiteSpace(query)
-            ? @"SELECT Id, Name, Bio, AvatarUrl, CreatedAt, RealMonthlyListeners
-                FROM Artists
-                ORDER BY CreatedAt DESC
+            ? @"SELECT a.Id, a.Name, a.Bio, a.AvatarUrl, a.CreatedAt,
+                       CAST(COUNT(DISTINCT h.UserId) AS INTEGER) AS RealMonthlyListeners
+                FROM Artists a
+                LEFT JOIN MediaItems m ON a.Id = m.ArtistId
+                LEFT JOIN ListeningHistory h ON m.Id = h.MediaItemId AND h.ListenedAt >= CURRENT_TIMESTAMP - INTERVAL '30 days'
+                GROUP BY a.Id
+                ORDER BY a.CreatedAt DESC
                 LIMIT @Limit OFFSET @Offset"
-            : @"SELECT Id, Name, Bio, AvatarUrl, CreatedAt, RealMonthlyListeners
-                FROM Artists
-                WHERE Name ILIKE @Query 
-                   OR Bio ILIKE @Query
-                   OR Id IN (SELECT ArtistId FROM MediaItems WHERE Title ILIKE @Query AND ArtistId IS NOT NULL)
+            : @"SELECT a.Id, a.Name, a.Bio, a.AvatarUrl, a.CreatedAt,
+                       CAST(COUNT(DISTINCT h.UserId) AS INTEGER) AS RealMonthlyListeners
+                FROM Artists a
+                LEFT JOIN MediaItems m ON a.Id = m.ArtistId
+                LEFT JOIN ListeningHistory h ON m.Id = h.MediaItemId AND h.ListenedAt >= CURRENT_TIMESTAMP - INTERVAL '30 days'
+                WHERE a.Name ILIKE @Query 
+                   OR a.Bio ILIKE @Query
+                   OR a.Id IN (SELECT ArtistId FROM MediaItems WHERE Title ILIKE @Query AND ArtistId IS NOT NULL)
+                GROUP BY a.Id
                 ORDER BY 
-                    CASE WHEN Name ILIKE @Query THEN 0 ELSE 1 END,
-                    CreatedAt DESC
+                    CASE WHEN a.Name ILIKE @Query THEN 0 ELSE 1 END,
+                    a.CreatedAt DESC
                 LIMIT @Limit OFFSET @Offset";
 
         var artists = await dbConnection.QueryAsync<ArtistDto>(artistSql, new { Query = queryTerm, Limit = limit, Offset = offset });
