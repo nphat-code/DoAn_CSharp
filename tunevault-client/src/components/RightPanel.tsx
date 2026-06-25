@@ -787,16 +787,15 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                   <path d="M16.5 8.25l-5.5 5.5-2.5-2.5" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
               </div>
-              <div className="text-xs text-zinc-400 font-medium">
-                {(Math.floor((((currentMedia as any).artist?.name || currentMedia.artistName || "").length * 12345) % 300000 + 700000) + (artistMonthlyListeners || 0)).toLocaleString('vi-VN')} người nghe hằng tháng
-              </div>
-
-              <div className="flex items-center justify-end mb-1">
+              <div className="flex items-center justify-between w-full mt-1">
+                <div className="text-xs text-zinc-400 font-medium">
+                  {(Math.floor((((currentMedia as any).artist?.name || currentMedia.artistName || "").length * 1234567) % 99900000 + 100000) + (artistMonthlyListeners || 0)).toLocaleString('vi-VN')} người nghe hằng tháng
+                </div>
                 {currentMedia?.artistId && (
                   <button
                     onClick={handleToggleFollowArtist}
                     disabled={loadingFollow}
-                    className={`text-xs font-bold border rounded-full px-4 py-1 transition ${isFollowingArtist
+                    className={`text-xs font-bold border rounded-full px-4 py-1.5 transition ${isFollowingArtist
                       ? 'border-white text-white hover:border-zinc-400 hover:text-zinc-400'
                       : 'border-zinc-400 text-white hover:border-white hover:scale-105'
                       }`}
