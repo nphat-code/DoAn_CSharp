@@ -17,7 +17,8 @@ public class GetFollowedArtistsQueryHandler(IArtistRepository artistRepository, 
             a.Name,
             a.Bio,
             a.AvatarUrl,
-            a.CreatedAt
+            a.CreatedAt,
+            a.RealMonthlyListeners
         ));
     }
 }

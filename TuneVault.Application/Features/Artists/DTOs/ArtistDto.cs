@@ -5,5 +5,6 @@ public record ArtistDto(
     string Name,
     string? Bio,
     string? AvatarUrl,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    int RealMonthlyListeners
 );

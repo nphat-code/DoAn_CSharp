@@ -20,6 +20,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
   const [shareData, setShareData] = useState<{ id: string, title: string } | null>(null);
   const [isFollowingArtist, setIsFollowingArtist] = useState(false);
   const [loadingFollow, setLoadingFollow] = useState(false);
+  const [artistMonthlyListeners, setArtistMonthlyListeners] = useState<number | null>(null);
 
   const [openDropdown, setOpenDropdown] = useState<{ id: string, openUpwards: boolean, top?: number, bottom?: number, right?: number } | null>(null);
   const [showPlaylistMenu, setShowPlaylistMenu] = useState<string | null>(null);
@@ -93,6 +94,25 @@ export const RightPanel = ({ width }: RightPanelProps) => {
 
     window.addEventListener('followedArtistsUpdated', checkFollowStatus);
     return () => window.removeEventListener('followedArtistsUpdated', checkFollowStatus);
+  }, [currentMedia?.artistId]);
+
+  useEffect(() => {
+    const fetchArtistListeners = async () => {
+      if (currentMedia?.artistId) {
+        try {
+          const allArtists = await artistService.getAllArtists();
+          const artist = allArtists.find(a => a.id === currentMedia.artistId);
+          if (artist) {
+            setArtistMonthlyListeners(artist.realMonthlyListeners);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        setArtistMonthlyListeners(null);
+      }
+    };
+    fetchArtistListeners();
   }, [currentMedia?.artistId]);
 
   const handleToggleFollowArtist = async (e: React.MouseEvent) => {
@@ -759,13 +779,16 @@ export const RightPanel = ({ width }: RightPanelProps) => {
               <div className="absolute top-4 left-4 text-white font-bold text-base shadow-sm z-10">Giới thiệu về nghệ sĩ</div>
             </div>
 
-            <div className="p-4 flex flex-col gap-2 relative">
+            <div className="p-4 flex flex-col gap-1.5 relative">
               <div className="flex items-center gap-1">
                 <h4 className="font-bold text-white text-base hover:underline">{(currentMedia as any).artist?.name || currentMedia.artistName || currentMedia.description || 'Unknown Artist'}</h4>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 21.643l-2.606-1.127-2.805.344-.925-2.673-2.673-.925.344-2.805L2.208 12l1.127-2.606-.344-2.805 2.673-.925.925-2.673 2.805.344L12 2.208l2.606 1.127 2.805-.344.925 2.673 2.673.925-.344 2.805L21.792 12l-1.127 2.606.344 2.805-2.673.925-.925 2.673-2.805-.344L12 21.643z" fill="#3D91F4"></path>
                   <path d="M16.5 8.25l-5.5 5.5-2.5-2.5" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
+              </div>
+              <div className="text-xs text-zinc-400 font-medium">
+                {(Math.floor((((currentMedia as any).artist?.name || currentMedia.artistName || "").length * 12345) % 300000 + 700000) + (artistMonthlyListeners || 0)).toLocaleString('vi-VN')} người nghe hằng tháng
               </div>
 
               <div className="flex items-center justify-end mb-1">

@@ -7,7 +7,10 @@ public class Artist
     public string? Bio { get; set; }
     public string? AvatarUrl { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    
+
+    public int RealMonthlyListeners { get; set; }
+
+
     public ICollection<Album> Albums { get; set; } = new List<Album>();
     public ICollection<MediaItem> MediaItems { get; set; } = new List<MediaItem>();
 }

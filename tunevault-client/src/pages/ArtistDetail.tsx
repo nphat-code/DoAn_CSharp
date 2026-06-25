@@ -244,7 +244,7 @@ export const ArtistDetail = () => {
               <span className="text-white text-sm font-medium drop-shadow-md">Do Tunevault xác minh</span>
             </div>
             <div className="text-white font-medium text-base drop-shadow-md">
-              {Math.floor((artist.name.length * 12345) % 1000000 + 50000).toLocaleString('vi-VN')} người nghe hằng tháng
+              {(Math.floor((artist.name.length * 12345) % 300000 + 700000) + (artist.realMonthlyListeners || 0)).toLocaleString('vi-VN')} người nghe hằng tháng
             </div>
           </div>
         </div>

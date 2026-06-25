@@ -16,7 +16,13 @@ public class ArtistRepository(IDbConnection dbConnection) : IArtistRepository
 
     public async Task<Artist?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var sql = "SELECT * FROM Artists WHERE Id = @Id";
+        var sql = @"
+            SELECT a.*, CAST(COUNT(DISTINCT h.UserId) AS INTEGER) AS RealMonthlyListeners
+            FROM Artists a
+            LEFT JOIN MediaItems m ON a.Id = m.ArtistId
+            LEFT JOIN ListeningHistory h ON m.Id = h.MediaItemId AND h.ListenedAt >= CURRENT_TIMESTAMP - INTERVAL '30 days'
+            WHERE a.Id = @Id
+            GROUP BY a.Id";
         var command = new CommandDefinition(sql, new { Id = id }, cancellationToken: cancellationToken);
         return await dbConnection.QuerySingleOrDefaultAsync<Artist>(command);
     }
@@ -32,14 +38,19 @@ public class ArtistRepository(IDbConnection dbConnection) : IArtistRepository
 
     public async Task<IEnumerable<Artist>> GetAllAsync(CancellationToken cancellationToken)
     {
-        var sql = "SELECT * FROM Artists ORDER BY CreatedAt DESC";
+        var sql = @"
+            SELECT a.*, CAST(COUNT(DISTINCT h.UserId) AS INTEGER) AS RealMonthlyListeners
+            FROM Artists a
+            LEFT JOIN MediaItems m ON a.Id = m.ArtistId
+            LEFT JOIN ListeningHistory h ON m.Id = h.MediaItemId AND h.ListenedAt >= CURRENT_TIMESTAMP - INTERVAL '30 days'
+            GROUP BY a.Id
+            ORDER BY a.CreatedAt DESC";
         var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
         return await dbConnection.QueryAsync<Artist>(command);
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        
         var deleteMediaSql = "DELETE FROM MediaItems WHERE ArtistId = @Id";
         await dbConnection.ExecuteAsync(new CommandDefinition(deleteMediaSql, new { Id = id }, cancellationToken: cancellationToken));
 
@@ -86,10 +97,13 @@ public class ArtistRepository(IDbConnection dbConnection) : IArtistRepository
     public async Task<IEnumerable<Artist>> GetFollowedArtistsAsync(Guid userId, CancellationToken cancellationToken)
     {
         var sql = @"
-            SELECT a.* 
+            SELECT a.*, CAST(COUNT(DISTINCT h.UserId) AS INTEGER) AS RealMonthlyListeners
             FROM Artists a
             INNER JOIN ArtistFollows af ON a.Id = af.ArtistId
+            LEFT JOIN MediaItems m ON a.Id = m.ArtistId
+            LEFT JOIN ListeningHistory h ON m.Id = h.MediaItemId AND h.ListenedAt >= CURRENT_TIMESTAMP - INTERVAL '30 days'
             WHERE af.UserId = @UserId
+            GROUP BY a.Id, af.FollowedAt
             ORDER BY af.FollowedAt DESC;";
             
         return await dbConnection.QueryAsync<Artist>(new CommandDefinition(sql, new { UserId = userId }, cancellationToken: cancellationToken));

@@ -6,6 +6,7 @@ export interface ArtistDto {
   bio?: string;
   avatarUrl?: string;
   createdAt: string;
+  realMonthlyListeners: number;
 }
 
 export const artistService = {
