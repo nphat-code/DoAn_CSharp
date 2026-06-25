@@ -74,6 +74,26 @@ export const Login = () => {
     }
   };
 
+  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pastedData = e.clipboardData.getData('text');
+    const digitsOnly = pastedData.replace(/\D/g, '').slice(0, 6);
+    
+    if (digitsOnly) {
+      const newOtp = [...otp];
+      for (let i = 0; i < 6; i++) {
+        if (i < digitsOnly.length) {
+          newOtp[i] = digitsOnly[i];
+        }
+      }
+      setOtp(newOtp);
+      
+      const focusIndex = Math.min(digitsOnly.length, 5);
+      otpRefs.current[focusIndex]?.focus();
+      
+      e.preventDefault();
+    }
+  };
+
   const handleLoginOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     const otpCode = otp.join('');
@@ -218,6 +238,7 @@ export const Login = () => {
                     value={digit}
                     onChange={e => handleOtpChange(index, e.target.value)}
                     onKeyDown={e => handleOtpKeyDown(index, e)}
+                    onPaste={handleOtpPaste}
                     className="w-12 h-14 bg-[#121212] border border-zinc-500 text-white text-center text-xl rounded-[4px] hover:border-white focus:outline-none focus:ring-2 focus:ring-white transition"
                     required
                   />
