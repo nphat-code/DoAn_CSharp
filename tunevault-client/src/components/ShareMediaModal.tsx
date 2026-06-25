@@ -4,6 +4,7 @@ import { X, Search, Check } from 'lucide-react';
 import { shareService } from '../services/shareService';
 import { profileService } from '../services/profileService';
 import type { ProfileDto } from '../services/profileService';
+import { usePlayer } from '../context/PlayerContext';
 
 interface ShareMediaModalProps {
   mediaId: string;
@@ -20,6 +21,8 @@ export const ShareMediaModal: React.FC<ShareMediaModalProps> = ({ mediaId, media
   const [isSearching, setIsSearching] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+
+  const { showToast } = usePlayer();
 
   useEffect(() => {
     const doSearch = async () => {
@@ -57,7 +60,7 @@ export const ShareMediaModal: React.FC<ShareMediaModalProps> = ({ mediaId, media
       }, 1500);
     } catch (error) {
       console.error(error);
-      alert('Đã có lỗi xảy ra khi chia sẻ!');
+      showToast('Đã có lỗi xảy ra khi chia sẻ!', 'error');
     } finally {
       setIsSharing(false);
     }

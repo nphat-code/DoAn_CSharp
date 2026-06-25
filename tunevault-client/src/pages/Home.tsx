@@ -9,7 +9,7 @@ import { Disc, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const Home = () => {
-  const { currentMedia, isPlaying, togglePlayPause, playMediaList } = usePlayer();
+  const { currentMedia, isPlaying, togglePlayPause, playMediaList, showToast } = usePlayer();
   const navigate = useNavigate();
   const [tracks, setTracks] = useState<MediaItemDto[]>([]);
   const [albums, setAlbums] = useState<AlbumDto[]>([]);
@@ -132,14 +132,13 @@ export const Home = () => {
         }));
         await playMediaList(tracksToPlay, 0);
       } else {
-        alert("Album này chưa có bài hát nào.");
+        showToast("Album này chưa có bài hát nào.", "error");
       }
     } catch (error) {
       console.error("Lỗi khi phát album:", error);
-      alert("Lỗi khi phát album.");
+      showToast("Lỗi khi phát album.", "error");
     }
   };
-
 
   return (
     <div className="px-6 pt-2 pb-8">
@@ -230,7 +229,7 @@ export const Home = () => {
               <h2 className="text-2xl font-bold text-white hover:underline cursor-pointer">Album</h2>
             </div>
             {activeTab === 'all' && (
-              <span onClick={() => setActiveTab('albums')} className="text-sm font-bold text-zinc-400 hover:text-white cursor-pointer transition">Hiện tất cả</span>
+              <span onClick={() => setActiveTab('albums')} className="text-sm font-bold text-zinc-400 hover:text-white cursor-pointer transition flex-shrink-0">Hiện tất cả</span>
             )}
           </div>
           
@@ -290,62 +289,62 @@ export const Home = () => {
               <h2 className="text-2xl font-bold text-white hover:underline cursor-pointer">Bài hát</h2>
             </div>
             {activeTab === 'all' && (
-              <span onClick={() => setActiveTab('songs')} className="text-sm font-bold text-zinc-400 hover:text-white cursor-pointer transition">Hiện tất cả</span>
+              <span onClick={() => setActiveTab('songs')} className="text-sm font-bold text-zinc-400 hover:text-white cursor-pointer transition flex-shrink-0">Hiện tất cả</span>
             )}
           </div>
           
           {loading ? (
-          <div className="text-zinc-500 font-medium">Đang tải...</div>
-        ) : tracks.length > 0 ? (
-          <div className={activeTab === 'all' ? "flex overflow-x-auto gap-0 pb-4 custom-scrollbar" : "grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-0"}>
-            {tracks.slice(0, activeTab === 'all' ? 10 : undefined).map((track, index, arr) => (
-              <div 
-                key={track.id}
-                onClick={() => playMediaList(arr, index)}
-                className={`p-3 rounded-md bg-transparent hover:bg-[#282828] transition cursor-pointer group relative ${activeTab === 'all' ? 'min-w-[180px] w-[180px] flex-shrink-0' : ''}`}
-              >
-                <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center group-hover:shadow-xl transition relative overflow-hidden">
-                  {track.coverUrl ? (
-                    <img src={getImageUrl(track.coverUrl)} alt={track.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                       <span className="text-3xl font-black text-white/50">{track.title.charAt(0)}</span>
-                    </div>
-                  )}
-                  <button 
+            <div className="text-zinc-500 font-medium">Đang tải...</div>
+          ) : tracks.length > 0 ? (
+            <div className={activeTab === 'all' ? "flex overflow-x-auto gap-0 pb-4 custom-scrollbar" : "grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-0"}>
+              {tracks.slice(0, activeTab === 'all' ? 10 : undefined).map((track, index, arr) => (
+                <div 
+                  key={track.id}
+                  onClick={() => playMediaList(arr, index)}
+                  className={`p-3 rounded-md bg-transparent hover:bg-[#282828] transition cursor-pointer group relative ${activeTab === 'all' ? 'min-w-[180px] w-[180px] flex-shrink-0' : ''}`}
+                >
+                  <div className="w-full aspect-square bg-zinc-700 rounded-md mb-4 shadow-lg flex items-center justify-center group-hover:shadow-xl transition relative overflow-hidden">
+                    {track.coverUrl ? (
+                      <img src={getImageUrl(track.coverUrl)} alt={track.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                         <span className="text-3xl font-black text-white/50">{track.title.charAt(0)}</span>
+                      </div>
+                    )}
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (currentMedia?.id === track.id) {
+                          togglePlayPause();
+                        } else {
+                          playMediaList(arr, index);
+                        }
+                      }}
+                      className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.id === track.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}
+                    >
+                      {currentMedia?.id === track.id && isPlaying ? (
+                        <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+                      ) : (
+                        <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                      )}
+                    </button>
+                  </div>
+                  <h3 className="font-bold text-white truncate text-base">{track.title}</h3>
+                  <p 
+                    className="text-sm text-zinc-400 mt-1 truncate hover:underline hover:text-white cursor-pointer relative z-10"
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (currentMedia?.id === track.id) {
-                        togglePlayPause();
-                      } else {
-                        playMediaList(arr, index);
-                      }
+                      if (track.artistId) navigate(`/artist/${track.artistId}`);
                     }}
-                    className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${currentMedia?.id === track.id ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}
                   >
-                    {currentMedia?.id === track.id && isPlaying ? (
-                      <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
-                    ) : (
-                      <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
-                    )}
-                  </button>
+                    {track.artistName || track.description || 'Nghệ sĩ'}
+                  </p>
                 </div>
-                <h3 className="font-bold text-white truncate text-base">{track.title}</h3>
-                <p 
-                  className="text-sm text-zinc-400 mt-1 truncate hover:underline hover:text-white cursor-pointer relative z-10"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (track.artistId) navigate(`/artist/${track.artistId}`);
-                  }}
-                >
-                  {track.artistName || track.description || 'Nghệ sĩ'}
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-zinc-500 font-medium">Chưa có bài hát nào được tải lên.</div>
-        )}
+              ))}
+            </div>
+          ) : (
+            <div className="text-zinc-500 font-medium">Chưa có bài hát nào được tải lên.</div>
+          )}
         </section>
       )}
     </div>

@@ -19,7 +19,7 @@ export const PlaylistDetail = () => {
   const [loading, setLoading] = useState(true);
   const [bgColor, setBgColor] = useState<string>('rgba(49, 46, 129, 0.4)');
 
-  const { playMediaList, currentMedia, isPlaying, togglePlayPause, queue, updateQueueContext } = usePlayer();
+  const { playMediaList, currentMedia, isPlaying, togglePlayPause, queue, updateQueueContext, showToast } = usePlayer();
 
   // Edit states
   const [showEditModal, setShowEditModal] = useState(false);
@@ -120,8 +120,9 @@ export const PlaylistDetail = () => {
       setPlaylist(prev => prev ? { ...prev, tracks: [...prev.tracks, track] } : null);
       // Xóa khỏi kết quả tìm kiếm
       setAddResults(prev => prev.filter(t => t.id !== track.id));
+      showToast(`Đã thêm ${track.title} vào danh sách phát`, "success");
     } catch (error) {
-      alert("Lỗi khi thêm bài hát");
+      showToast("Lỗi khi thêm bài hát", "error");
     }
   };
 
@@ -139,8 +140,9 @@ export const PlaylistDetail = () => {
       try {
         await playlistService.removeTrackFromPlaylist(id, trackId);
         setPlaylist(prev => prev ? { ...prev, tracks: prev.tracks.filter(t => t.id !== trackId) } : null);
+        showToast("Đã xóa bài hát khỏi danh sách phát", "success");
       } catch (error) {
-        alert("Lỗi khi xóa bài hát");
+        showToast("Lỗi khi xóa bài hát", "error");
       }
     }
   };
@@ -154,8 +156,9 @@ export const PlaylistDetail = () => {
         await playlistService.deletePlaylist(id);
         window.dispatchEvent(new Event('playlistsUpdated'));
         navigate('/');
+        showToast("Đã xóa danh sách phát thành công", "success");
       } catch (error) {
-        alert("Lỗi khi xóa playlist");
+        showToast("Lỗi khi xóa playlist", "error");
       }
     }
   };
@@ -167,19 +170,22 @@ export const PlaylistDetail = () => {
       setPlaylist({ ...playlist, name: editName, description: editDescription, coverUrl: editCover || undefined });
       setShowEditModal(false);
       window.dispatchEvent(new Event('playlistsUpdated'));
+      showToast("Đã cập nhật danh sách phát", "success");
     } catch (error) {
-      alert("Lỗi khi cập nhật playlist.");
+      showToast("Lỗi khi cập nhật danh sách phát.", "error");
     }
   };
 
   const handleTogglePublic = async () => {
     if (!id || !playlist) return;
+    const nextPublicState = !playlist.isPublic;
     try {
-      await playlistService.updatePlaylist(id, playlist.name, playlist.description, undefined, !playlist.isPublic);
-      setPlaylist({ ...playlist, isPublic: !playlist.isPublic });
+      await playlistService.updatePlaylist(id, playlist.name, playlist.description, undefined, nextPublicState);
+      setPlaylist({ ...playlist, isPublic: nextPublicState });
       setShowDropdown(false);
+      showToast(nextPublicState ? "Đã chuyển sang chế độ Công khai" : "Đã chuyển sang chế độ Riêng tư", "success");
     } catch (error) {
-      alert("Lỗi khi cập nhật trạng thái");
+      showToast("Lỗi khi cập nhật trạng thái", "error");
     }
   };
 

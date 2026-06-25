@@ -13,7 +13,7 @@ interface RightPanelProps {
 }
 
 export const RightPanel = ({ width }: RightPanelProps) => {
-  const { currentMedia, mediaRef, isFavorited, toggleFavorite, showQueue, setShowQueue, queue, currentIndex, playMediaList, setIsExpandedView } = usePlayer();
+  const { currentMedia, mediaRef, isFavorited, toggleFavorite, showQueue, setShowQueue, queue, currentIndex, playMediaList, setIsExpandedView, showToast } = usePlayer();
   const navigate = useNavigate();
   const bgLayerRef = useRef<HTMLDivElement>(null);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -55,7 +55,7 @@ export const RightPanel = ({ width }: RightPanelProps) => {
       if (currentMedia && currentMedia.id === trackId) {
       }
     } catch (error) {
-      alert("Lỗi khi thay đổi trạng thái yêu thích.");
+      showToast("Lỗi khi thay đổi trạng thái yêu thích.", "error");
     }
     setOpenDropdown(null);
   };
@@ -496,10 +496,10 @@ export const RightPanel = ({ width }: RightPanelProps) => {
         }
 
         await mediaService.deleteMedia(currentMedia.id);
-        alert("Đã xóa bài hát thành công!");
+        showToast("Đã xóa bài hát thành công!", "success");
         window.dispatchEvent(new Event('mediaUpdated'));
       } catch (error) {
-        alert("Lỗi khi xóa.");
+        showToast("Lỗi khi xóa bài hát.", "error");
       }
     }
   };
@@ -615,9 +615,8 @@ export const RightPanel = ({ width }: RightPanelProps) => {
                                   try {
                                     const m = await import('../services/playlistService');
                                     await m.playlistService.addTrackToPlaylist(p.id, currentMedia.id);
-                                    alert("Đã thêm vào " + p.name);
                                   } catch (err) {
-                                    alert("Lỗi khi thêm. Có thể bài hát đã có trong danh sách.");
+                                    console.error("Lỗi khi thêm. Có thể bài hát đã có trong danh sách.", err);
                                   }
                                   setOpenDropdown(null);
                                 }}

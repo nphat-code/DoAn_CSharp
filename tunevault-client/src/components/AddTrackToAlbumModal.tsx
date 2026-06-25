@@ -5,6 +5,7 @@ import { X, Search, Plus } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import { albumService } from '../services/albumService';
 import type { MediaItemDto } from '../types';
+import { usePlayer } from '../context/PlayerContext';
 
 interface AddTrackToAlbumModalProps {
   onClose: () => void;
@@ -17,6 +18,8 @@ export const AddTrackToAlbumModal = ({ onClose, onSuccess, albumId, existingTrac
   const [query, setQuery] = useState('');
   const [tracks, setTracks] = useState<MediaItemDto[]>([]);
   const [loading, setLoading] = useState(false);
+  
+  const { showToast } = usePlayer();
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -59,11 +62,11 @@ export const AddTrackToAlbumModal = ({ onClose, onSuccess, albumId, existingTrac
   const handleAdd = async (trackId: string) => {
     try {
       await albumService.addTrackToAlbum(albumId, trackId);
-      alert('Đã thêm bài hát vào album!');
+      showToast('Đã thêm bài hát vào album!', 'success');
       onSuccess();
     } catch (error) {
       console.error(error);
-      alert('Lỗi khi thêm bài hát');
+      showToast('Lỗi khi thêm bài hát', 'error');
     }
   };
 

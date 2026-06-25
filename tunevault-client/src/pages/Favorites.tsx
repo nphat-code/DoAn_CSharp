@@ -4,18 +4,16 @@ import { usePlayer } from '../context/PlayerContext';
 import { Heart, Clock } from 'lucide-react';
 import type { MediaItemDto } from '../types';
 import { ShareMediaModal } from '../components/ShareMediaModal';
-
 import { TrackListRow } from '../components/TrackListRow';
 
 export const Favorites = () => {
   const [favorites, setFavorites] = useState<MediaItemDto[]>([]);
   const [loading, setLoading] = useState(true);
-  const { playMediaList, currentMedia, isFavorited, setIsFavorited, isPlaying, togglePlayPause, queue, updateQueueContext } = usePlayer();
+  const { playMediaList, currentMedia, isFavorited, setIsFavorited, isPlaying, togglePlayPause, queue, updateQueueContext, showToast } = usePlayer();
 
   const currentUserStr = localStorage.getItem('user');
   const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
 
-  
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareData, setShareData] = useState<{ id: string, type: string, title: string } | null>(null);
 
@@ -32,12 +30,10 @@ export const Favorites = () => {
 
   useEffect(() => {
     fetchFavorites();
-    
     window.addEventListener('favoritesUpdated', fetchFavorites);
     return () => window.removeEventListener('favoritesUpdated', fetchFavorites);
   }, []);
 
-  
   useEffect(() => {
     if (!currentMedia || loading) return;
     
@@ -45,10 +41,8 @@ export const Favorites = () => {
       const isCurrentlyInList = prev.some(t => t.id === currentMedia.id);
       
       if (isFavorited && !isCurrentlyInList) {
-        
         return [currentMedia, ...prev];
       } else if (!isFavorited && isCurrentlyInList) {
-        
         return prev.filter(t => t.id !== currentMedia.id);
       }
       return prev;
@@ -60,7 +54,6 @@ export const Favorites = () => {
     try {
       const res = await mediaService.toggleFavorite(track.id);
       if (!res.isFavorited) {
-        
         setFavorites(prev => prev.filter(t => t.id !== track.id));
       }
       
@@ -69,15 +62,13 @@ export const Favorites = () => {
       }
       window.dispatchEvent(new Event('favoritesUpdated'));
     } catch (error) {
-      alert("Lỗi khi thay đổi bài hát yêu thích");
+      showToast("Lỗi khi thay đổi bài hát yêu thích", "error");
     }
   };
 
-  
   const getTotalDuration = () => {
     let totalSeconds = 0;
     favorites.forEach(t => {
-      
       if (t.duration) {
         const parts = t.duration.split(':');
         if (parts.length === 3) {
@@ -120,7 +111,6 @@ export const Favorites = () => {
 
   return (
     <div className="h-full bg-gradient-to-b from-[#4A30A4] to-[#121212] overflow-y-auto scrollbar-hide grid grid-rows-[auto_1fr]">
-      
       <div 
         className="flex items-end gap-6 px-6 pb-6 shrink-0"
         style={{ height: 'clamp(195.5px, 25cqw, 340px)', minHeight: '195.5px' }}
@@ -147,10 +137,7 @@ export const Favorites = () => {
         </div>
       </div>
 
-      
       <div className="w-full h-full bg-gradient-to-b from-black/20 to-black/60 border-t border-white/10 pt-6 px-6">
-
-        
         <div className="flex items-center gap-6 mb-6">
           <button 
             onClick={handleMainPlayClick}
@@ -168,9 +155,7 @@ export const Favorites = () => {
           </button>
         </div>
 
-        
         <div className="w-full flex-1">
-          
           <div className="grid grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(100px,1fr)] gap-4 px-4 py-2 border-b border-white/10 text-sm font-medium text-[#b3b3b3] mb-4 sticky top-0 bg-transparent z-10 items-center">
             <div className="text-right pr-2">#</div>
             <div>Tiêu đề</div>
@@ -182,31 +167,29 @@ export const Favorites = () => {
             </div>
           </div>
 
-        
-        <div className="flex flex-col gap-0 pb-10">
-          {favorites.length === 0 ? (
-            <div className="text-center text-zinc-400 mt-10">Bạn chưa thêm bài hát nào vào danh sách này.</div>
-          ) : (
-            favorites.map((track, index) => (
-              <TrackListRow 
-                key={track.id}
-                track={track}
-                index={index}
-                tracks={favorites.map(t => ({ ...t, isLikedContext: true }))}
-                isFavorited={true}
-                onToggleFavorite={() => handleToggleFavorite(undefined, track)}
-                onShare={(id, title) => {
-                  setShareData({ id, type: 'Bài hát', title });
-                  setShowShareModal(true);
-                }}
-              />
-            ))
-          )}
+          <div className="flex flex-col gap-0 pb-10">
+            {favorites.length === 0 ? (
+              <div className="text-center text-zinc-400 mt-10">Bạn chưa thêm bài hát nào vào danh sách này.</div>
+            ) : (
+              favorites.map((track, index) => (
+                <TrackListRow 
+                  key={track.id}
+                  track={track}
+                  index={index}
+                  tracks={favorites.map(t => ({ ...t, isLikedContext: true }))}
+                  isFavorited={true}
+                  onToggleFavorite={() => handleToggleFavorite(undefined, track)}
+                  onShare={(id, title) => {
+                    setShareData({ id, type: 'Bài hát', title });
+                    setShowShareModal(true);
+                  }}
+                />
+              ))
+            )}
+          </div>
         </div>
       </div>
-      </div>
 
-      
       {showShareModal && shareData && (
         <ShareMediaModal
           mediaId={shareData.id}
@@ -218,3 +201,5 @@ export const Favorites = () => {
     </div>
   );
 };
+
+export default Favorites;

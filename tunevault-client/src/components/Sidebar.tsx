@@ -29,7 +29,7 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const isAuthenticated = !!localStorage.getItem('token');
   const navigate = useNavigate();
-  const { currentMedia, isPlaying, togglePlayPause, playMediaList } = usePlayer();
+  const { currentMedia, isPlaying, togglePlayPause, playMediaList, showToast } = usePlayer();
 
   const handleItemClick = (path: string) => {
     navigate(path);
@@ -66,6 +66,8 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
       if (data && data.tracks && data.tracks.length > 0) {
         const tracksToPlay = data.tracks.map((t: any) => ({ ...t, playlistId: id }));
         playMediaList(tracksToPlay, 0);
+      } else {
+        showToast("Danh sách phát này chưa có bài hát nào.", "info");
       }
     } catch (error) {
       console.error(error);
@@ -83,6 +85,8 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
       if (data && data.tracks && data.tracks.length > 0) {
         const tracksToPlay = data.tracks.map((t: any) => ({ ...t, albumId: id, isAlbumContext: true }));
         playMediaList(tracksToPlay, 0);
+      } else {
+        showToast("Album này chưa có bài hát nào.", "info");
       }
     } catch (error) {
       console.error(error);
@@ -178,8 +182,9 @@ export const Sidebar = ({ isCollapsed = false, onToggleCollapse, isExpanded = fa
       const newPlaylist = await playlistService.createPlaylist(newName, undefined, true);
       setPlaylists([newPlaylist, ...playlists]);
       navigate(`/playlist/${newPlaylist.id}`);
+      showToast(`Đã tạo danh sách phát: ${newName}`, "success");
     } catch (error) {
-      alert("Lỗi khi tạo playlist. Vui lòng đăng nhập.");
+      showToast("Lỗi khi tạo playlist. Vui lòng đăng nhập.", "error");
     }
   };
 

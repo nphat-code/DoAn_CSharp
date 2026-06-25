@@ -15,7 +15,7 @@ export const Search = () => {
   const query = searchParams.get('q') || '';
   const page = parseInt(searchParams.get('page') || '1', 10);
 
-  const { playMedia, playMediaList, currentMedia, isPlaying, togglePlayPause } = usePlayer();
+  const { playMedia, playMediaList, currentMedia, isPlaying, togglePlayPause, showToast } = usePlayer();
   const navigate = useNavigate();
 
   const [results, setResults] = useState<SearchResultDto | null>(null);
@@ -72,8 +72,9 @@ export const Search = () => {
         return next;
       });
       window.dispatchEvent(new Event('favoritesUpdated'));
+      showToast(res.isFavorited ? "Đã thêm vào danh sách yêu thích!" : "Đã xóa khỏi danh sách yêu thích.", "success");
     } catch (error) {
-      console.error(error);
+      showToast("Lỗi khi thay đổi trạng thái yêu thích.", "error");
     }
   };
 
@@ -85,12 +86,14 @@ export const Search = () => {
       if (isFollowing) {
         await artistService.unfollowArtist(artistId);
         setFollowedArtistIds(prev => { const next = new Set(prev); next.delete(artistId); return next; });
+        showToast("Đã hủy theo dõi nghệ sĩ.", "success");
       } else {
         await artistService.followArtist(artistId);
         setFollowedArtistIds(prev => { const next = new Set(prev); next.add(artistId); return next; });
+        showToast("Đã theo dõi nghệ sĩ!", "success");
       }
     } catch (error) {
-      console.error(error);
+      showToast("Lỗi khi thay đổi trạng thái theo dõi.", "error");
     }
   };
 
@@ -125,7 +128,7 @@ export const Search = () => {
         if (artistTracks.length > 0) {
           playMediaList(artistTracks, 0);
         } else {
-          alert("Nghệ sĩ này chưa có bài hát nào.");
+          showToast("Nghệ sĩ này chưa có bài hát nào.", "error");
         }
       } catch (e) {
         console.error("Failed to play artist tracks", e);
@@ -143,7 +146,7 @@ export const Search = () => {
           }));
           playMediaList(albumTracks, 0);
         } else {
-          alert("Album này chưa có bài hát nào.");
+          showToast("Album này chưa có bài hát nào.", "error");
         }
       } catch (e) {
         console.error("Failed to play album tracks", e);
@@ -158,7 +161,7 @@ export const Search = () => {
           }));
           playMediaList(playlistTracks, 0);
         } else {
-          alert("Danh sách phát này chưa có bài hát nào.");
+          showToast("Danh sách phát này chưa có bài hát nào.", "error");
         }
       } catch (e) {
         console.error("Failed to play playlist tracks", e);
@@ -433,7 +436,6 @@ export const Search = () => {
     if (!results) return null;
     const lowerQuery = query.toLowerCase();
 
-    // Prioritize exact matches
     if (results.artists?.some(a => a.name.toLowerCase() === lowerQuery)) {
       return { type: 'artist' as const, item: results.artists.find(a => a.name.toLowerCase() === lowerQuery) };
     }
@@ -441,7 +443,6 @@ export const Search = () => {
       return { type: 'track' as const, item: results.tracks.find(t => t.title.toLowerCase() === lowerQuery) };
     }
 
-    // Fallback order
     if (results.artists && results.artists.length > 0) return { type: 'artist' as const, item: results.artists[0] };
     if (results.tracks && results.tracks.length > 0) return { type: 'track' as const, item: results.tracks[0] };
     if (results.albums && results.albums.length > 0) return { type: 'album' as const, item: results.albums[0] };
@@ -457,7 +458,6 @@ export const Search = () => {
     if (!results) return [];
     let list: { item: any, type: 'track' | 'artist' | 'album' | 'playlist' | 'profile' }[] = [];
 
-    // Add artists first so they appear right after the top result if it's a track
     if (results.artists) list.push(...results.artists.map(a => ({ item: a, type: 'artist' as const })));
     if (results.tracks) list.push(...results.tracks.map(t => ({ item: t, type: 'track' as const })));
     if (results.playlists) list.push(...results.playlists.map(p => ({ item: p, type: 'playlist' as const })));
@@ -481,7 +481,6 @@ export const Search = () => {
       ) : (
         <div className="flex flex-col gap-8">
 
-          {/* Tabs */}
           {query && hasResults && (
             <div className="flex flex-wrap gap-3 mb-2">
               <button
@@ -523,7 +522,6 @@ export const Search = () => {
             </div>
           )}
 
-          {/* Unified Results List */}
           {activeTab === 'all' && (
             <div className="flex flex-col gap-1">
               {topResult && renderRow(topResult.item, topResult.type, true)}
@@ -531,7 +529,6 @@ export const Search = () => {
             </div>
           )}
 
-          {/* Detailed Songs List */}
           {activeTab === 'songs' && results.tracks && results.tracks.length > 0 && (
             <div className="w-full flex-1">
               <div className="grid grid-cols-[32px_minmax(120px,4fr)_minmax(100px,3fr)_minmax(100px,1fr)] gap-4 px-4 py-2 border-b border-white/10 text-sm font-medium text-[#b3b3b3] mb-4 sticky top-0 bg-transparent z-10 items-center">
@@ -567,7 +564,6 @@ export const Search = () => {
             </div>
           )}
 
-          {/* Grid Results List */}
           {activeTab !== 'all' && activeTab !== 'songs' ? (
             <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-0">
               {activeTab === 'artists' && results.artists?.map(artist => renderCard(artist, 'artist'))}
@@ -577,7 +573,6 @@ export const Search = () => {
             </div>
           ) : null}
 
-          {/* Pagination */}
           {results.totalPages > 1 && (
             <div className="flex items-center justify-center gap-4 mt-8 pt-4 border-t border-zinc-800">
               <button
@@ -614,3 +609,4 @@ export const Search = () => {
   );
 };
 
+export default Search;

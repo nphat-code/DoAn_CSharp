@@ -14,7 +14,7 @@ export const SharedWithMe: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'with-me' | 'by-me'>('with-me');
   const navigate = useNavigate();
-  const { playMediaList, currentMedia, isPlaying, togglePlayPause } = usePlayer();
+  const { playMediaList, currentMedia, isPlaying, togglePlayPause, showToast } = usePlayer();
 
   useEffect(() => {
     const fetchShares = async () => {
@@ -44,7 +44,7 @@ export const SharedWithMe: React.FC = () => {
         if (trackToPlay) {
           playMediaList([trackToPlay], 0);
         } else {
-          alert("Không tìm thấy bài hát. Có thể nó đã bị xóa.");
+          showToast("Không tìm thấy bài hát. Có thể nó đã bị xóa.", "error");
         }
       } catch (err) {
         console.error("Lỗi phát nhạc:", err);
@@ -67,7 +67,7 @@ export const SharedWithMe: React.FC = () => {
         if (trackToPlay) {
           playMediaList([trackToPlay], 0);
         } else {
-          alert("Không tìm thấy bài hát. Có thể nó đã bị xóa.");
+          showToast("Không tìm thấy bài hát. Có thể nó đã bị xóa.", "error");
         }
       } catch (err) {
         console.error("Lỗi phát nhạc:", err);
@@ -89,7 +89,7 @@ export const SharedWithMe: React.FC = () => {
           }));
           await playMediaList(tracksToPlay, 0);
         } else {
-          alert("Album này chưa có bài hát nào.");
+          showToast("Album này chưa có bài hát nào.", "error");
         }
       } catch (error) {
         console.error("Lỗi khi phát album:", error);
@@ -110,7 +110,7 @@ export const SharedWithMe: React.FC = () => {
           }));
           await playMediaList(tracksToPlay, 0);
         } else {
-          alert("Danh sách phát này chưa có bài hát nào.");
+          showToast("Danh sách phát này chưa có bài hát nào.", "error");
         }
       } catch (error) {
         console.error("Lỗi khi phát danh sách phát:", error);
@@ -213,5 +213,3 @@ export const SharedWithMe: React.FC = () => {
     </div>
   );
 };
-
-

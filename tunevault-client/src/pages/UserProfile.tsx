@@ -10,7 +10,7 @@ import { usePlayer } from '../context/PlayerContext';
 export const UserProfile = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { playMediaList, currentMedia, isPlaying, togglePlayPause } = usePlayer();
+  const { playMediaList, currentMedia, isPlaying, togglePlayPause, showToast } = usePlayer();
   const [profile, setProfile] = useState<ProfileDto | null>(null);
   const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
   const [followers, setFollowers] = useState<ProfileDto[]>([]);
@@ -58,13 +58,15 @@ export const UserProfile = () => {
       if (isFollowing) {
         await followService.unfollowUser(id);
         setIsFollowing(false);
+        showToast(`Đã hủy theo dõi ${profile?.username || 'người dùng'}`, "success");
       } else {
         await followService.followUser(id);
         setIsFollowing(true);
+        showToast(`Đã theo dõi ${profile?.username || 'người dùng'}`, "success");
       }
       window.dispatchEvent(new Event('artistFollowed'));
     } catch (error) {
-      alert("Lỗi khi theo dõi");
+      showToast("Lỗi khi theo dõi", "error");
     }
   };
 
@@ -85,7 +87,7 @@ export const UserProfile = () => {
         }));
         playMediaList(tracksToPlay, 0);
       } else {
-        alert("Danh sách phát này chưa có bài hát nào.");
+        showToast("Danh sách phát này chưa có bài hát nào.", "error");
       }
     } catch (error) {
       console.error("Failed to play playlist", error);
@@ -102,12 +104,10 @@ export const UserProfile = () => {
 
   return (
     <div className="flex flex-col h-full bg-[#121212] overflow-y-auto">
-      
       <div
         className="flex flex-col md:flex-row items-end gap-6 px-6 pb-6 bg-gradient-to-b from-[#535353] to-[#181818] text-white shrink-0 relative z-10"
         style={{ height: 'clamp(225.9px, 30cqw, 380px)', minHeight: '225.9px' }}
       >
-        
         <div
           className="rounded-full overflow-hidden shadow-[0_4px_60px_rgba(0,0,0,0.5)] relative flex-shrink-0 bg-[#282828]"
           style={{ width: 'clamp(150px, 22cqw, 230px)', height: 'clamp(150px, 22cqw, 230px)' }}
@@ -128,7 +128,6 @@ export const UserProfile = () => {
             </div>
           )}
         </div>
-        
         
         <div className="flex flex-col justify-center min-w-0 flex-1 w-full md:w-auto text-center md:text-left">
           <span className="text-sm font-bold tracking-wider mb-2 hidden md:block">Hồ sơ</span>
@@ -153,10 +152,7 @@ export const UserProfile = () => {
         </div>
       </div>
 
-      
       <div className="px-8 py-6 bg-gradient-to-b from-[#181818]/80 to-[#121212] flex-1">
-        
-        
         <div className="flex items-center gap-6 mb-8 text-zinc-400">
           <button 
             onClick={handleFollowToggle}
@@ -179,9 +175,10 @@ export const UserProfile = () => {
                     if (confirm('Admin: Bạn có chắc chắn muốn xóa vĩnh viễn người dùng này cùng toàn bộ dữ liệu của họ?')) {
                       try {
                         await profileService.deleteProfile(id);
+                        showToast('Đã xóa người dùng thành công!', 'success');
                         navigate('/'); 
                       } catch (error) {
-                        alert('Có lỗi xảy ra khi xóa người dùng!');
+                        showToast('Có lỗi xảy ra khi xóa người dùng!', 'error');
                       }
                     }
                   }}
@@ -195,7 +192,6 @@ export const UserProfile = () => {
           })()}
         </div>
 
-        
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-white mb-6 hover:underline cursor-pointer inline-block">Playlist Công khai</h2>
           
@@ -240,7 +236,6 @@ export const UserProfile = () => {
           )}
         </div>
 
-        
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-white mb-6 hover:underline cursor-pointer inline-block">Người theo dõi</h2>
           {followers.length > 0 ? (
@@ -274,7 +269,6 @@ export const UserProfile = () => {
           )}
         </div>
 
-        
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-white mb-6 hover:underline cursor-pointer inline-block">Đang theo dõi</h2>
           {following.length > 0 ? (
@@ -312,3 +306,5 @@ export const UserProfile = () => {
     </div>
   );
 };
+
+export default UserProfile;

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Upload, X, Disc } from 'lucide-react';
 import { albumService } from '../services/albumService';
 import { artistService, type ArtistDto } from '../services/artistService';
+import { usePlayer } from '../context/PlayerContext';
 
 interface CreateAlbumModalProps {
   onClose: () => void;
@@ -15,6 +16,8 @@ export const CreateAlbumModal = ({ onClose }: CreateAlbumModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [allArtists, setAllArtists] = useState<ArtistDto[]>([]);
   const [showArtistSuggestions, setShowArtistSuggestions] = useState(false);
+  
+  const { showToast } = usePlayer();
 
   useEffect(() => {
     const fetchArtists = async () => {
@@ -35,7 +38,7 @@ export const CreateAlbumModal = ({ onClose }: CreateAlbumModalProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !artistName) {
-      alert("Vui lòng nhập tên Album và Nghệ sĩ.");
+      showToast("Vui lòng nhập tên Album và Nghệ sĩ.", "error");
       return;
     }
 
@@ -50,12 +53,12 @@ export const CreateAlbumModal = ({ onClose }: CreateAlbumModalProps) => {
 
     try {
       await albumService.createAlbum(formData);
-      alert('Tạo Album thành công!');
+      showToast('Tạo Album thành công!', 'success');
       window.dispatchEvent(new Event('mediaUpdated')); 
       onClose();
     } catch (error) {
       console.error(error);
-      alert('Lỗi khi tạo Album. Vui lòng thử lại.');
+      showToast('Lỗi khi tạo Album. Vui lòng thử lại.', 'error');
     } finally {
       setIsSubmitting(false);
     }

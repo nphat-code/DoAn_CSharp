@@ -26,7 +26,7 @@ export const ArtistDetail = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareData, setShareData] = useState<{ id: string, type: 'Bài hát' | 'Nghệ sĩ' | 'Album', title: string } | null>(null);
 
-  const { playMediaList, currentMedia, isPlaying, togglePlayPause, updateQueueContext, queue, isFavorited, setIsFavorited } = usePlayer();
+  const { playMediaList, currentMedia, isPlaying, togglePlayPause, updateQueueContext, queue, isFavorited, setIsFavorited, showToast } = usePlayer();
   const [likedTracks, setLikedTracks] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -44,7 +44,6 @@ export const ArtistDetail = () => {
       try {
         if (!id) return;
 
-        
         const allArtists = await artistService.getAllArtists();
         const foundArtist = allArtists.find(a => a.id === id);
 
@@ -52,16 +51,13 @@ export const ArtistDetail = () => {
           setArtist(foundArtist);
         }
 
-        
         const followStatus = await artistService.getFollowStatus(id);
         setIsFollowing(followStatus);
 
-        
         const allMedia = await mediaService.getAllMedia();
         const artistTracks = allMedia.filter(m => m.artistId === id);
         setTracks(artistTracks);
 
-        
         const favoritesData = await mediaService.getFavorites();
         setLikedTracks(new Set(favoritesData.map(t => t.id)));
 
@@ -122,13 +118,16 @@ export const ArtistDetail = () => {
       if (isFollowing) {
         await artistService.unfollowArtist(id);
         setIsFollowing(false);
+        showToast(`Đã hủy theo dõi ${artist?.name || 'nghệ sĩ'}`, "success");
       } else {
         await artistService.followArtist(id);
         setIsFollowing(true);
+        showToast(`Đã theo dõi ${artist?.name || 'nghệ sĩ'}`, "success");
       }
       window.dispatchEvent(new Event('followedArtistsUpdated'));
     } catch (error) {
       console.error("Lỗi khi theo dõi nghệ sĩ", error);
+      showToast("Lỗi khi thay đổi trạng thái theo dõi.", "error");
     } finally {
       setLoadingFollow(false);
       setShowArtistMenu(false);
@@ -156,8 +155,6 @@ export const ArtistDetail = () => {
     }
   };
 
-
-
   const handleToggleFavorite = async (trackId: string) => {
     try {
       const res = await mediaService.toggleFavorite(trackId);
@@ -171,8 +168,9 @@ export const ArtistDetail = () => {
         setIsFavorited(res.isFavorited);
       }
       window.dispatchEvent(new Event('favoritesUpdated'));
+      showToast(res.isFavorited ? "Đã thêm vào danh sách yêu thích!" : "Đã xóa khỏi danh sách yêu thích.", "success");
     } catch (error) {
-      alert("Lỗi khi cập nhật");
+      showToast("Lỗi khi cập nhật trạng thái yêu thích.", "error");
     }
   };
 
@@ -201,7 +199,6 @@ export const ArtistDetail = () => {
 
   return (
     <div className="flex flex-col h-full relative bg-spotify-card overflow-hidden">
-      
       <div
         ref={gradientRef}
         className="absolute top-0 left-0 w-full pointer-events-none z-0"
@@ -211,18 +208,15 @@ export const ArtistDetail = () => {
         }}
       />
 
-      
       <div
         ref={scrollRef}
         className="h-full overflow-y-auto relative z-10 w-full scrollbar-hide grid grid-rows-[auto_1fr]"
         onScroll={handleScroll}
       >
-        
         <div
           className="relative px-6 pb-6 pt-16 flex items-end"
           style={{ height: 'clamp(340px, 40cqw, 400px)', minHeight: '340px' }}
         >
-          
           {artist.avatarUrl && (
             <div
               className="absolute inset-0 z-0 bg-cover bg-center"
@@ -250,15 +244,12 @@ export const ArtistDetail = () => {
               <span className="text-white text-sm font-medium drop-shadow-md">Do Tunevault xác minh</span>
             </div>
             <div className="text-white font-medium text-base drop-shadow-md">
-              
               {Math.floor((artist.name.length * 12345) % 1000000 + 50000).toLocaleString('vi-VN')} người nghe hằng tháng
             </div>
           </div>
         </div>
 
-        
         <div className="w-full h-full flex flex-col pt-6 relative z-10 bg-black/20">
-          
           <div className="flex items-center gap-6 mb-8 px-6">
             <button
               onClick={handleMainPlayClick}
@@ -318,7 +309,6 @@ export const ArtistDetail = () => {
             </div>
           </div>
 
-          
           <div className="w-full px-6 mb-8">
             <h2 className="text-2xl font-bold text-white mb-4">Phổ biến</h2>
 

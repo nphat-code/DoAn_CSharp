@@ -5,6 +5,7 @@ import { X, UploadCloud, Music } from 'lucide-react';
 import { mediaService } from '../services/mediaService';
 import { artistService, type ArtistDto } from '../services/artistService';
 import { albumService, type AlbumDto } from '../services/albumService';
+import { usePlayer } from '../context/PlayerContext';
 
 interface UploadModalProps {
   onClose: () => void;
@@ -14,6 +15,7 @@ interface UploadModalProps {
 }
 
 export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artistId: initialArtistId }: UploadModalProps) => {
+  const { showToast } = usePlayer();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedArtistId, setSelectedArtistId] = useState(initialArtistId || '');
@@ -43,7 +45,6 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
         setArtists(artistsData);
         setAlbums(albumsData);
 
-        
         if (initialArtistId) {
           const artist = artistsData.find(a => a.id === initialArtistId);
           if (artist) setArtistSearchText(artist.name);
@@ -88,11 +89,11 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
       }
 
       await mediaService.uploadMedia(formData);
-      alert("Tải nhạc lên thành công!");
+      showToast("Tải nhạc lên thành công!", "success");
       onSuccess();
     } catch (error) {
       console.error(error);
-      alert("Tải lên thất bại. Vui lòng thử lại.");
+      showToast("Tải lên thất bại. Vui lòng thử lại.", "error");
     } finally {
       setLoading(false);
     }
@@ -261,7 +262,6 @@ export const UploadModal = ({ onClose, onSuccess, albumId: initialAlbumId, artis
                           setAlbumSearchText(album.title);
                           setSelectedAlbumId(album.id);
                           setShowAlbumSuggestions(false);
-                          
                           
                           if (!selectedArtistId) {
                             setSelectedArtistId(album.artistId);

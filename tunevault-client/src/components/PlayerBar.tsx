@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 
 export const PlayerBar = () => {
   const navigate = useNavigate();
-  const { currentMedia, isPlaying, togglePlayPause, playNext, playPrevious, volume, setVolume, mediaRef, isFavorited, toggleFavorite, showQueue, setShowQueue } = usePlayer();
+  const { currentMedia, isPlaying, togglePlayPause, playNext, playPrevious, volume, setVolume, mediaRef, isFavorited, toggleFavorite, showQueue, setShowQueue, showToast } = usePlayer();
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -56,7 +56,6 @@ export const PlayerBar = () => {
     media.addEventListener('timeupdate', handleTimeUpdate);
     media.addEventListener('loadedmetadata', handleLoadedMetadata);
     media.addEventListener('ended', handleEnded);
-    
     
     if (media.readyState >= 1) {
       setDuration(media.duration);
@@ -108,7 +107,6 @@ export const PlayerBar = () => {
     return () => window.removeEventListener('playlistsUpdated', fetchPlaylists);
   }, []);
 
-  
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -178,7 +176,6 @@ export const PlayerBar = () => {
         )}
       </div>
       
-      
       <div className="flex items-center w-1/3">
         {currentMedia.coverUrl ? (
           <img src={getImageUrl(currentMedia.coverUrl)} alt={currentMedia.title} className="w-14 h-14 rounded-md object-cover flex-shrink-0 shadow-lg" />
@@ -210,7 +207,6 @@ export const PlayerBar = () => {
                  <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8" strokeLinecap="round" strokeLinejoin="round"></path></svg>
               )}
             </button>
-            
             
             {showPlaylistMenu && (
               <div className="absolute bottom-full left-0 mb-4 w-72 bg-[#282828] rounded-md shadow-[0_16px_24px_rgba(0,0,0,0.5)] p-2 z-50 animate-in fade-in zoom-in duration-200 border border-zinc-700/50">
@@ -248,9 +244,9 @@ export const PlayerBar = () => {
                        onClick={async () => {
                          try {
                            await playlistService.addTrackToPlaylist(playlist.id, currentMedia.id);
-                           alert("Đã thêm vào " + playlist.name);
+                           showToast("Đã thêm vào " + playlist.name, "success");
                          } catch(e) {
-                           alert("Có thể bài hát đã có trong playlist này.");
+                           showToast("Có thể bài hát đã có trong playlist này.", "error");
                          }
                        }}
                        className="flex items-center justify-between p-2 hover:bg-white/10 rounded-sm cursor-pointer group"
@@ -270,7 +266,6 @@ export const PlayerBar = () => {
         </div>
       </div>
 
-      
       <div className="flex flex-col items-center w-1/3 max-w-md mt-1">
         <div className="flex items-center gap-6 mb-2">
           <button onClick={playPrevious} className="text-spotify-lighttext hover:text-white transition"><SkipBack size={20} className="fill-current" /></button>
@@ -297,7 +292,6 @@ export const PlayerBar = () => {
         </div>
       </div>
 
-      
       <div className="flex items-center justify-end w-1/3 gap-4 pr-2">
         <button 
           onClick={() => setShowQueue(!showQueue)}

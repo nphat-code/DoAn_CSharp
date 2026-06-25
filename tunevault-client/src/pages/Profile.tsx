@@ -26,7 +26,7 @@ export const Profile = () => {
   const [following, setFollowing] = useState<ProfileDto[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { playMediaList, isPlaying, togglePlayPause, currentMedia } = usePlayer();
+  const { playMediaList, isPlaying, togglePlayPause, currentMedia, showToast } = usePlayer();
 
   const [favoritesIds, setFavoritesIds] = useState<Set<string>>(new Set());
   const [shareData, setShareData] = useState<{ id: string, type: 'Bài hát' | 'Nghệ sĩ' | 'Album' | 'Hồ sơ' | 'Danh sách phát', title: string } | null>(null);
@@ -64,8 +64,9 @@ export const Profile = () => {
         return next;
       });
       window.dispatchEvent(new Event('favoritesUpdated'));
+      showToast(res.isFavorited ? "Đã thêm vào danh sách yêu thích!" : "Đã xóa khỏi danh sách yêu thích.", "success");
     } catch (error) {
-      console.error(error);
+      showToast("Lỗi khi thay đổi trạng thái yêu thích.", "error");
     }
   };
 
@@ -131,9 +132,10 @@ export const Profile = () => {
       }
 
       setIsEditing(false);
+      showToast("Cập nhật hồ sơ thành công!", "success");
     } catch (error) {
       console.error("Lỗi khi cập nhật hồ sơ:", error);
-      alert("Cập nhật hồ sơ thất bại!");
+      showToast("Cập nhật hồ sơ thất bại!", "error");
     }
   };
 
@@ -155,7 +157,7 @@ export const Profile = () => {
       if (artistTracks.length > 0) {
         playMediaList(artistTracks, 0);
       } else {
-        alert("Nghệ sĩ này chưa có bài hát nào.");
+        showToast("Nghệ sĩ này chưa có bài hát nào.", "error");
       }
     } catch (error) {
       console.error("Failed to play artist tracks", error);
@@ -179,14 +181,12 @@ export const Profile = () => {
         }));
         playMediaList(tracksToPlay, 0);
       } else {
-        alert("Danh sách phát này chưa có bài hát nào.");
+        showToast("Danh sách phát này chưa có bài hát nào.", "error");
       }
     } catch (error) {
       console.error("Failed to play playlist", error);
     }
   };
-
-
 
   if (loading) return <div className="text-zinc-400 p-8 h-full bg-[#121212]">Đang tải thông tin...</div>;
   if (!profile) return <div className="text-zinc-400 p-8 h-full bg-[#121212]">Không thể tải thông tin cá nhân.</div>;
@@ -198,7 +198,6 @@ export const Profile = () => {
         className="flex flex-col md:flex-row items-end gap-6 px-6 pb-6 bg-gradient-to-b from-[#535353] to-[#181818] text-white shrink-0 relative z-10"
         style={{ height: 'clamp(225.9px, 30cqw, 380px)', minHeight: '225.9px' }}
       >
-
         {/* Avatar */}
         <div
           className="rounded-full overflow-hidden shadow-[0_4px_60px_rgba(0,0,0,0.5)] relative group flex-shrink-0 bg-[#282828]"
@@ -252,7 +251,6 @@ export const Profile = () => {
 
       {/* Content */}
       <div className="px-8 py-6 bg-gradient-to-b from-[#181818]/80 to-[#121212] flex-1">
-
         {/* Actions */}
         <div className="flex items-center gap-6 mb-8 text-zinc-400">
           <button className="hover:text-white transition-colors">
@@ -283,7 +281,7 @@ export const Profile = () => {
                   onClick={() => {
                     setIsMenuOpen(false);
                     navigator.clipboard.writeText(window.location.href);
-                    alert('Đã sao chép đường liên kết!');
+                    showToast('Đã sao chép đường liên kết!', 'success');
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-white/10 transition-colors text-left"
                 >
@@ -299,7 +297,7 @@ export const Profile = () => {
                         localStorage.removeItem('user');
                         window.location.href = '/login';
                       } catch (error) {
-                        alert('Có lỗi xảy ra khi xóa tài khoản!');
+                        showToast('Có lỗi xảy ra khi xóa tài khoản!', 'error');
                       }
                     }
                   }}
@@ -616,4 +614,3 @@ export const Profile = () => {
     </div>
   );
 };
-

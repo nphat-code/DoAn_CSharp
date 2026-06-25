@@ -3,6 +3,11 @@ import type { ReactNode, RefObject } from 'react';
 import type { MediaItemDto } from '../types';
 import { mediaService } from '../services/mediaService';
 
+export interface ToastInfo {
+  message: string;
+  type: 'success' | 'error' | 'info';
+}
+
 interface PlayerContextType {
   currentMedia: MediaItemDto | null;
   isPlaying: boolean;
@@ -27,6 +32,9 @@ interface PlayerContextType {
   setShowQueue: (show: boolean) => void;
   isExpandedView: boolean;
   setIsExpandedView: (show: boolean) => void;
+  toast: ToastInfo | null;
+  showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
+  setToast: (toast: ToastInfo | null) => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -41,8 +49,29 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [showQueue, setShowQueue] = useState(false);
   const [isExpandedView, setIsExpandedView] = useState(false);
-
   const [showLoginModal, setShowLoginModal] = useState(false);
+  
+  // Toast Notification State
+  const [toast, setToast] = useState<ToastInfo | null>(null);
+  const toastTimeoutRef = useRef<any>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToast({ message, type });
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    toastTimeoutRef.current = setTimeout(() => {
+      setToast(null);
+    }, 3000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!currentMedia) return;
@@ -69,9 +98,10 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
       const res = await mediaService.toggleFavorite(currentMedia.id);
       setIsFavorited(res.isFavorited);
       window.dispatchEvent(new Event('favoritesUpdated'));
+      showToast(res.isFavorited ? "Đã thêm vào Thư viện bài hát" : "Đã xóa khỏi Thư viện bài hát", "success");
     } catch (err) {
       console.error(err);
-      alert("Lỗi khi thêm vào bài hát đã thích");
+      showToast("Lỗi khi thay đổi trạng thái yêu thích", "error");
     }
   };
 
@@ -200,11 +230,13 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
         setCurrentIndex(0);
         setCurrentMedia(track);
         setIsPlaying(true);
+        showToast(`Đang phát: ${track.title}`, 'success');
         return [track];
       }
       const newQueue = [...prev];
       const insertIndex = currentIndex + 1;
       newQueue.splice(insertIndex, 0, track);
+      showToast(`Đã thêm vào danh sách chờ: ${track.title}`, 'success');
       return newQueue;
     });
   };
@@ -219,7 +251,10 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
       showQueue,
       setShowQueue,
       isExpandedView,
-      setIsExpandedView
+      setIsExpandedView,
+      toast,
+      showToast,
+      setToast
     }}>
       {children}
     </PlayerContext.Provider>

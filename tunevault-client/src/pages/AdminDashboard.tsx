@@ -7,6 +7,7 @@ import { artistService } from '../services/artistService';
 import type { ArtistDto } from '../services/artistService';
 import type { MediaItemDto } from '../types';
 import { Trash2, Music, Disc, User, ShieldAlert, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { usePlayer } from '../context/PlayerContext';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -18,6 +19,8 @@ export const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const { showToast } = usePlayer();
 
   const fetchTracks = async () => {
     try {
@@ -77,13 +80,13 @@ export const AdminDashboard = () => {
     try {
       await mediaService.deleteMedia(id);
       setTracks(tracks.filter(t => t.id !== id));
-      alert("Xóa thành công!");
+      showToast("Xóa bài hát thành công!", "success");
       window.dispatchEvent(new Event('playlistsUpdated'));
       window.dispatchEvent(new Event('favoritesUpdated'));
       window.dispatchEvent(new Event('mediaUpdated'));
     } catch (error) {
       console.error(error);
-      alert("Lỗi khi xóa bài hát");
+      showToast("Lỗi khi xóa bài hát", "error");
     }
   };
 
@@ -92,12 +95,12 @@ export const AdminDashboard = () => {
     try {
       await albumService.deleteAlbum(id);
       setAlbums(albums.filter(a => a.id !== id));
-      alert("Xóa thành công!");
+      showToast("Xóa Album thành công!", "success");
       window.dispatchEvent(new Event('savedAlbumsUpdated'));
       window.dispatchEvent(new Event('mediaUpdated'));
     } catch (error) {
       console.error(error);
-      alert("Lỗi khi xóa Album");
+      showToast("Lỗi khi xóa Album", "error");
     }
   };
 
@@ -106,7 +109,7 @@ export const AdminDashboard = () => {
     try {
       await artistService.deleteArtist(id);
       setArtists(artists.filter(a => a.id !== id));
-      alert("Xóa thành công!");
+      showToast("Xóa Nghệ sĩ thành công!", "success");
       window.dispatchEvent(new Event('followedArtistsUpdated'));
       window.dispatchEvent(new Event('savedAlbumsUpdated'));
       window.dispatchEvent(new Event('playlistsUpdated'));
@@ -114,7 +117,7 @@ export const AdminDashboard = () => {
       window.dispatchEvent(new Event('mediaUpdated'));
     } catch (error) {
       console.error(error);
-      alert("Lỗi khi xóa Nghệ sĩ");
+      showToast("Lỗi khi xóa Nghệ sĩ", "error");
     }
   };
 
@@ -179,7 +182,7 @@ export const AdminDashboard = () => {
               
               {activeTab === 'tracks' && getPaginatedData(filteredTracks).map(track => (
                 <tr key={track.id} className="hover:bg-zinc-800/50 transition">
-                  <td className="px-6 py-4 font-bold text-white flex items-center gap-3">
+                  <td className="px-6 py-4 font-bold text-white flex items-center gap-3 col-span-1">
                     {track.coverUrl ? (
                       <img src={getImageUrl(track.coverUrl)} className="w-10 h-10 rounded bg-zinc-800 object-cover" alt="cover" />
                     ) : <div className="w-10 h-10 rounded bg-zinc-800 flex items-center justify-center"><Music size={16}/></div>}
@@ -198,7 +201,7 @@ export const AdminDashboard = () => {
               
               {activeTab === 'albums' && getPaginatedData(filteredAlbums).map(album => (
                 <tr key={album.id} className="hover:bg-zinc-800/50 transition">
-                  <td className="px-6 py-4 font-bold text-white flex items-center gap-3">
+                  <td className="px-6 py-4 font-bold text-white flex items-center gap-3 col-span-1">
                     {album.coverUrl ? (
                       <img src={getImageUrl(album.coverUrl)} className="w-10 h-10 rounded bg-zinc-800 object-cover" alt="cover" />
                     ) : <div className="w-10 h-10 rounded bg-zinc-800 flex items-center justify-center"><Disc size={16}/></div>}
@@ -217,7 +220,7 @@ export const AdminDashboard = () => {
               
               {activeTab === 'artists' && getPaginatedData(filteredArtists).map(artist => (
                 <tr key={artist.id} className="hover:bg-zinc-800/50 transition">
-                  <td className="px-6 py-4 font-bold text-white flex items-center gap-3">
+                  <td className="px-6 py-4 font-bold text-white flex items-center gap-3 col-span-1">
                     {artist.avatarUrl ? (
                       <img src={getImageUrl(artist.avatarUrl)} className="w-10 h-10 rounded-full bg-zinc-800 object-cover" alt="avatar" />
                     ) : <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center"><User size={16}/></div>}

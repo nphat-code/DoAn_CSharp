@@ -8,7 +8,7 @@ export const TopArtists = () => {
   const navigate = useNavigate();
   const [topArtists, setTopArtists] = useState<{ name: string, avatarUrl: string, id?: string }[]>([]);
   const [loading, setLoading] = useState(true);
-  const { isPlaying, togglePlayPause, currentMedia, playMediaList } = usePlayer();
+  const { isPlaying, togglePlayPause, currentMedia, playMediaList, showToast } = usePlayer();
 
   useEffect(() => {
     loadArtists();
@@ -51,7 +51,7 @@ export const TopArtists = () => {
       if (artistTracks.length > 0) {
         playMediaList(artistTracks, 0);
       } else {
-        alert("Nghệ sĩ này chưa có bài hát nào.");
+        showToast("Nghệ sĩ này chưa có bài hát nào.", "error");
       }
     } catch (error) {
       console.error("Failed to play artist tracks", error);

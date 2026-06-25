@@ -252,17 +252,15 @@ export const MainLayout = () => {
 
             <RightPanel width={rightPanelWidth} />
 
-            
             <NowPlayingOverlay />
           </div>
 
-          
           <div className="w-full shrink-0 relative z-50">
             <PlayerBar />
           </div>
 
-          
           <LoginModal />
+          <ToastNotification />
         </div>
       </PlayerProvider>
     </NotificationProvider>
@@ -307,6 +305,27 @@ const LoginModal = () => {
           Đóng
         </button>
       </div>
+    </div>
+  );
+};
+
+const ToastNotification = () => {
+  const { toast, setToast } = usePlayer();
+
+  if (!toast) return null;
+
+  return (
+    <div 
+      onClick={() => setToast(null)}
+      className="fixed bottom-[96px] left-1/2 -translate-x-1/2 z-[9999] cursor-pointer flex items-center gap-3 px-6 py-3.5 rounded-full shadow-2xl border border-white/10 backdrop-blur-md bg-[#181818]/95 text-white font-semibold text-sm animate-in fade-in slide-in-from-bottom-4 duration-300 hover:scale-105 transition-all"
+      style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)' }}
+    >
+      <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+        toast.type === 'error' ? 'bg-red-500 shadow-[0_0_8px_#ef4444]' : 
+        toast.type === 'info' ? 'bg-blue-500 shadow-[0_0_8px_#3b82f6]' : 
+        'bg-spotify-green shadow-[0_0_8px_#1db954]'
+      }`} />
+      <span className="whitespace-nowrap">{toast.message}</span>
     </div>
   );
 };
