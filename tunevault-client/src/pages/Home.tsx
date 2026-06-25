@@ -3,6 +3,8 @@ import { useEffect, useState, useRef } from 'react';
 import { usePlayer } from '../context/PlayerContext';
 import { mediaService } from '../services/mediaService';
 import { albumService } from '../services/albumService';
+import { artistService } from '../services/artistService';
+import { playlistService } from '../services/playlistService';
 import type { AlbumDto } from '../services/albumService';
 import type { MediaItemDto } from '../types';
 import { Disc, Music } from 'lucide-react';
@@ -14,6 +16,7 @@ export const Home = () => {
   const [tracks, setTracks] = useState<MediaItemDto[]>([]);
   const [albums, setAlbums] = useState<AlbumDto[]>([]);
   const [recentItems, setRecentItems] = useState<{isAlbum: boolean, data: any}[]>([]);
+  const [recentCards, setRecentCards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'songs' | 'albums' | 'foryou'>('all');
   const colorCache = useRef<{ [key: string]: string }>({});
@@ -68,15 +71,17 @@ export const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [libData, albumData, historyData] = await Promise.all([
+        const [libData, albumData, artistData, historyData, playlistData] = await Promise.all([
           mediaService.getAllMedia(),
           albumService.getAllAlbums().catch(() => []),
-          mediaService.getRecentHistory(50).catch(() => [])
+          artistService.getAllArtists().catch(() => []),
+          mediaService.getRecentHistory(50).catch(() => []),
+          playlistService.getUserPlaylists().catch(() => [])
         ]);
         setTracks(libData);
         setAlbums(albumData);
         
-        // Process history
+        // Process history for top 2x4 grid
         const uniqueItems = new Map<string, any>();
         for (const item of historyData) {
           if (!item.mediaItem) continue;
@@ -95,6 +100,88 @@ export const Home = () => {
         }
         setRecentItems(Array.from(uniqueItems.values()));
 
+        // Build mixed Recently Played cards
+        const recentlyPlayedCards: any[] = [];
+        const seenKeys = new Set<string>();
+
+        // Load playlists from localStorage
+        let recentPlaylists: any[] = [];
+        try {
+          const localRecentPlaylistsJson = localStorage.getItem('recent_playlists');
+          const localRecentPlaylistIds: string[] = localRecentPlaylistsJson ? JSON.parse(localRecentPlaylistsJson) : [];
+          recentPlaylists = localRecentPlaylistIds
+            .map(id => playlistData.find((p: any) => p.id === id))
+            .filter(Boolean);
+        } catch {}
+
+        // Add playlists
+        for (const playlist of recentPlaylists) {
+          if (playlist && !seenKeys.has(`playlist_${playlist.id}`)) {
+            seenKeys.add(`playlist_${playlist.id}`);
+            recentlyPlayedCards.push({
+              type: 'playlist',
+              id: playlist.id,
+              title: playlist.name,
+              coverUrl: playlist.coverUrl,
+              subtitle: 'Danh sách phát',
+              data: playlist
+            });
+          }
+        }
+
+        // Interleave history items
+        for (const item of historyData) {
+          if (!item.mediaItem) continue;
+          const track = item.mediaItem;
+
+          // Add Artist
+          if (track.artistId) {
+            const artist = artistData.find((a: any) => a.id === track.artistId);
+            if (artist && !seenKeys.has(`artist_${artist.id}`)) {
+              seenKeys.add(`artist_${artist.id}`);
+              recentlyPlayedCards.push({
+                type: 'artist',
+                id: artist.id,
+                title: artist.name,
+                coverUrl: artist.avatarUrl,
+                subtitle: 'Nghệ sĩ',
+                data: artist
+              });
+            }
+          }
+
+          // Add Album
+          if (track.albumId) {
+            const album = albumData.find((a: any) => a.id === track.albumId);
+            if (album && !seenKeys.has(`album_${album.id}`)) {
+              seenKeys.add(`album_${album.id}`);
+              recentlyPlayedCards.push({
+                type: 'album',
+                id: album.id,
+                title: album.title,
+                coverUrl: album.coverUrl,
+                subtitle: `Album • ${album.artistName || 'Nghệ sĩ'}`,
+                data: album
+              });
+            }
+          }
+
+          // Add Track
+          if (!seenKeys.has(`track_${track.id}`)) {
+            seenKeys.add(`track_${track.id}`);
+            recentlyPlayedCards.push({
+              type: 'track',
+              id: track.id,
+              title: track.title,
+              coverUrl: track.coverUrl,
+              subtitle: `Bài hát • ${track.artistName || 'Nghệ sĩ'}`,
+              data: track
+            });
+          }
+        }
+
+        setRecentCards(recentlyPlayedCards.slice(0, 10));
+
       } catch (error) {
         console.error(error);
       } finally {
@@ -106,16 +193,18 @@ export const Home = () => {
 
     window.addEventListener('mediaUpdated', fetchData);
     window.addEventListener('favoritesUpdated', fetchData);
+    window.addEventListener('playlistsUpdated', fetchData);
     return () => {
       window.removeEventListener('mediaUpdated', fetchData);
       window.removeEventListener('favoritesUpdated', fetchData);
+      window.removeEventListener('playlistsUpdated', fetchData);
     };
   }, []);
 
   const handlePlayAlbum = async (e: React.MouseEvent, albumId: string) => {
     e.stopPropagation();
     
-    if (currentMedia?.albumId === albumId) {
+    if (currentMedia?.albumId === albumId && currentMedia?.isAlbumContext) {
       togglePlayPause();
       return;
     }
@@ -137,6 +226,61 @@ export const Home = () => {
     } catch (error) {
       console.error("Lỗi khi phát album:", error);
       showToast("Lỗi khi phát album.", "error");
+    }
+  };
+
+  const isRecentCardPlaying = (item: any) => {
+    if (!isPlaying || !currentMedia) return false;
+    if (item.type === 'track') {
+      return currentMedia.id === item.id;
+    }
+    if (item.type === 'album') {
+      return currentMedia.albumId === item.id && currentMedia.isAlbumContext;
+    }
+    if (item.type === 'artist') {
+      return currentMedia.artistId === item.id && !currentMedia.isAlbumContext;
+    }
+    if (item.type === 'playlist') {
+      return (currentMedia as any).playlistId === item.id;
+    }
+    return false;
+  };
+
+  const handlePlayRecentCard = async (e: React.MouseEvent, item: any) => {
+    e.stopPropagation();
+    const isPlayingThis = isRecentCardPlaying(item);
+    if (isPlayingThis) {
+      togglePlayPause();
+      return;
+    }
+
+    try {
+      if (item.type === 'track') {
+        playMediaList([item.data], 0);
+      } else if (item.type === 'album') {
+        handlePlayAlbum(e, item.id);
+      } else if (item.type === 'artist') {
+        const artistTracks = tracks.filter(t => t.artistId === item.id);
+        if (artistTracks.length > 0) {
+          playMediaList(artistTracks, 0);
+        } else {
+          showToast("Nghệ sĩ này chưa có bài hát nào.", "info");
+        }
+      } else if (item.type === 'playlist') {
+        const playlistDetail = await playlistService.getPlaylistDetails(item.id);
+        if (playlistDetail.tracks && playlistDetail.tracks.length > 0) {
+          const tracksToPlay = playlistDetail.tracks.map(t => ({
+            ...t,
+            playlistId: item.id
+          }));
+          playMediaList(tracksToPlay, 0);
+        } else {
+          showToast("Danh sách phát này chưa có bài hát nào.", "info");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Không thể phát nội dung này.", "error");
     }
   };
 
@@ -214,6 +358,75 @@ export const Home = () => {
                       )}
                     </button>
                   </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* Recently Played Shelf */}
+      {activeTab === 'all' && !loading && recentCards.length > 0 && (
+        <section className="mb-10">
+          <div className="flex items-end justify-between mb-4 mt-2">
+            <div>
+              <h2 className="text-2xl font-bold text-white hover:underline cursor-pointer">Gần đây đã nghe</h2>
+            </div>
+          </div>
+          <div className="flex overflow-x-auto gap-4 pb-4 custom-scrollbar">
+            {recentCards.map((item) => {
+              const isPlayingThis = isRecentCardPlaying(item);
+              const isArtist = item.type === 'artist';
+              
+              const handleClick = () => {
+                if (item.type === 'track') {
+                  playMediaList([item.data], 0);
+                } else if (item.type === 'album') {
+                  navigate(`/album/${item.id}`);
+                } else if (item.type === 'artist') {
+                  navigate(`/artist/${item.id}`);
+                } else if (item.type === 'playlist') {
+                  navigate(`/playlist/${item.id}`);
+                }
+              };
+
+              return (
+                <div
+                  key={`${item.type}_${item.id}`}
+                  onClick={handleClick}
+                  className="p-3 rounded-md bg-transparent hover:bg-[#282828] transition-all duration-300 cursor-pointer group relative flex flex-col min-w-[180px] w-[180px] flex-shrink-0"
+                >
+                  <div className={`w-full aspect-square bg-zinc-800 mb-4 shadow-lg flex items-center justify-center relative overflow-hidden group-hover:shadow-xl transition-all duration-300 ${isArtist ? 'rounded-full' : 'rounded-md'}`}>
+                    {item.coverUrl ? (
+                      <img 
+                        src={getImageUrl(item.coverUrl)} 
+                        alt={item.title} 
+                        className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${isArtist ? 'rounded-full' : 'rounded-md'}`} 
+                      />
+                    ) : (
+                      <div className={`w-full h-full flex items-center justify-center ${isArtist ? 'bg-zinc-700' : 'bg-gradient-to-br from-zinc-700 to-zinc-800'}`}>
+                        {isArtist ? (
+                          <span className="text-white/30 font-bold text-4xl">{item.title.charAt(0).toUpperCase()}</span>
+                        ) : (
+                          <Disc size={64} className="text-white/30" />
+                        )}
+                      </div>
+                    )}
+                    <button
+                      onClick={(e) => handlePlayRecentCard(e, item)}
+                      className={`absolute bottom-2 right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-black transition-all duration-200 shadow-xl z-20 hover:scale-110 hover:bg-green-400 hover:shadow-2xl ${isPlayingThis ? 'opacity-100 translate-y-0' : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}
+                    >
+                      {isPlayingThis && isPlaying ? (
+                        <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z"></path></svg>
+                      ) : (
+                        <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+                      )}
+                    </button>
+                  </div>
+                  <h3 className="font-bold text-white truncate text-base">{item.title}</h3>
+                  <p className="text-sm text-zinc-400 mt-1 truncate">
+                    {item.subtitle}
+                  </p>
                 </div>
               );
             })}

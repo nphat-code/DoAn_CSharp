@@ -79,6 +79,18 @@ export const PlaylistDetail = () => {
       if (id) {
         const data = await playlistService.getPlaylistDetails(id);
         setPlaylist(data);
+
+        // Save to recent playlists in localStorage
+        try {
+          const existing = localStorage.getItem('recent_playlists');
+          let ids: string[] = existing ? JSON.parse(existing) : [];
+          ids = ids.filter(x => x !== data.id);
+          ids.unshift(data.id);
+          localStorage.setItem('recent_playlists', JSON.stringify(ids.slice(0, 10)));
+          window.dispatchEvent(new Event('playlistsUpdated'));
+        } catch (e) {
+          console.error(e);
+        }
       }
     } catch (error) {
       console.error(error);
