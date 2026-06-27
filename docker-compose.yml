@@ -1,0 +1,53 @@
+
+services:
+  # Database PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: tunevault_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: your_password_here
+      POSTGRES_DB: TuneVaultDb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Backend .NET API
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tunevault_backend
+    environment:
+      # Ghi đè chuỗi kết nối để trỏ tới container db thay vì localhost
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=TuneVaultDb;Username=postgres;Password=your_password_here
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  # Frontend React (Vite)
+  frontend:
+    image: node:20-alpine
+    container_name: tunevault_frontend
+    working_dir: /app
+    # Mount thư mục tunevault-client vào /app trong container để nhận code mới nhất
+    volumes:
+      - ./tunevault-client:/app
+      - /app/node_modules # Tránh ghi đè thư mục node_modules của container
+    environment:
+      - VITE_API_URL=http://localhost:8080
+    # Cài đặt thư viện và chạy server vite, phơi ra ngoài với --host
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

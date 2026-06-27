@@ -1,0 +1,342 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{setspace}
+
+% Căn lề chuẩn cho báo cáo đồ án
+\geometry{
+  a4paper,
+  left=30mm,
+  right=20mm,
+  top=20mm,
+  bottom=20mm,
+}
+
+\begin{document}
+
+\begin{titlepage}
+    \begin{center}
+        \vspace*{0.5cm}
+        
+        % Tiêu đề trường và khoa
+        \textbf{\Large TRƯỜNG ĐẠI HỌC SÀI GÒN} \\
+        \vspace{0.2cm}
+        \textbf{\Large KHOA CÔNG NGHỆ THÔNG TIN} \\
+        \vspace{1cm}
+        
+        % Chèn logo khoa (Bạn hãy thay thế 'logo_khoa.png' bằng tên file ảnh thật)
+        \includegraphics[width=4cm]{logo_khoa.png} \\
+
+        \vspace{1cm}
+        
+        % Tên môn học (Tiếng Anh)
+        \textbf{\Large C\# PROGRAMMING LANGUAGE} \\
+        \vspace{1.5cm}
+        
+        % Tiêu đề bài tập lớn
+        \textbf{\huge BÀI TẬP LỚN} \\
+        \vspace{0.5cm}
+        \textbf{\Large Đề tài: Media Streaming Web Application} \\
+        
+        \vspace{2cm}
+        
+        % Thông tin môn học & Học kỳ
+        \begin{flushleft}
+            \large
+            \textbf{Môn học:} C\# and .NET Development \\
+            \textbf{Học kỳ:} Học kỳ 3 2026 \\
+        \end{flushleft}
+        
+        \vspace{1cm}
+        
+        % Thông tin sinh viên
+        \begin{flushleft}
+            \large
+            \textbf{Giảng viên hướng dẫn:} Ths. Từ Lãng Phiêu \\
+            \vspace{0.8cm}
+            \large
+            \textbf{Sinh viên thực hiện:} \\
+            \vspace{0.3cm}
+            \begin{tabular}{ll}
+                Nguyễn Tấn Phát & - 3124410265 \\
+            \end{tabular}
+        \end{flushleft}
+        
+        \vfill % Đẩy phần dưới cùng xuống đáy trang
+        
+        % Địa điểm, thời gian
+        \textbf{\large TP. Hồ Chí Minh, Năm 2026}
+        
+    \end{center}
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Giới thiệu}
+\subsection{Mục tiêu đồ án}
+Dự án TuneVault được phát triển với mục tiêu xây dựng một nền tảng phát nhạc và video trực tuyến (Media Streaming), kết hợp các tính năng mạng xã hội như chia sẻ media và nhận thông báo theo thời gian thực (real-time).
+
+\subsection{Công nghệ sử dụng}
+\begin{itemize}
+    \item \textbf{Frontend:} React 18, TypeScript, Tailwind CSS, Vite.
+    \item \textbf{Backend:} ASP.NET Core 8 Web API, SignalR.
+    \item \textbf{Cơ sở dữ liệu:} PostgreSQL, kết hợp với Dapper.
+\end{itemize}
+
+\section{Kiến trúc hệ thống và Cơ sở dữ liệu}
+\subsection{Clean Architecture}
+Dự án được phân tách thành 4 lớp rõ rệt theo chuẩn Clean Architecture để đảm bảo tính dễ bảo trì và khả năng mở rộng:
+\begin{itemize}
+    \item \textbf{Domain:} Chứa các Entities, Enums và Interfaces cốt lõi.
+    \item \textbf{Application:} Chứa Use Cases (xử lý qua MediatR), DTOs, và Validators.
+    \item \textbf{Infrastructure:} Chịu trách nhiệm giao tiếp với CSDL, File Storage và SignalR.
+    \item \textbf{API (Presentation):} Chứa các Controllers tiếp nhận HTTP requests và trả về HTTP responses.
+\end{itemize}
+
+\subsection{Lựa chọn ORM}
+Trong dự án này, em quyết định sử dụng \textbf{Dapper} kết hợp với Repository Pattern. Dapper là một Micro-ORM nhẹ, giúp tối ưu hóa tối đa hiệu năng truy vấn, đồng thời mang lại sự linh hoạt cao khi cho phép viết và kiểm soát trực tiếp các câu lệnh SQL phức tạp.
+
+\section{Mô tả các chức năng hệ thống}
+
+\subsection{Xác thực (Authentication)}
+\begin{itemize}
+    \item \textbf{Mô tả:} Chức năng đăng ký, đăng nhập và cấp phát JWT Token cho người dùng, hỗ trợ cả luồng đăng nhập truyền thống (Email/Password có xác thực OTP) và đăng nhập nhanh qua Google OAuth.
+    \item \textbf{API Backend:}
+    \begin{itemize}
+        \item \texttt{GET /api/auth/check-email?email=\{email\}}: Kiểm tra trùng lặp email.
+        \item \texttt{POST /api/auth/register}: Đăng ký tài khoản bằng email/mật khẩu.
+        \item \texttt{POST /api/auth/login}: Đăng nhập bằng email và mật khẩu.
+        \item \texttt{POST /api/auth/send-otp}: Gửi mã OTP xác nhận về email.
+        \item \texttt{POST /api/auth/verify-otp}: Xác minh mã OTP để hoàn tất quá trình.
+        \item \texttt{POST /api/auth/google}: Đăng nhập/Đăng ký nhanh bằng Access Token của Google.
+    \end{itemize}
+    \item \textbf{Application Pipeline:} Tầng Application dùng MediatR để điều phối thông qua các class: \texttt{LoginCommand}, \texttt{RegisterCommand}, \texttt{GoogleLoginCommand}. Pipeline chịu trách nhiệm mã hóa mật khẩu, kiểm tra token Google và phát hành JWT Token.
+    \item \textbf{Màn hình React tương ứng:} Trang \texttt{Login.tsx} / \texttt{Register.tsx} có chứa form nhập liệu và nút \texttt{<GoogleLogin />} native.
+    \begin{center}
+        \begin{tabular}{@{}cc@{}}
+            \includegraphics[width=0.45\textwidth]{feature_1a.png} & 
+            \includegraphics[width=0.45\textwidth]{feature_1b.png} \\
+        \end{tabular} \\
+        \vspace{0.2cm}
+        \textit{Hình 1: Màn hình Đăng nhập (trái) và Đăng ký (phải)}
+    \end{center}
+\end{itemize}
+
+\subsection{Hồ sơ người dùng (User Profile)}
+\begin{itemize}
+    \item \textbf{Mô tả:} Chức năng cho phép người dùng xem thông tin cá nhân hiện tại, thay đổi tên hiển thị, tiểu sử (bio) và ảnh đại diện (avatar).
+    \item \textbf{API Backend:}
+    \begin{itemize}
+        \item \texttt{GET /api/profile}: Lấy thông tin hồ sơ của người dùng hiện tại (dựa vào JWT).
+        \item \texttt{GET /api/profile/\{id\}}: Lấy thông tin hồ sơ của người dùng khác qua ID.
+        \item \texttt{PUT /api/profile}: Cập nhật thông tin cơ bản (tên, tiểu sử).
+        \item \texttt{PUT /api/profile/avatar}: Upload và cập nhật ảnh đại diện mới.
+        \item \texttt{GET /api/profile/search?q=\{query\}}: Tìm kiếm danh sách người dùng theo tên.
+        \item \texttt{DELETE /api/profile}: Xóa tài khoản cá nhân của người dùng hiện tại.
+        \item \texttt{DELETE /api/profile/\{id\}}: Xóa tài khoản của người dùng khác (chỉ dành cho Admin).
+    \end{itemize}
+    \item \textbf{Application Pipeline:} Sử dụng \texttt{GetProfileQuery} để truy xuất dữ liệu từ CSDL, và \texttt{UpdateProfileCommand} để thực thi việc cập nhật file ảnh avatar (lưu trữ vật lý) cùng siêu dữ liệu.
+    \item \textbf{Màn hình React tương ứng:} Trang \texttt{Profile.tsx} hiển thị thông tin và Modal \texttt{EditProfile} để chỉnh sửa.
+    \begin{center}
+        \begin{tabular}{@{}cc@{}}
+            \includegraphics[width=0.45\textwidth]{feature_2a.png} & 
+            \includegraphics[width=0.45\textwidth]{feature_2b.png} \\
+        \end{tabular} \\
+        \vspace{0.2cm}
+        \textit{Hình 2: Màn hình Hồ sơ (trái) và Modal Edit Profile (phải)}
+    \end{center}
+\end{itemize}
+
+\subsection{Thư viện Media (Upload \& Quản lý Media)}
+\begin{itemize}
+    \item \textbf{Mô tả:} Chức năng dành cho tài khoản Admin tải lên các tệp âm thanh hoặc video, bao gồm hình ảnh cover và thông tin siêu dữ liệu (Tên bài, Nghệ sĩ, Album).
+    \item \textbf{API Backend:}
+    \begin{itemize}
+        \item \texttt{POST /api/media/upload}: Upload file audio/video kèm cover image (yêu cầu quyền Admin).
+        \item \texttt{GET /api/media}: Lấy danh sách toàn bộ media trong hệ thống.
+        \item \texttt{GET /api/media/\{id\}/stream}: Cung cấp luồng dữ liệu (stream) cho Player.
+        \item \texttt{GET /api/media/search}: Tìm kiếm, lọc danh sách media theo từ khóa và phân trang.
+        \item \texttt{DELETE /api/media/\{id\}}: Xóa file và bản ghi media khỏi hệ thống (yêu cầu quyền Admin).
+    \end{itemize}
+    \item \textbf{Application Pipeline:} Sử dụng \texttt{UploadMediaCommand}. Pipeline thực hiện phân quyền (Authorization behavior), lưu file media và cover xuống ổ đĩa, sau đó tạo bản ghi vào bảng \texttt{MediaItem} qua Dapper.
+    \item \textbf{Màn hình React tương ứng:} Trang \texttt{AdminDashboard.tsx} để xem/xóa danh sách media và Modal \texttt{UploadModal.tsx} với form tải nhạc lên.
+    \begin{center}
+        \begin{tabular}{@{}cc@{}}
+            \includegraphics[width=0.45\textwidth]{feature_3a.png} & 
+            \includegraphics[width=0.45\textwidth]{feature_3b.png} \\
+        \end{tabular} \\
+        \vspace{0.2cm}
+        \textit{Hình 3: Trang Quản trị Admin (trái) và Modal Tải nhạc lên (phải)}
+    \end{center}
+\end{itemize}
+
+\subsection{Audio Player (Phát Audio)}
+\begin{itemize}
+    \item \textbf{Mô tả:} Tính năng phát nhạc (stream audio) đáp ứng tức thời, cho phép người dùng play, pause, seek (tua) bài hát.
+    \item \textbf{API Backend:}
+    \begin{itemize}
+        \item \texttt{GET /api/media/\{id\}/stream}: Trả về luồng dữ liệu tệp âm thanh (hỗ trợ HTTP Range requests).
+    \end{itemize}
+    \item \textbf{Application Pipeline:} Dùng \texttt{GetMediaStreamQuery} để xác định file path từ database. Controller trả về \texttt{PhysicalFile(..., enableRangeProcessing: true)} để cho phép client tải nhạc theo từng phần nhỏ (chunk) tối ưu tốc độ.
+    \item \textbf{Màn hình React tương ứng:} Component \texttt{PlayerBar.tsx} ghim cố định ở đáy màn hình (kiểu Spotify), kết nối với thẻ HTML5 \texttt{<audio>}.
+    \begin{center}
+        \includegraphics[width=0.85\textwidth]{feature_4.png} \\
+        \textit{Hình 4: Trình phát Audio}
+    \end{center}
+\end{itemize}
+
+\subsection{Video Player (Phát Video)}
+\begin{itemize}
+    \item \textbf{Mô tả:} Trình phát video chất lượng cao hiển thị dạng Modal hoặc Full-page, cho phép tua nhanh video một cách mượt mà.
+    \item \textbf{API Backend:}
+    \begin{itemize}
+        \item \texttt{GET /api/media/\{id\}/stream}: Tái sử dụng endpoint stream của Audio để trả về luồng video.
+    \end{itemize}
+    \item \textbf{Application Pipeline:} Tương tự như Audio, nhưng MIME type được xác định linh hoạt là \texttt{video/mp4} hoặc \texttt{video/webm}. Dựa vào cờ \texttt{enableRangeProcessing}, server tự động phản hồi các yêu cầu Partial Content (206) từ thẻ video HTML5.
+    \item \textbf{Màn hình React tương ứng:} Sử dụng Component \texttt{VideoCanvas.tsx} để vẽ khung hình từ thẻ \texttt{<video>} ẩn lên các thẻ \texttt{<canvas>}, được hiển thị tại thanh bên \texttt{RightPanel.tsx} và giao diện phát toàn màn hình \texttt{NowPlaying.tsx}.
+    \begin{center}
+        \begin{tabular}{@{}cc@{}}
+            \includegraphics[width=0.45\textwidth]{feature_5a.png} & 
+            \includegraphics[width=0.45\textwidth]{feature_5b.png} \\
+        \end{tabular} \\
+        \vspace{0.2cm}
+        \textit{Hình 5: Video đang phát ở thanh bên (trái) và ở chế độ Toàn màn hình (phải)}
+    \end{center}
+\end{itemize}
+
+\subsection{Playlist (Quản lý danh sách phát)}
+\begin{itemize}
+    \item \textbf{Mô tả:} Quản lý danh sách phát cá nhân, thiết lập quyền xem (công khai/ẩn), và thêm hoặc xóa bài hát.
+    \item \textbf{API Backend:}
+    \begin{itemize}
+        \item \texttt{GET /api/playlists}: Lấy danh sách playlist của người dùng hiện tại.
+        \item \texttt{GET /api/playlists/user/\{userId\}}: Lấy danh sách playlist công khai của người dùng bất kỳ.
+        \item \texttt{GET /api/playlists/\{id\}}: Xem chi tiết danh sách bài hát trong một playlist.
+        \item \texttt{POST /api/playlists}: Tạo playlist mới.
+        \item \texttt{PUT /api/playlists/\{id\}}: Đổi tên, mô tả hoặc thay đổi trạng thái công khai.
+        \item \texttt{DELETE /api/playlists/\{id\}}: Xóa playlist.
+        \item \texttt{POST /api/playlists/\{playlistId\}/tracks/\{mediaItemId\}}: Thêm bài hát vào playlist.
+        \item \texttt{DELETE /api/playlists/\{playlistId\}/tracks/\{mediaItemId\}}: Gỡ bài hát khỏi playlist.
+    \end{itemize}
+    \item \textbf{Application Pipeline:} Xử lý bằng \texttt{CreatePlaylistCommand}, \texttt{UpdatePlaylistCommand}, \texttt{DeletePlaylistCommand}. Đối với thao tác bài hát thì dùng \texttt{AddTrackToPlaylistCommand} và \texttt{RemoveTrackFromPlaylistCommand}. 
+    \item \textbf{Màn hình React tương ứng:} Vùng Sidebar hiển thị danh sách playlist của user, và trang \texttt{PlaylistDetail.tsx} liệt kê các bài hát bên trong.
+    \begin{center}
+        \includegraphics[width=0.85\textwidth]{feature_6.png} \\
+        \textit{Hình 6: Màn hình Playlist}
+    \end{center}
+\end{itemize}
+
+\subsection{Tìm kiếm \& Khám phá (Search \& Discovery)}
+\begin{itemize}
+    \item \textbf{Mô tả:} Thanh tìm kiếm đa năng cho phép tra cứu theo tên bài hát, nghệ sĩ, hoặc tên playlist, có hỗ trợ phân trang để tối ưu.
+    \item \textbf{API Backend:}
+    \begin{itemize}
+        \item \texttt{GET /api/media/search?q=\{query\}\&page=\{page\}\&pageSize=\{size\}}: Truy vấn tìm kiếm đa đối tượng dựa trên từ khóa.
+    \end{itemize}
+    \item \textbf{Application Pipeline:} Gửi \texttt{SearchMediaQuery} chứa từ khóa, số trang. Handler tiến hành truy vấn DB (sử dụng toán tử LIKE) lên nhiều bảng (Tracks, Artists, Playlists) và trả về DTO tổng hợp kết quả.
+    \item \textbf{Màn hình React tương ứng:} Trang \texttt{Search.tsx} có ô input và hiển thị danh sách kết quả chia thành các danh mục (Songs, Artists, Playlists).
+    \begin{center}
+        \includegraphics[width=0.85\textwidth]{feature_7.png} \\
+        \textit{Hình 7: Màn hình Tìm kiếm}
+    \end{center}
+\end{itemize}
+
+\subsection{Chia sẻ Media (Media Sharing)}
+\begin{itemize}
+    \item \textbf{Mô tả:} Gửi một bài hát hoặc toàn bộ playlist cho người dùng khác trong hệ thống, và xem lịch sử các file media người khác gửi cho mình.
+    \item \textbf{API Backend:}
+    \begin{itemize}
+        \item \texttt{POST /api/share}: Chia sẻ một media hoặc playlist cho user khác.
+        \item \texttt{GET /api/share/me}: Lấy danh sách những media/playlist người khác chia sẻ "Cho tôi".
+        \item \texttt{GET /api/share/by-me}: Lấy danh sách những media/playlist "Do tôi" gửi đi.
+    \end{itemize}
+    \item \textbf{Application Pipeline:} Điều phối qua \texttt{ShareMediaCommand} (hoặc SharePlaylistCommand). Pipeline kiểm tra người nhận có tồn tại không, sau đó ghi một bản ghi vào entity \texttt{MediaShare}.
+    \item \textbf{Màn hình React tương ứng:} Component Modal \texttt{ShareMediaModal.tsx} (khi nhấn chia sẻ) và Trang \textbf{Trung tâm chia sẻ} (gồm tab Nhận và tab Gửi).
+    \begin{center}
+        \begin{tabular}{@{}cc@{}}
+            \includegraphics[width=0.45\textwidth]{feature_8a.png} & 
+            \includegraphics[width=0.45\textwidth]{feature_8b.png} \\
+        \end{tabular} \\
+        \vspace{0.2cm}
+        \textit{Hình 8: Modal gửi bài hát (trái) và Trung tâm chia sẻ (phải)}
+    \end{center}
+\end{itemize}
+
+\subsection{Thông báo (Real-time Notifications)}
+\begin{itemize}
+    \item \textbf{Mô tả:} Đẩy thông báo theo thời gian thực cho người dùng mỗi khi có người chia sẻ media mới, và quản lý trạng thái Đọc/Chưa đọc.
+    \item \textbf{API Backend:}
+    \begin{itemize}
+        \item \texttt{GET /api/notifications}: Lấy danh sách các thông báo của người dùng.
+        \item \texttt{PUT /api/notifications/\{id\}/read}: Đánh dấu một thông báo cụ thể là đã đọc.
+        \item \texttt{PUT /api/notifications/read-all}: Đánh dấu toàn bộ là đã đọc.
+    \end{itemize}
+    \item \textbf{Application Pipeline:} Khi \texttt{ShareMediaCommand} thực thi thành công, một Domain Event được kích hoạt để lưu bản ghi Notification. Tầng Infrastructure sẽ dùng \texttt{NotificationHub} (SignalR) bắn thông báo qua WebSocket tới đúng user mục tiêu.
+    \item \textbf{Màn hình React tương ứng:} Biểu tượng cái chuông trên Navbar có hiện số (Notification Badge), và menu dropdown hiển thị list thông báo được quản lý bởi \texttt{NotificationContext.tsx}.
+    \begin{center}
+        \includegraphics[width=0.85\textwidth]{feature_9.png} \\
+        \textit{Hình 9: Màn hình Thông báo}
+    \end{center}
+\end{itemize}
+
+\subsection{Tương tác \& Lịch sử (Interactions \& History)}
+\begin{itemize}
+    \item \textbf{Mô tả:} Thả tim (Favorite) lưu bài hát yêu thích và tự động ghi nhận lại những bài hát gần đây người dùng đã nghe.
+    \item \textbf{API Backend:}
+    \begin{itemize}
+        \item \texttt{POST /api/favorites/toggle/\{mediaId\}}: Thêm/Xóa bài hát khỏi danh sách yêu thích.
+        \item \texttt{GET /api/favorites/check/\{mediaId\}}: Kiểm tra trạng thái thích của bài hát hiện tại.
+        \item \texttt{GET /api/favorites}: Lấy toàn bộ bài hát yêu thích.
+        \item \texttt{POST /api/history/play/\{mediaId\}}: Ghi lại lịch sử khi bắt đầu nghe 1 bài hát.
+        \item \texttt{GET /api/history}: Lấy danh sách lịch sử nghe nhạc gần đây (Recently Played).
+    \end{itemize}
+    \item \textbf{Application Pipeline:} Nhấn thả tim sẽ gọi \texttt{ToggleFavoriteCommand}. Khi phát một media, Frontend tự động ngầm gửi \texttt{RecordPlayHistoryCommand}.
+    \item \textbf{Màn hình React tương ứng:} Trang \textbf{Bài hát đã thích} (chứa danh sách favorites) và khối (Shelf) "Gần đây đã nghe" trên trang chủ \texttt{Home.tsx}.
+    \begin{center}
+        \begin{tabular}{@{}cc@{}}
+            \includegraphics[width=0.45\textwidth]{feature_10a.png} & 
+            \includegraphics[width=0.45\textwidth]{feature_10b.png} \\
+        \end{tabular} \\
+        \vspace{0.2cm}
+        \textit{Hình 10: Trang Bài hát đã thích (trái) và Danh sách "Gần đây đã nghe" (phải)}
+    \end{center}
+\end{itemize}
+
+\section{Khó khăn và Hướng giải quyết}
+Trong quá trình thực hiện đồ án, em đã gặp phải một số khó khăn về mặt kỹ thuật và nghiệp vụ:
+
+\begin{enumerate}
+    \item \textbf{Khó khăn về Quản lý Authentication với SignalR:}
+    \begin{itemize}
+        \item \textit{Mô tả lỗi:} Kết nối SignalR thường xuyên bị ngắt hoặc báo lỗi 401 Unauthorized do token JWT chưa được đính kèm đúng cách trong quá trình khởi tạo kết nối.
+        \item \textit{Cách giải quyết:} Em đã cấu hình lại \texttt{NotificationProvider} ở frontend để tự động đính kèm \texttt{access\_token} vào query string của URL khi khởi tạo \texttt{HubConnection}. Đồng thời triển khai cơ chế tự động kết nối lại (Automatic Reconnect).
+    \end{itemize}
+    
+    \item \textbf{Khó khăn về tích hợp Google OAuth:}
+    \begin{itemize}
+        \item \textit{Mô tả lỗi:} Trình duyệt chặn popup và xuất hiện lỗi CORS / COOP khi đăng nhập qua Google.
+        \item \textit{Cách giải quyết:} Chuyển sang sử dụng Native \texttt{<GoogleLogin />} Component để tương thích tốt hơn với chuẩn bảo mật của trình duyệt, đồng thời cấu hình lại chính sách header ở server để luồng OAuth hoạt động mượt mà.
+    \end{itemize}
+\end{enumerate}
+
+\section{Tổng kết và Hướng phát triển}
+\subsection{Tổng kết}
+Thông qua việc thực hiện đồ án \textbf{TuneVault}, em đã nắm bắt và áp dụng thành công mô hình \textbf{Clean Architecture} cùng các nguyên lý thiết kế phần mềm hiện đại như \textbf{CQRS (sử dụng MediatR)}. Hệ thống đã hoàn thiện 10 chức năng cốt lõi của một ứng dụng Media Streaming, từ thao tác cơ bản như Quản lý người dùng, Phát nhạc/video cho đến các nghiệp vụ phức tạp như Chia sẻ nội dung và đẩy Thông báo theo thời gian thực (\textbf{SignalR}).
+
+Bên cạnh đó, việc ứng dụng \textbf{Dapper} làm Micro-ORM kết hợp với hệ quản trị cơ sở dữ liệu \textbf{PostgreSQL} đã giúp tối ưu hóa tốc độ truy vấn. Phía Frontend, \textbf{React (TypeScript)} và \textbf{Tailwind CSS} đã mang lại trải nghiệm người dùng mượt mà. Đặc biệt, hệ thống đã được \textbf{Container hóa (Dockerized)} thành công thông qua Docker Compose, giúp quá trình triển khai và vận hành trở nên đồng bộ và dễ dàng trên mọi môi trường. Đồ án thực sự là một bài học toàn diện về kỹ năng lập trình Full-stack, cách tổ chức mã nguồn và vận hành hệ thống thực tế.
+
+\subsection{Hướng phát triển tương lai}
+\begin{itemize}
+    \item \textbf{Tích hợp AI Gợi ý nội dung nâng cao:} Nghiên cứu và tự động hóa các thuật toán Machine Learning để phân tích sâu thói quen nghe nhạc, xây dựng hệ thống đề xuất (Recommendation System) mang tính cá nhân hóa cao hơn.
+    \item \textbf{Tối ưu hóa công nghệ Streaming:} Áp dụng giao thức \textbf{HLS (HTTP Live Streaming)} thay cho cơ chế HTTP Range hiện tại để hỗ trợ Adaptive Bitrate, tối ưu chất lượng âm thanh/video theo điều kiện mạng thực tế.
+    \item \textbf{Cải thiện kiến trúc \& Hiệu năng:} Triển khai hệ thống bộ nhớ đệm \textbf{Redis Cache} và từng bước chia tách các chức năng lớn thành \textbf{Microservices} độc lập để tăng cường khả năng chịu tải của hệ thống.
+    \item \textbf{Triển khai CI/CD \& Điện toán đám mây:} Thiết lập luồng tự động hóa tích hợp và triển khai liên tục (\textbf{CI/CD}) thông qua GitHub Actions để tự động deploy các container Docker lên nền tảng Cloud (AWS/Azure).
+    \item \textbf{Phát triển ứng dụng Di động (Mobile App):} Mở rộng hệ sinh thái bằng việc phát triển phiên bản di động (iOS/Android) sử dụng framework đa nền tảng như React Native.
+\end{itemize}
+
+\end{document}
