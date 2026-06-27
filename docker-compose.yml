@@ -41,7 +41,7 @@ services:
       - ./tunevault-client:/app
       - /app/node_modules # Tránh ghi đè thư mục node_modules của container
     environment:
-      - VITE_API_URL=http://localhost:8080
+      - VITE_API_URL=http://localhost:8080/api
     # Cài đặt thư viện và chạy server vite, phơi ra ngoài với --host
     command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
     ports:
