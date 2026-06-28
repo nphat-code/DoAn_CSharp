@@ -128,9 +128,7 @@ export const PlaylistDetail = () => {
     if (!id) return;
     try {
       await playlistService.addTrackToPlaylist(id, track.id);
-      // Thêm ngay vào state để cập nhật UI
       setPlaylist(prev => prev ? { ...prev, tracks: [...prev.tracks, track] } : null);
-      // Xóa khỏi kết quả tìm kiếm
       setAddResults(prev => prev.filter(t => t.id !== track.id));
       showToast(`Đã thêm ${track.title} vào danh sách phát`, "success");
     } catch (error) {
@@ -158,8 +156,6 @@ export const PlaylistDetail = () => {
       }
     }
   };
-
-
 
   const handleDeletePlaylist = async () => {
     if (!id) return;
