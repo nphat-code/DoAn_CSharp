@@ -50,8 +50,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const [showQueue, setShowQueue] = useState(false);
   const [isExpandedView, setIsExpandedView] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  
-  // Toast Notification State
+
   const [toast, setToast] = useState<ToastInfo | null>(null);
   const toastTimeoutRef = useRef<any>(null);
 

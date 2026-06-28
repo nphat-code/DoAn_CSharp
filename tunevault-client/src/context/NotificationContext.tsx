@@ -32,7 +32,6 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    // Fetch existing notifications
     const fetchNotifications = async () => {
       try {
         const response = await apiClient.get('/notifications');
@@ -41,17 +40,15 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
         console.error('Error fetching notifications:', error);
       }
     };
-    
+
     fetchNotifications();
 
     let connection: signalR.HubConnection | null = null;
     let isCancelled = false;
 
     const startConnection = async () => {
-      // Delay to let the page fully settle after redirect (window.location.href = '/')
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // Re-check token (it may have been cleared by a 401 interceptor)
       const currentToken = localStorage.getItem('token');
       if (!currentToken || isCancelled) return;
 
@@ -63,25 +60,22 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
         .configureLogging(signalR.LogLevel.Error)
         .build();
 
-      // Listen for real-time notifications
       connection.on("ReceiveNotification", (notification: Notification) => {
         setNotifications(prev => [notification, ...prev]);
       });
 
-      // Retry with exponential backoff
       const maxRetries = 3;
       for (let attempt = 0; attempt < maxRetries; attempt++) {
         if (isCancelled) return;
         try {
           await connection.start();
           console.log("SignalR Connected!");
-          return; // success — stop retrying
+          return;
         } catch {
           if (attempt < maxRetries - 1) {
-            const delay = Math.pow(2, attempt) * 1000; // 1s, 2s, 4s
+            const delay = Math.pow(2, attempt) * 1000;
             await new Promise(resolve => setTimeout(resolve, delay));
           }
-          // Silent retry — no console noise
         }
       }
     };
@@ -95,38 +89,34 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const markAsRead = async (id: string) => {
-    // Optimistic update
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
     try {
       await apiClient.put(`/notifications/${id}/read`);
     } catch (error) {
       console.error('Error marking notification as read:', error);
-      // Revert
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: false } : n));
     }
   };
 
   const markAllAsRead = async () => {
-    // Optimistic update
     const previous = [...notifications];
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     try {
       await apiClient.put(`/notifications/read-all`);
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
-      // Revert
       setNotifications(previous);
     }
   };
 
   return (
-    <NotificationContext.Provider value={{ 
-        notifications, 
-        unreadCount, 
-        markAsRead, 
-        markAllAsRead,
-        isDropdownOpen,
-        setIsDropdownOpen 
+    <NotificationContext.Provider value={{
+      notifications,
+      unreadCount,
+      markAsRead,
+      markAllAsRead,
+      isDropdownOpen,
+      setIsDropdownOpen
     }}>
       {children}
     </NotificationContext.Provider>

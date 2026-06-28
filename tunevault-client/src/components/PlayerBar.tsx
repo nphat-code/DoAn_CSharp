@@ -12,6 +12,7 @@ export const PlayerBar = () => {
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [isBuffering, setIsBuffering] = useState(false);
 
   const formatTime = (time: number) => {
     if (isNaN(time)) return "0:00";
@@ -23,7 +24,12 @@ export const PlayerBar = () => {
   useEffect(() => {
     if (mediaRef.current) {
       if (isPlaying) {
-        mediaRef.current.play().catch(e => console.error("Lỗi tự động phát:", e));
+        setIsBuffering(true);
+        mediaRef.current.play().catch(e => {
+          console.error("Lỗi tự động phát:", e);
+          setIsBuffering(false);
+          showToast("Không thể phát bài hát này. Có thể do lỗi mạng hoặc trình duyệt chặn Autoplay.", "error");
+        });
       } else {
         mediaRef.current.pause();
       }
@@ -50,12 +56,29 @@ export const PlayerBar = () => {
     };
 
     const handleEnded = () => {
+      setIsBuffering(false);
       playNext();
+    };
+
+    const handleWaiting = () => {
+      setIsBuffering(true);
+    };
+
+    const handlePlaying = () => {
+      setIsBuffering(false);
+    };
+
+    const handleError = () => {
+      setIsBuffering(false);
+      showToast("Lỗi tải bài hát. Vui lòng kiểm tra lại kết nối mạng.", "error");
     };
 
     media.addEventListener('timeupdate', handleTimeUpdate);
     media.addEventListener('loadedmetadata', handleLoadedMetadata);
     media.addEventListener('ended', handleEnded);
+    media.addEventListener('waiting', handleWaiting);
+    media.addEventListener('playing', handlePlaying);
+    media.addEventListener('error', handleError);
     
     if (media.readyState >= 1) {
       setDuration(media.duration);
@@ -65,6 +88,9 @@ export const PlayerBar = () => {
       media.removeEventListener('timeupdate', handleTimeUpdate);
       media.removeEventListener('loadedmetadata', handleLoadedMetadata);
       media.removeEventListener('ended', handleEnded);
+      media.removeEventListener('waiting', handleWaiting);
+      media.removeEventListener('playing', handlePlaying);
+      media.removeEventListener('error', handleError);
     };
   }, [currentMedia, mediaRef, playNext]);
 
@@ -269,7 +295,10 @@ export const PlayerBar = () => {
       <div className="flex flex-col items-center w-1/3 max-w-md mt-1">
         <div className="flex items-center gap-6 mb-2">
           <button onClick={playPrevious} className="text-spotify-lighttext hover:text-white transition"><SkipBack size={20} className="fill-current" /></button>
-          <button onClick={togglePlayPause} className="w-8 h-8 flex items-center justify-center bg-white text-black rounded-full hover:scale-105 transition">
+          <button onClick={togglePlayPause} className="w-8 h-8 flex items-center justify-center bg-white text-black rounded-full hover:scale-105 transition relative">
+            {isBuffering && (
+              <div className="absolute inset-0 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+            )}
             {isPlaying ? <Pause size={16} className="fill-black" /> : <Play size={16} className="fill-black" />}
           </button>
           <button onClick={playNext} className="text-spotify-lighttext hover:text-white transition"><SkipForward size={20} className="fill-current" /></button>
