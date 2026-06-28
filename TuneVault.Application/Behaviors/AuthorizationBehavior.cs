@@ -1,8 +1,8 @@
 using System.Reflection;
 using MediatR;
-using TuneVault.Application.Security;
 using TuneVault.Application.Exceptions;
 using TuneVault.Application.Interfaces;
+using TuneVault.Application.Security;
 
 namespace TuneVault.Application.Behaviors;
 
@@ -19,16 +19,7 @@ public class AuthorizationBehavior<TRequest, TResponse>(ICurrentUserService curr
             {
                 throw new UnauthorizedException("Bạn cần đăng nhập để thực hiện chức năng này.");
             }
-
-            
-            
-            
-            
-            
-            
         }
-
-        
         return await next();
     }
 }

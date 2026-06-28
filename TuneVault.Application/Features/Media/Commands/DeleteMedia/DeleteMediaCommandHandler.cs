@@ -26,6 +26,10 @@ public class DeleteMediaCommandHandler(
             await fileStorageService.DeleteFileAsync(mediaItem.FileUrl, cancellationToken);
         }
 
+        if (!string.IsNullOrEmpty(mediaItem.CoverUrl))
+        {
+            await fileStorageService.DeleteFileAsync(mediaItem.CoverUrl, cancellationToken);
+        }
         
         await mediaItemRepository.DeleteAsync(request.Id, cancellationToken);
 
