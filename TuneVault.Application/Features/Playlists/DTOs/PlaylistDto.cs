@@ -9,4 +9,5 @@ public class PlaylistDto
     public bool IsPublic { get; set; }
     public DateTime CreatedAt { get; set; }
     public Guid UserProfileId { get; set; }
+    public string? UserName { get; set; }
 }

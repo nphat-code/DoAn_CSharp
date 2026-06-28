@@ -104,15 +104,19 @@ public class SearchRepository(IDbConnection dbConnection) : ISearchRepository
 
         
         string playlistSql = string.IsNullOrWhiteSpace(query)
-            ? @"SELECT Id, Title as Name, Description, CoverUrl, IsPublic, CreatedAt, CreatorId as UserProfileId
-                FROM Playlists
-                WHERE IsPublic = true
-                ORDER BY CreatedAt DESC
+            ? @"SELECT p.Id, p.Title as Name, p.Description, p.CoverUrl, p.IsPublic, p.CreatedAt, p.CreatorId as UserProfileId, u.Username as UserName
+                FROM Playlists p
+                JOIN UserProfiles u ON p.CreatorId = u.Id
+                WHERE p.IsPublic = true
+                ORDER BY p.CreatedAt DESC
                 LIMIT @Limit OFFSET @Offset"
-            : @"SELECT Id, Title as Name, Description, CoverUrl, IsPublic, CreatedAt, CreatorId as UserProfileId
-                FROM Playlists
-                WHERE (Title ILIKE @Query OR Description ILIKE @Query) AND IsPublic = true
-                ORDER BY CreatedAt DESC
+            : @"SELECT p.Id, p.Title as Name, p.Description, p.CoverUrl, p.IsPublic, p.CreatedAt, p.CreatorId as UserProfileId, u.Username as UserName
+                FROM Playlists p
+                JOIN UserProfiles u ON p.CreatorId = u.Id
+                WHERE (p.Title ILIKE @Query OR p.Description ILIKE @Query OR u.Username ILIKE @Query) AND p.IsPublic = true
+                ORDER BY 
+                    CASE WHEN p.Title ILIKE @Query THEN 0 ELSE 1 END,
+                    p.CreatedAt DESC
                 LIMIT @Limit OFFSET @Offset";
 
         var playlists = await dbConnection.QueryAsync<PlaylistDto>(playlistSql, new { Query = queryTerm, Limit = limit, Offset = offset });
