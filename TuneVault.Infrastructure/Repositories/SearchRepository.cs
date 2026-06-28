@@ -104,13 +104,17 @@ public class SearchRepository(IDbConnection dbConnection) : ISearchRepository
 
         
         string playlistSql = string.IsNullOrWhiteSpace(query)
-            ? @"SELECT p.Id, p.Title as Name, p.Description, p.CoverUrl, p.IsPublic, p.CreatedAt, p.CreatorId as UserProfileId, u.Username as UserName
+            ? @"SELECT p.Id, p.Title as Name, p.Description, 
+                       COALESCE(p.CoverUrl, (SELECT m.CoverUrl FROM PlaylistItems pi JOIN MediaItems m ON pi.MediaItemId = m.Id WHERE pi.PlaylistId = p.Id ORDER BY pi.AddedAt ASC LIMIT 1)) as CoverUrl, 
+                       p.IsPublic, p.CreatedAt, p.CreatorId as UserProfileId, u.Username as UserName
                 FROM Playlists p
                 JOIN UserProfiles u ON p.CreatorId = u.Id
                 WHERE p.IsPublic = true
                 ORDER BY p.CreatedAt DESC
                 LIMIT @Limit OFFSET @Offset"
-            : @"SELECT p.Id, p.Title as Name, p.Description, p.CoverUrl, p.IsPublic, p.CreatedAt, p.CreatorId as UserProfileId, u.Username as UserName
+            : @"SELECT p.Id, p.Title as Name, p.Description, 
+                       COALESCE(p.CoverUrl, (SELECT m.CoverUrl FROM PlaylistItems pi JOIN MediaItems m ON pi.MediaItemId = m.Id WHERE pi.PlaylistId = p.Id ORDER BY pi.AddedAt ASC LIMIT 1)) as CoverUrl, 
+                       p.IsPublic, p.CreatedAt, p.CreatorId as UserProfileId, u.Username as UserName
                 FROM Playlists p
                 JOIN UserProfiles u ON p.CreatorId = u.Id
                 WHERE (p.Title ILIKE @Query OR p.Description ILIKE @Query OR u.Username ILIKE @Query) AND p.IsPublic = true
