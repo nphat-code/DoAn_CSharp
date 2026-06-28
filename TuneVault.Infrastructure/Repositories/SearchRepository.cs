@@ -141,7 +141,22 @@ public class SearchRepository(IDbConnection dbConnection) : ISearchRepository
         var users = await dbConnection.QueryAsync<TuneVault.Application.Features.Profile.DTOs.ProfileDto>(userSql, new { Query = queryTerm, Limit = limit, Offset = offset });
         result.Users = users;
 
-        result.TotalItems = result.Tracks.Count() + result.Artists.Count() + result.Albums.Count() + result.Playlists.Count() + result.Users.Count();
+        string countSql = string.IsNullOrWhiteSpace(query)
+            ? @"SELECT 
+                (SELECT COUNT(*) FROM MediaItems) +
+                (SELECT COUNT(*) FROM Artists) +
+                (SELECT COUNT(*) FROM Albums) +
+                (SELECT COUNT(*) FROM Playlists WHERE IsPublic = true) +
+                (SELECT COUNT(*) FROM UserProfiles) as Total"
+            : @"SELECT 
+                (SELECT COUNT(*) FROM MediaItems m LEFT JOIN Artists a ON m.ArtistId = a.Id WHERE m.Title ILIKE @Query OR m.Description ILIKE @Query OR a.Name ILIKE @Query OR m.ArtistId IN (SELECT ArtistId FROM MediaItems WHERE Title ILIKE @Query AND ArtistId IS NOT NULL)) +
+                (SELECT COUNT(*) FROM Artists a WHERE a.Name ILIKE @Query OR a.Bio ILIKE @Query OR a.Id IN (SELECT ArtistId FROM MediaItems WHERE Title ILIKE @Query AND ArtistId IS NOT NULL)) +
+                (SELECT COUNT(*) FROM Albums al LEFT JOIN Artists a ON al.ArtistId = a.Id WHERE al.Title ILIKE @Query OR a.Name ILIKE @Query OR al.ArtistId IN (SELECT ArtistId FROM MediaItems WHERE Title ILIKE @Query AND ArtistId IS NOT NULL)) +
+                (SELECT COUNT(*) FROM Playlists p JOIN UserProfiles u ON p.CreatorId = u.Id WHERE (p.Title ILIKE @Query OR p.Description ILIKE @Query OR u.Username ILIKE @Query) AND p.IsPublic = true) +
+                (SELECT COUNT(*) FROM UserProfiles WHERE Username ILIKE @Query OR Bio ILIKE @Query) as Total";
+
+        var totalItems = await dbConnection.ExecuteScalarAsync<int>(countSql, new { Query = queryTerm });
+        result.TotalItems = totalItems;
         result.TotalPages = (int)Math.Ceiling(result.TotalItems / (double)limit); 
         
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { mediaService } from '../services/mediaService';
 import { albumService } from '../services/albumService';
@@ -13,13 +13,17 @@ import { TrackDropdownMenu } from '../components/TrackDropdownMenu';
 export const Search = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
-  const page = parseInt(searchParams.get('page') || '1', 10);
 
   const { playMedia, playMediaList, currentMedia, isPlaying, togglePlayPause, showToast } = usePlayer();
   const navigate = useNavigate();
 
   const [results, setResults] = useState<SearchResultDto | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const observerTarget = useRef<HTMLDivElement>(null);
+
   const [activeTab, setActiveTab] = useState<'all' | 'songs' | 'artists' | 'albums' | 'playlists' | 'profiles'>('all');
 
   const [favoritesIds, setFavoritesIds] = useState<Set<string>>(new Set());
@@ -41,25 +45,77 @@ export const Search = () => {
   }, []);
 
   useEffect(() => {
+    setPage(1);
+    setHasMore(true);
+    setResults(null);
+  }, [query]);
+
+  useEffect(() => {
     const doSearch = async () => {
-      setLoading(true);
+      if (page === 1) setLoading(true);
+      else setLoadingMore(true);
+      
       try {
-        const data = await mediaService.searchMedia(query, page, 20); // pageSize = 20
-        setResults(data);
+        const limit = page === 1 ? 40 : 20;
+        const data = await mediaService.searchMedia(query, page, limit);
+        
+        const isEmpty = (data.tracks?.length || 0) + (data.artists?.length || 0) + 
+                        (data.albums?.length || 0) + (data.playlists?.length || 0) + 
+                        (data.users?.length || 0) === 0;
+        
+        if (isEmpty) {
+          setHasMore(false);
+        } else {
+          setHasMore(true);
+        }
+        
+        if (page === 1) {
+          setResults(data);
+        } else {
+          setResults(prev => {
+            if (!prev) return data;
+            return {
+              ...data,
+              tracks: [...(prev.tracks || []), ...(data.tracks || [])],
+              artists: [...(prev.artists || []), ...(data.artists || [])],
+              albums: [...(prev.albums || []), ...(data.albums || [])],
+              playlists: [...(prev.playlists || []), ...(data.playlists || [])],
+              users: [...(prev.users || []), ...(data.users || [])],
+            };
+          });
+        }
       } catch (error) {
         console.error("Lỗi khi tìm kiếm:", error);
-        setResults(null);
+        if (page === 1) setResults(null);
       } finally {
         setLoading(false);
+        setLoadingMore(false);
       }
     };
 
     const debounceTimeout = setTimeout(() => {
       doSearch();
-    }, 500);
+    }, page === 1 ? 500 : 0);
 
     return () => clearTimeout(debounceTimeout);
   }, [query, page]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasMore && !loading && !loadingMore && results) {
+          setPage(prev => prev === 1 ? 3 : prev + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasMore, loading, loadingMore, results]);
 
   const handleToggleFavorite = async (e: React.MouseEvent, trackId: string) => {
     e.stopPropagation();
@@ -97,13 +153,7 @@ export const Search = () => {
     }
   };
 
-  const handlePageChange = (newPage: number) => {
-    if (query) {
-      navigate(`/search?q=${encodeURIComponent(query)}&page=${newPage}`);
-    } else {
-      navigate(`/search?page=${newPage}`);
-    }
-  };
+
 
   const handlePlayDirectly = async (item: any, type: string) => {
     if (type === 'track') {
@@ -573,25 +623,9 @@ export const Search = () => {
             </div>
           ) : null}
 
-          {results.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-4 mt-8 pt-4 border-t border-zinc-800">
-              <button
-                disabled={results.currentPage <= 1}
-                onClick={() => handlePageChange(results.currentPage - 1)}
-                className="px-4 py-2 bg-zinc-800 rounded hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Trước
-              </button>
-              <span className="text-sm text-zinc-400">
-                Trang {results.currentPage} / {results.totalPages}
-              </span>
-              <button
-                disabled={results.currentPage >= results.totalPages}
-                onClick={() => handlePageChange(results.currentPage + 1)}
-                className="px-4 py-2 bg-zinc-800 rounded hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Sau
-              </button>
+          {hasMore && results && (
+            <div ref={observerTarget} className="w-full h-10 flex items-center justify-center mt-4">
+              {loadingMore && <div className="text-zinc-500 text-sm">Đang tải thêm...</div>}
             </div>
           )}
 
