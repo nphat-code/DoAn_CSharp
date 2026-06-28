@@ -20,7 +20,6 @@ public class CreatePlaylistCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldCreatePlaylistAndReturnDto_WhenCommandIsValid()
     {
-        // Arrange
         var command = new CreatePlaylistCommand(
             Guid.NewGuid(),
             "My Favorite Songs",
@@ -31,10 +30,8 @@ public class CreatePlaylistCommandHandlerTests
         _playlistRepositoryMock.Setup(repo => repo.AddAsync(It.IsAny<Playlist>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().NotBeNull();
         result.Name.Should().Be("My Favorite Songs");
         result.Description.Should().Be("A collection of my favorite songs");

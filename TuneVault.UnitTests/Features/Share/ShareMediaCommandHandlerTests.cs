@@ -23,7 +23,6 @@ public class ShareMediaCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnTrue_AndSendNotification_WhenShareIsSuccessful()
     {
-        // Arrange
         var command = new ShareMediaCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Nghe thử bài này nhé!");
 
         _shareRepositoryMock.Setup(repo => repo.ShareMediaAsync(
@@ -36,12 +35,11 @@ public class ShareMediaCommandHandlerTests
             It.IsAny<DateTime>()))
             .ReturnsAsync(true);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().BeTrue();
-        
+
+
         _notificationServiceMock.Verify(s => s.SendNotificationToUserAsync(
             command.ReceiverId,
             It.IsAny<Guid>(),
@@ -54,7 +52,6 @@ public class ShareMediaCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnFalse_AndNotSendNotification_WhenShareFails()
     {
-        // Arrange
         var command = new ShareMediaCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "");
 
         _shareRepositoryMock.Setup(repo => repo.ShareMediaAsync(
@@ -67,12 +64,11 @@ public class ShareMediaCommandHandlerTests
             It.IsAny<DateTime>()))
             .ReturnsAsync(false);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().BeFalse();
-        
+
+
         _notificationServiceMock.Verify(s => s.SendNotificationToUserAsync(
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
